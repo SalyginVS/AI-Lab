@@ -1,0 +1,140 @@
+#!/usr/bin/env bash
+# =============================================================================
+# .githooks/pre-push — LLM code review before git push
+# =============================================================================
+# Этап 8D: Headless Automation PoC
+#
+# Активация:
+#   cd ~/llm-gateway
+#   git config core.hooksPath .githooks
+#   chmod +x .githooks/pre-push
+#
+# Режимы:
+#   По умолчанию (STRICT_REVIEW не задан или =0):
+#     - Review выполняется, результат выводится в stderr.
+#     - Push продолжается независимо от результата.
+#
+#   STRICT_REVIEW=1 + TTY (интерактивная сессия):
+#     - Review выполняется.
+#     - Запрашивает подтверждение: y/Y = continue, anything else = abort.
+#
+#   STRICT_REVIEW=1 + non-TTY (CI/CD, автоматические pipeline):
+#     - Review выполняется.
+#     - Fail-closed: exit 1, push заблокирован.
+#     - Безопасное поведение для неинтерактивных окружений.
+#
+# Переменные окружения:
+#   STRICT_REVIEW=1  — включить строгий режим
+#
+# Git hook protocol:
+#   Аргументы: <remote-name> <remote-url>
+#   stdin: <local-ref> <local-sha> <remote-ref> <remote-sha>  (одна строка на пару refs)
+# =============================================================================
+
+set -euo pipefail
+
+REMOTE_NAME="${1:-origin}"
+REMOTE_URL="${2:-}"
+STRICT="${STRICT_REVIEW:-0}"
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+AUTO_REVIEW="$ROOT_DIR/scripts/auto-review.sh"
+
+# ---------------------------------------------------------------------------
+# Проверки
+# ---------------------------------------------------------------------------
+if [[ ! -f "$AUTO_REVIEW" ]]; then
+    echo "pre-push: WARNING: auto-review.sh not found at $AUTO_REVIEW — skipping review." >&2
+    exit 0
+fi
+
+if [[ ! -x "$AUTO_REVIEW" ]]; then
+    echo "pre-push: WARNING: auto-review.sh is not executable — skipping review." >&2
+    echo "          Run: chmod +x $AUTO_REVIEW" >&2
+    exit 0
+fi
+
+# ---------------------------------------------------------------------------
+# Считываем первую пару refs из stdin
+# ---------------------------------------------------------------------------
+LOCAL_REF=""
+LOCAL_SHA=""
+REMOTE_REF=""
+REMOTE_SHA=""
+
+read -r LOCAL_REF LOCAL_SHA REMOTE_REF REMOTE_SHA < /dev/stdin || true
+
+if [[ -z "$LOCAL_SHA" ]]; then
+    # Удаление ветки (push --delete) или нет данных — пропускаем review
+    echo "pre-push: no refs to push or branch deletion detected — skipping review." >&2
+    exit 0
+fi
+
+echo "pre-push: === LLM Code Review ===" >&2
+echo "pre-push: remote=$REMOTE_NAME, local=$LOCAL_REF, remote-sha=${REMOTE_SHA:0:8}..." >&2
+
+# ---------------------------------------------------------------------------
+# Определение режима review
+# ---------------------------------------------------------------------------
+ZERO_SHA="0000000000000000000000000000000000000000"
+
+if [[ "$REMOTE_SHA" == "$ZERO_SHA" || -z "$REMOTE_SHA" ]]; then
+    # Новая ветка или первый push — review последнего коммита
+    REVIEW_MODE="last-commit"
+    echo "pre-push: new branch detected — reviewing last commit." >&2
+else
+    # Существующая ветка — review diff с remote
+    REVIEW_MODE="branch"
+    BRANCH_NAME="${REMOTE_REF#refs/heads/}"
+    echo "pre-push: reviewing diff vs $BRANCH_NAME..." >&2
+fi
+
+# ---------------------------------------------------------------------------
+# Запуск review
+# ---------------------------------------------------------------------------
+echo "pre-push: starting review (this may take ~60 seconds)..." >&2
+echo "" >&2
+
+REVIEW_EXIT=0
+
+if [[ "$REVIEW_MODE" == "last-commit" ]]; then
+    "$AUTO_REVIEW" --last-commit || REVIEW_EXIT=$?
+else
+    "$AUTO_REVIEW" --branch "$BRANCH_NAME" || REVIEW_EXIT=$?
+fi
+
+echo "" >&2
+
+if [[ "$REVIEW_EXIT" -ne 0 ]]; then
+    echo "pre-push: WARNING: auto-review.sh exited with code $REVIEW_EXIT." >&2
+fi
+
+# ---------------------------------------------------------------------------
+# Обработка STRICT режима
+# ---------------------------------------------------------------------------
+if [[ "$STRICT" == "1" ]]; then
+    if [[ -t 0 ]]; then
+        # Интерактивный TTY — запрашиваем подтверждение
+        # Читаем из /dev/tty напрямую, так как stdin занят git hook protocol
+        echo "pre-push [STRICT]: Proceed with push? [y/N]: " >&2
+        read -r ANSWER < /dev/tty || ANSWER="n"
+        case "$ANSWER" in
+            y|Y|yes|YES)
+                echo "pre-push: confirmed, push will continue." >&2
+                exit 0
+                ;;
+            *)
+                echo "pre-push: push aborted by user in STRICT mode." >&2
+                exit 1
+                ;;
+        esac
+    else
+        # Non-TTY: fail-closed
+        echo "pre-push: STRICT_REVIEW=1 but no interactive TTY detected (stdin is not a terminal)." >&2
+        echo "pre-push: failing closed. Push aborted by STRICT review in non-interactive context." >&2
+        exit 1
+    fi
+else
+    echo "pre-push: non-strict mode, push will continue." >&2
+    exit 0
+fi

@@ -1,8 +1,8 @@
 # Целевая архитектура: Локальная AI Coding Platform
 
-**Версия:** 1.4  
-**Дата:** 2026-03-27  
-**Базовый стек:** Ubuntu 22.04 / RTX 3090 / Ollama 0.18.0 / gateway.py v0.7.0 / Continue.dev v1.2.17  
+**Версия:** 1.5  
+**Дата:** 2026-03-28  
+**Базовый стек:** Ubuntu 22.04 / RTX 3090 / Ollama 0.18.0 / gateway.py v0.8.0 / Continue.dev v1.2.17  
 **Стратегия:** Continue-first platform, Depth over Speed, локальность как принцип  
 **Назначение:** Лаборатория для наработки решений → перенос на Enterprise
 
@@ -68,10 +68,10 @@
 |------|-----------|--------|-----------------|
 | 1. Inference/Backend | Ollama 0.18.0 + systemd | **Active** | 1–7B |
 | 1. Inference/Backend | gateway.py v0.7.0 (/chat/completions, /models, /health) | **Active** | 1–7A |
-| 1. Inference/Backend | gateway.py /v1/embeddings | **Planned** | 9A |
+| 1. Inference/Backend | gateway.py v0.8.0 /v1/embeddings (qwen3-embedding, batch, allowlist) | **Active** | 9A ✅ |
 | 1. Inference/Backend | gateway.py /v1/metrics | **Planned** | 10B |
 | 1. Inference/Backend | gateway.py /v1/orchestrate | **Planned** | 16 |
-| 1. Inference/Backend | Модуляризация gateway.py в Python-пакет | **Planned** | 9A или 10A |
+| 1. Inference/Backend | Модуляризация gateway.py в Python-пакет | **Planned** | 10A |
 | 2. IDE Agent Layer | Continue.dev v1.2.17 (Chat, Edit, Agent, Apply, Autocomplete) | **Active** | 7A–7C |
 | 2. IDE Agent Layer | Copilot BYOK (plain chat) | **Active** | 7D |
 | 2. IDE Agent Layer | Copilot BYOK (Agent mode с локальными моделями) | **Legacy** | Нестабилен, не развивать |

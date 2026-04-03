@@ -1,8 +1,8 @@
 # Целевая архитектура: Локальная AI Coding Platform
 
-**Версия:** 1.5  
-**Дата:** 2026-03-28  
-**Базовый стек:** Ubuntu 22.04 / RTX 3090 / Ollama 0.18.0 / gateway.py v0.8.0 / Continue.dev v1.2.17  
+**Версия:** 1.6  
+**Дата:** 2026-03-29  
+**Базовый стек:** Ubuntu 22.04 / RTX 3090 / Ollama 0.18.0 / gateway.py v0.8.0 / Continue.dev v1.2.22  
 **Стратегия:** Continue-first platform, Depth over Speed, локальность как принцип  
 **Назначение:** Лаборатория для наработки решений → перенос на Enterprise
 
@@ -72,20 +72,20 @@
 | 1. Inference/Backend | gateway.py /v1/metrics | **Planned** | 10B |
 | 1. Inference/Backend | gateway.py /v1/orchestrate | **Planned** | 16 |
 | 1. Inference/Backend | Модуляризация gateway.py в Python-пакет | **Planned** | 10A |
-| 2. IDE Agent Layer | Continue.dev v1.2.17 (Chat, Edit, Agent, Apply, Autocomplete) | **Active** | 7A–7C |
+| 2. IDE Agent Layer | Continue.dev v1.2.22 (Chat, Edit, Agent, Apply, Autocomplete) | **Active** | 7A–7C, 9B |
 | 2. IDE Agent Layer | Copilot BYOK (plain chat) | **Active** | 7D |
 | 2. IDE Agent Layer | Copilot BYOK (Agent mode с локальными моделями) | **Legacy** | Нестабилен, не развивать |
 | 3. MCP Tool Layer | mcp-server-git (MCP — Model Context Protocol, Git-инструменты) | **Active** | 8A |
 | 3. MCP Tool Layer | Terminal Policy (rules-based, Continue Agent на Windows) | **Active** | 8B ✅ |
 | 3. MCP Tool Layer | Custom RAG MCP (RAG — Retrieval-Augmented Generation, поиск по документам) | **Planned** | 11 |
 | 3. MCP Tool Layer | Docker MCP | **Planned** | 12 |
-| 4. Orchestration | orchestrator.py PoC (sequential pipeline) | **Planned** | 8C |
-| 4. Orchestration | Headless scripts + git hooks | **Planned** | 8D |
+| 4. Orchestration | orchestrator.py v1.1.0 (sequential pipeline, 6 pipeline) | **Active** | 8C ✅ |
+| 4. Orchestration | Headless scripts + git hooks (auto-review, auto-commit-msg, auto-docs, pre-push) | **Active** | 8D ✅ |
 | 4. Orchestration | gateway.py /v1/orchestrate (формализация) | **Planned** | 16 |
 | 5. Knowledge/Context | Rules: 3 уровня (глобальный / проектный / файловый) | **Active** | 7C |
-| 5. Knowledge/Context | Context providers: 11 штук (code, repo-map и др.) | **Active** | 7C |
-| 5. Knowledge/Context | Embeddings: transformers.js all-MiniLM-L6-v2 | **Active** | 7C |
-| 5. Knowledge/Context | Embeddings: qwen3-embedding через шлюз | **Planned** | 9B |
+| 5. Knowledge/Context | Context providers: 12 штук (code, codebase, repo-map и др.) | **Active** | 7C, 9B |
+| 5. Knowledge/Context | Embeddings: transformers.js all-MiniLM-L6-v2 | **Legacy** | 7C → заменён в 9B |
+| 5. Knowledge/Context | Embeddings: qwen3-embedding через шлюз | **Active** | 9B ✅ |
 | 5. Knowledge/Context | ADR (Architecture Decision Records — документы архитектурных решений) | **Planned** | 13 |
 | 5. Knowledge/Context | Onboarding пакет + setup-check скрипт | **Planned** | 13 |
 | 6. Security/Governance | Bearer token auth (опциональный) | **Active** | 5 |
@@ -413,27 +413,29 @@ orchestrator.py (или gateway.py /v1/orchestrate)
 |------|----------|-------------|--------|---------------------|
 | 8A | MCP: Git Server | — | ✅ **Завершён** | — |
 | 8B | MCP: Terminal + Policy | 8A | ✅ **Завершён** | — |
-| **8C** | **Orchestrator PoC (sequential multi-model pipeline)** | **—** | **⬜ Planned** | **1–2 спринта** |
-| **8D** | **Headless Automation PoC (скрипты + git hooks)** | **8C** | **⬜ Planned** | **1 спринт** |
-| 9A | gateway.py v0.8.0: /v1/embeddings | — | ⬜ Planned | 1 спринт |
-| 9B | Embeddings миграция: transformers.js → qwen3-embedding | 9A | ⬜ Planned | 1 спринт |
-| 10A | gateway.py v0.9.0: Structured Logging | — | ⬜ Planned | 1 спринт |
+| 8C | Orchestrator PoC (sequential multi-model pipeline) | — | ✅ **Завершён** | — |
+| 8D | Headless Automation PoC (скрипты + git hooks) | 8C | ✅ **Завершён** | — |
+| 9A | gateway.py v0.8.0: /v1/embeddings | — | ✅ **Завершён** | — |
+| 9B | Embeddings миграция: transformers.js → qwen3-embedding | 9A | ✅ **Завершён** | — |
+| 10A | gateway.py v0.9.0: Structured Logging + модуляризация | — | ⬜ Planned | 1 спринт |
 | 10B | gateway.py v0.10.0: Metrics Endpoint | 10A | ⬜ Planned | 1 спринт |
+| **11A** | **Text-to-SQL PoC** | **9B** | **⬜ Planned** | **1 спринт** |
 | 11 | MCP: RAG / Docs Search | 9B | ⬜ Planned | 2 спринта |
 | 12 | MCP: Docker | — | ⬜ Planned | 1 спринт |
 | 13 | Knowledge Layer: Rules + ADR + Onboarding | 8A | ⬜ Planned | 1–2 спринта |
 | 14 | Security Hardening + Multi-user Auth | 10A | ⬜ Planned | 1 спринт |
 | 15 | Benchmark Matrix + Health Automation | 10B | ⬜ Planned | 1 спринт |
-| **16** | **gateway.py v0.11.0: /v1/orchestrate (формализация)** | **8C, 10A** | **⬜ Planned** | **2 спринта** |
+| 16 | gateway.py v0.11.0: /v1/orchestrate (формализация) | 8C, 10A | ⬜ Planned | 2 спринта |
 
 ```
 Параллельные треки:
 
 Трек A (MCP Tools):          8A✅→ 8B✅ ─────────────────────→ 11 → 12
-Трек B (Backend):            9A → 9B    10A → 10B
+Трек B (Backend):            9A✅→ 9B✅   10A → 10B
 Трек C (Knowledge):          ──────────────────→ 13
 Трек D (Ops/Security):       ────────────────────────→ 14 → 15
-Трек E (Orchestration):      8C → 8D ────────────────────────────→ 16
+Трек E (Orchestration):      8C✅→ 8D✅ ───────────────────────────→ 16
+Трек F (AI-as-Interface):    9B✅ → [11A Text-to-SQL] → [11 RAG MCP] → [AI Report]
 ```
 
 ---
@@ -509,35 +511,56 @@ orchestrator.py (или gateway.py /v1/orchestrate)
 
 ---
 
-### Этап 9A — gateway.py v0.8.0: /v1/embeddings
+### Этап 9A — gateway.py v0.8.0: /v1/embeddings ✅ Завершён
 
-**Задача:** Добавить endpoint `/v1/embeddings` в шлюз для проксирования embedding-запросов к Ollama (qwen3-embedding).
-
-**Критерий завершения:**
-- [ ] `curl -X POST :8000/v1/embeddings -d '{"model":"qwen3-embedding","input":"test"}'` возвращает корректный response
-- [ ] Response совместим с OpenAI embedding format
-- [ ] Логи шлюза записывают embedding-запросы
+**Результат подтверждён (2026-03-28):** Endpoint `POST /v1/embeddings` добавлен в gateway.py v0.8.0. OpenAI-compatible формат, batch support, staged pipeline validation, allowlist (qwen3-embedding). Негативные тесты подтверждены: empty_input (400), schema 422, unsupported_model (400). Hotfix (9B): encoding_format silent coerce.
 
 ---
 
-### Этап 9B — Embeddings миграция: transformers.js → qwen3-embedding
+### Этап 9B — Embeddings миграция: transformers.js → qwen3-embedding ✅ Завершён
 
-**Задача:** Переключить Continue.dev с transformers.js на qwen3-embedding через шлюз.
-
-**Решение (A):** Попробовать qwen3-embedding. Если GPU-конкуренция критична (выталкивает FIM-модель), откатиться на transformers.js и пометить как «отложено до NUM_PARALLEL > 1 или второй GPU».
-
-**Критерий завершения:**
-- [ ] Continue.dev config переключен на qwen3-embedding
-- [ ] @Code поиск работает корректно
-- [ ] A/B тест задокументирован
+**Результат подтверждён (2026-03-29):** Continue.dev embeddings переключены с transformers.js (all-MiniLM-L6-v2, 384 dim) на qwen3-embedding (8B, 4096 dim) через gateway `/v1/embeddings`. Transport path подтверждён (batched 200 OK, automatic reindex). FIM и chat не деградировали. Грабли: encoding_format float обязателен, apiKey заглушка, Windows EBUSY при rebuild, @Codebase provider deprecated.
 
 ---
 
-### Этап 10A — gateway.py v0.9.0: Structured Logging
+### Этап 11A — Text-to-SQL PoC [НОВЫЙ]
 
-**Задача:** Перевести логирование gateway.py с текстового формата на структурированный JSON.
+**Задача:** Проверить жизнеспособность паттерна NL→SQL (Natural Language → SQL) на реальных корпоративных схемах данных. Первый этап трека F (AI-as-Interface).
 
-**Результат:** Каждый запрос логируется как JSON-объект с полями: timestamp, request_id, model, tokens, latency_ms (TTFT/total), status_code, tool_calls_count, reasoning_effort, client_ip.
+**Зависимости:** 9B✅ (qwen3-embedding через gateway для будущего семантического слоя).
+
+**Стек:**
+- **Модель:** qwen3-coder:30b (надёжный function calling, основной Executor)
+- **База данных:** SQLite (zero-dependency start), далее PostgreSQL
+- **Gateway:** `/v1/chat/completions` (schema в system prompt) + `/v1/embeddings` (для Vanna)
+- **Библиотека (опционально):** Vanna AI — RAG-улучшенная генерация SQL, интеграция с Ollama
+
+**Минимальный пайплайн (без Vanna):**
+```
+Вопрос на русском/английском
+  → qwen3-coder:30b (через gateway, schema в system prompt)
+  → SQL-запрос
+  → валидация (показать SQL перед выполнением)
+  → выполнение (read-only connection)
+  → нарративный ответ
+```
+
+**Критерий завершения:**
+- [ ] 20 тестовых вопросов к схеме из ≥3 таблиц: execution accuracy ≥ 70%
+- [ ] Показ SQL перед выполнением реализован
+- [ ] Только read-only соединение — невозможно выполнить UPDATE/DELETE
+- [ ] Задокументировано: типы ошибок модели и условия отказа
+- [ ] Опционально: Vanna AI + qwen3-embedding → измерить прирост точности
+
+**Enterprise-переносимость:** паттерн NL→SQL + semantic layer переносится на любые СУБД и модели. Лабораторный результат = benchmark для оценки вендорских BI-решений с ИИ.
+
+---
+
+### Этап 10A — gateway.py v0.9.0: Structured Logging + модуляризация
+
+**Задача:** Перевести логирование gateway.py с текстового формата на структурированный JSON. Одновременно — модуляризация gateway.py из монолита в Python-пакет (ADR-008).
+
+**Результат:** Каждый запрос логируется как JSON-объект с полями: timestamp, request_id, model, tokens, latency_ms (TTFT/total), status_code, tool_calls_count, reasoning_effort, client_ip. gateway.py разбит на модули: routes, middleware, validators, upstream.
 
 ---
 
@@ -690,7 +713,7 @@ orchestrator.py (или gateway.py /v1/orchestrate)
 | **Orchestration** | Нет (✅ текущее) | Sequential pipeline PoC (orchestrator.py) | `/v1/orchestrate` в gateway.py + configurable pipelines |
 | **Headless / CLI** | gateway.py API доступен для curl (✅ уже) | Готовые скрипты + git hooks | CI/CD интеграция + scheduled batch jobs |
 | **Knowledge layer** | Rules 3 уровня (✅ уже) | + ADR + docs + security rules | + RAG по корпоративным docs + auto-context |
-| **Embeddings** | transformers.js (✅ уже) | qwen3-embedding через шлюз | + RAG pipeline с vector store |
+| **Embeddings** | qwen3-embedding через шлюз (✅ 9B) | + RAG pipeline с vector store | + Text-to-SQL semantic layer |
 | **Observability** | journalctl текстовые логи (✅ уже) | Structured JSON logs + /metrics | + Dashboard + alerting + benchmark CI |
 | **Security** | Опциональный Bearer (✅ уже) | Обязательный Bearer + UFW + denylist | Per-user auth + audit trail + RBAC |
 | **Onboarding** | Паспорт лаборатории (✅ уже) | README + setup-check скрипт | Полный onboarding пакет < 30 мин |
@@ -705,17 +728,21 @@ orchestrator.py (или gateway.py /v1/orchestrate)
 | # | Вопрос | Статус | Влияние | Когда закрыть |
 |---|--------|--------|---------|---------------|
 | 1 | Совместимость MCP STDIO на Windows с Python-серверами | [F] Закрыт в 8A — uvx работает | — | ✅ 8A |
-| 2 | Количество MCP tools, при котором qwen3-coder:30b начинает путаться | [F] 26+ tools работают стабильно (12 MCP + 14 built-in) | Высокое | ✅ 8A |
-| 3 | Качество qwen3-embedding vs all-MiniLM-L6-v2 для code search | [U] | Среднее — определяет embeddings стратегию | Этап 9B |
-| 4 | GPU-конкуренция при embedding + chat + autocomplete (3 модели) | [A] | Высокое — при MAX_LOADED_MODELS=2 одна модель выгружается | Этап 9B |
-| 5 | Качество передачи контекста между шагами orchestrator pipeline | [U] | Высокое — определяет полезность multi-model оркестрации | Этап 8C |
-| 6 | qwen3.5:35b как Planner (без tools, только текстовый output) | [A] | Среднее — если не справляется, заменить на qwen3-coder:30b | Этап 8C |
-| 7 | Оптимальный размер diff для headless auto-review | [U] | Среднее — слишком большой diff = потеря качества | Этап 8D |
+| 2 | Количество MCP tools, при котором qwen3-coder:30b начинает путаться | [F] 26+ tools работают стабильно (12 MCP + 14 built-in) | — | ✅ 8A |
+| 3 | Качество qwen3-embedding vs all-MiniLM-L6-v2 для code search | [A] Transport подтверждён, symbol lookup частичный. @Codebase provider deprecated — не подходит для валидации embedding quality. Изолированная проверка не проведена. | Среднее | Отложен: отдельный diagnostic трек или этап 11 |
+| 4 | GPU-конкуренция при embedding + chat + autocomplete (3 модели) | [F] Закрыт в 9B — embedding занимает слот 2 только при индексации, FIM (слот 1) не деградирует. Chat требует холодный старт после индексации — приемлемо. | — | ✅ 9B |
+| 5 | Качество передачи контекста между шагами orchestrator pipeline | [F] Закрыт в 8C — qwen3:30b→qwen3-coder:30b→deepseek-r1:32b pipeline подтверждён. Время 53–88 сек. | — | ✅ 8C |
+| 6 | qwen3.5:35b как Planner (без tools, только текстовый output) | [F] Закрыт в 8C — нестабилен (500, llama runner terminated). Заменён на qwen3:30b. | — | ✅ 8C |
+| 7 | Оптимальный размер diff для headless auto-review | [F] Закрыт в 8D — MAX_LINES=400 установлен как защита от превышения num_ctx. | — | ✅ 8D |
 | 8 | Continue CLI — состояние и пригодность для headless automation | [U] | Низкое сейчас (есть curl/SDK path), высокое для будущего | Мониторинг |
 | 9 | Ollama roadmap: NUM_PARALLEL > 1 на одном GPU | [U] | Высокое для multi-user и параллельного orchestrator | Мониторинг |
-| 10 | Момент перехода gateway.py из монолита в пакет модулей | [A] | Среднее — при >1500 строк становится неуправляемым | Этап 9A (первое расширение) |
+| 10 | Момент перехода gateway.py из монолита в пакет модулей | [A] gateway.py ~1310 строк, docstring частично устарел. Модуляризация явно зафиксирована для 10A (ADR-008). | Среднее | Этап 10A |
 | 11 | ChromaDB embedded vs Qdrant для RAG | [A] | Низкое сейчас — ChromaDB для PoC, Qdrant при масштабировании | Этап 11 |
 | 12 | GPU scheduler / очередь задач для multi-user | [U] | Высокое при 5+ пользователях — OOM и деградация | Этап 14 |
+| 13 | Точность Text-to-SQL на кириллических схемах (названия полей/таблиц на русском) | [U] | Высокое для ONDO enterprise | Этап 11A |
+| 14 | Оптимальная стратегия chunking для технической документации на русском языке | [U] | Среднее — влияет на RAG качество | Этап 11 |
+| 15 | Prompt injection: покрывает ли текущий allowlist в gateway.py RAG-сценарии | [U] | Высокое — безопасность | Этап 14 |
+| 16 | Семантический слой: достаточен ли Vanna для корпоративных схем ONDO или нужен dbt | [U] | Высокое для enterprise-переносимости | До enterprise-деплоя |
 
 ---
 
@@ -760,6 +787,8 @@ orchestrator.py (или gateway.py /v1/orchestrate)
 | 2026-03-20 | Perplexity AI (внешнее ревью) | Добавлены: модуляризация gateway (пакет вместо монолита), ChromaDB как vector DB для RAG PoC, orchestrator preload/warmup. Расширены: risk assessment для GPU thrashing, security scope для enterprise |
 | 2026-03-27 | Ревизия по запросу владельца | v1.3: добавлены роль документа как source of truth, раздел 1.3 (статусы компонентов), раздел 7 (Governance и актуальность), политика по квантизации KV-кэша; обновлён статус этапа 8A (✅), закрыты вопросы 1–2 в секции 6 |
 | 2026-03-27 | Perplexity AI + синхронизация | v1.4: закрыт этап 8B — Terminal Policy Framework Active; статус Terminal MCP обновлён с Planned на Active; Terminal Policy row добавлена в Security/Governance; секция 3 «Этап 8B» переведена из плана в результат; трек A обновлён (8B✅) |
+| 2026-03-28 | Синхронизация по 9A | v1.5: gateway.py v0.8.0 /v1/embeddings Active. Этапы 8C, 8D подтверждены в таблице статусов. Orchestration layer обновлён. |
+| **2026-03-29** | **Синхронизация по 9B + AI-as-Interface Playbook** | **v1.6: Этапы 8C–9B → ✅ Завершены (все 6). Continue.dev 1.2.17 → 1.2.22. Embeddings: transformers.js → Legacy, qwen3-embedding → Active. Context providers: 11 → 12. Добавлен Этап 11A (Text-to-SQL PoC) и Трек F (AI-as-Interface). Открытые вопросы: 3–7 закрыты, 13–16 добавлены. Матрица зрелости обновлена (Embeddings baseline). 10A расширен: + модуляризация gateway.** |
 
 ---
 
@@ -782,4 +811,6 @@ orchestrator.py (или gateway.py /v1/orchestrate)
 | STDIO | Standard Input/Output — межпроцессное взаимодействие через stdin/stdout |
 | TTFT | Time To First Token — задержка до первого токена ответа |
 | UFW | Uncomplicated Firewall — межсетевой экран Ubuntu |
+| Vanna AI | Python-библиотека для RAG-улучшенной генерации SQL, интегрируется с Ollama |
 | VRAM thrashing | Частая выгрузка/загрузка моделей в видеопамять (Video RAM), вызывающая деградацию производительности |
+| NL-to-SQL | Natural Language to SQL — паттерн преобразования запроса на естественном языке в SQL-запрос к базе данных |

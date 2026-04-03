@@ -1,8 +1,8 @@
 # Целевая архитектура: Локальная AI Coding Platform
 
-**Версия:** 1.6  
-**Дата:** 2026-03-29  
-**Базовый стек:** Ubuntu 22.04 / RTX 3090 / Ollama 0.18.0 / gateway.py v0.8.0 / Continue.dev v1.2.22  
+**Версия:** 1.7  
+**Дата:** 2026-04-03  
+**Базовый стек:** Ubuntu 22.04 / RTX 3090 / Ollama 0.20.0 / gateway v0.10.0 / Continue.dev v1.2.22  
 **Стратегия:** Continue-first platform, Depth over Speed, локальность как принцип  
 **Назначение:** Лаборатория для наработки решений → перенос на Enterprise
 
@@ -44,8 +44,8 @@
 │     Copilot BYOK (secondary) — plain chat only                      │
 ├─────────────────────────────────────────────────────────────────────┤
 │  1. INFERENCE / BACKEND                                             │
-│     Ollama 0.18.0 → gateway.py → /v1/chat/completions              │
-│     + /v1/embeddings + /v1/orchestrate + /v1/metrics (новые)        │
+│     Ollama 0.20.0 → gateway.py → /v1/chat/completions              │
+│     + /v1/embeddings + /v1/metrics + /v1/orchestrate (planned)     │
 └─────────────────────────────────────────────────────────────────────┘
                               │
                     ┌─────────┴──────────┐
@@ -66,12 +66,13 @@
 
 | Слой | Компонент | Статус | Этап реализации |
 |------|-----------|--------|-----------------|
-| 1. Inference/Backend | Ollama 0.18.0 + systemd | **Active** | 1–7B |
-| 1. Inference/Backend | gateway.py v0.7.0 (/chat/completions, /models, /health) | **Active** | 1–7A |
-| 1. Inference/Backend | gateway.py v0.8.0 /v1/embeddings (qwen3-embedding, batch, allowlist) | **Active** | 9A ✅ |
-| 1. Inference/Backend | gateway.py /v1/metrics | **Planned** | 10B |
-| 1. Inference/Backend | gateway.py /v1/orchestrate | **Planned** | 16 |
-| 1. Inference/Backend | Модуляризация gateway.py в Python-пакет | **Planned** | 10A |
+| 1. Inference/Backend | Ollama 0.20.0 + systemd | **Active** | 1–7B, 10C |
+| 1. Inference/Backend | gateway v0.10.0 (/chat/completions, /models, /health, /embeddings, /metrics) | **Active** | 1–10B |
+| 1. Inference/Backend | gateway /v1/orchestrate | **Planned** | 16 |
+| 1. Inference/Backend | Модуляризация gateway в Python-пакет (9 модулей) | **Active** | 10A ✅ |
+| 1. Inference/Backend | Gemma 4: gemma4:31b (Quality-first Agent/Planner/Reviewer) | **Active** | 10C ✅ |
+| 1. Inference/Backend | Gemma 4: gemma4:26b (Fast Semantic Agent/Executor, MoE) | **Active** | 10C ✅ |
+| 1. Inference/Backend | Gemma 4: gemma4:e4b (Fast edge chat, evaluation) | **PoC** | 10C |
 | 2. IDE Agent Layer | Continue.dev v1.2.22 (Chat, Edit, Agent, Apply, Autocomplete) | **Active** | 7A–7C, 9B |
 | 2. IDE Agent Layer | Copilot BYOK (plain chat) | **Active** | 7D |
 | 2. IDE Agent Layer | Copilot BYOK (Agent mode с локальными моделями) | **Legacy** | Нестабилен, не развивать |
@@ -92,9 +93,9 @@
 | 6. Security/Governance | Обязательный Bearer + UFW (Uncomplicated Firewall — межсетевой экран Ubuntu) | **Planned** | 14 |
 | 6. Security/Governance | Per-user auth + audit trail | **Planned** | 14 |
 | 6. Security/Governance | Terminal Policy rules (PowerShell behavior, self-contained, no temp files) | **Active** | 8B ✅ |
-| 7. Observability | journalctl текстовые логи | **Active** | 1 |
-| 7. Observability | Structured JSON logging | **Planned** | 10A |
-| 7. Observability | /metrics endpoint (Prometheus-совместимый или JSON) | **Planned** | 10B |
+| 7. Observability | journalctl текстовые логи | **Legacy** | 1 → заменён в 10A |
+| 7. Observability | Structured JSON logging | **Active** | 10A ✅ |
+| 7. Observability | /metrics endpoint (JSON in-memory counters) | **Active** | 10B ✅ |
 | 7. Observability | Benchmark matrix + health-check.sh | **Planned** | 15 |
 
 ### 1.4. Потоки данных
@@ -134,12 +135,12 @@ VS Code → Continue → Ollama :11434 напрямую (FIM, /api/generate)
   │     body: { task: "...", pipeline: "plan-execute-review" }
   │
   │     gateway.py внутренне:
-  │     ├─2─ Step 1: Planner (qwen3.5:35b) → декомпозиция задачи
+  │     ├─2─ Step 1: Planner (gemma4:31b) → декомпозиция задачи
   │     │     холодный старт ~20 сек, генерация ~30-60 сек
-  │     ├─3─ Step 2: Executor (qwen3-coder:30b) → код/правки
+  │     ├─3─ Step 2: Executor (gemma4:26b) → код/правки
   │     │     холодный старт ~15 сек, генерация ~30-120 сек
-  │     └─4─ Step 3: Reviewer (deepseek-r1:32b) → проверка
-  │           холодный старт ~20 сек, генерация ~30-60 сек
+  │     └─4─ Step 3: Reviewer (gemma4:31b) → проверка
+  │           (модель уже загружена после Step 1, горячий старт)
   │
   └─5─ Финальный ответ клиенту (результат + review)
        Общее время: 2-8 минут (последовательно, Depth over Speed)
@@ -164,19 +165,20 @@ git push hook / CI pipeline
 ### 2.1. Слой 1 — Inference / Backend
 
 **Что остаётся без изменений (F — подтверждено тестами):**
-- Ollama 0.18.0, systemd, override.conf — всё работает стабильно
-- gateway.py v0.7.0 — стриминг, reasoning policy, tool_calls проброс, auth
-- 13 моделей, раскладка по ролям
+- Ollama 0.20.0, systemd, override.conf — стабильно (обновлён с 0.18.0 в 10C)
+- gateway v0.10.0 — стриминг, reasoning policy, tool_calls проброс, auth, embeddings, metrics
 - OLLAMA_MAX_LOADED_MODELS=2, NUM_PARALLEL=1, Flash Attention, KV (Key-Value) cache q8_0
+
+**Что изменилось в 10C:**
+- Ollama 0.18.0 → 0.20.0 (поддержка Gemma 4, fix qwen3.5 tool calling)
+- 13 моделей → 16 моделей (+ gemma4:31b, gemma4:26b, gemma4:e4b)
+- Раскладка ролей радикально обновлена: Gemma 4 занимает Tier 1
 
 **Что дорабатывается:**
 
 | Компонент | Изменение | Обоснование |
 |-----------|-----------|-------------|
-| gateway.py → v0.8.0 | Добавить `/v1/embeddings` endpoint | Проброс embedding-запросов для будущего RAG и перехода с transformers.js на qwen3-embedding |
-| gateway.py → v0.9.0 | Structured JSON logging | Машиночитаемые логи для observability: timestamp, model, tokens, latency, tool_calls count |
-| gateway.py → v0.10.0 | `/metrics` endpoint | Prometheus-совместимые метрики или JSON-счётчики для мониторинга |
-| gateway.py → v0.11.0 | `/v1/orchestrate` endpoint | Sequential multi-model pipeline (Planner→Executor→Reviewer). Формализация паттерна после PoC на скрипте |
+| gateway → v0.11.0 | `/v1/orchestrate` endpoint | Sequential multi-model pipeline. Формализация паттерна после PoC на скрипте |
 
 **Что убирается:** Ничего. Все существующие endpoint'ы сохраняют обратную совместимость.
 
@@ -206,20 +208,42 @@ gateway.py v0.7.0 — 994 строки. При добавлении embeddings, 
 
 Принцип: gateway остаётся **одним процессом** (один systemd unit, один порт), но логически разделён на модули. Это позволяет: обновлять embeddings не трогая streaming; тестировать orchestrator изолированно; при переносе на Enterprise — вынести модули в отдельные сервисы, если нагрузка потребует.
 
-**Решение по маршрутизации моделей (F — уже реализовано, формализуется):**
+**Решение по маршрутизации моделей (обновлено в 10C — интеграция Gemma 4):**
 
-| Роль | Модель | Путь | num_ctx | reasoning_effort |
-|------|--------|------|---------|-----------------|
-| Chat (повседневный) | qwen3.5:9b | шлюз | 8192 | none |
-| Chat (reasoning) | deepseek-r1:32b | шлюз | 8192 | medium |
-| Edit / Refactor | qwen3-coder:30b | шлюз | 8192 | none |
-| Agent (tools) — основная | qwen3-coder:30b | шлюз | 8192 | none |
-| Agent (tools) — альтернативная | glm-4.7-flash | шлюз | 8192 | none |
-| Vision | qwen3-vl:8b | шлюз | 8192 | none |
-| Experimental reasoning | qwen3.5:35b | шлюз | 8192 | none |
-| Autocomplete (FIM — Fill-In-the-Middle) | qwen2.5-coder:7b | Ollama напрямую | 2048 | — |
-| Embeddings (текущие) | all-MiniLM-L6-v2 | transformers.js в VS Code | — | — |
-| Embeddings (целевые) | qwen3-embedding | шлюз /v1/embeddings | — | — |
+**Tier 1 — Primary workhorses:**
+
+| Роль | Модель | Путь | num_ctx | reasoning_effort | Этап |
+|------|--------|------|---------|-----------------|------|
+| Quality-first Agent / Planner / Reviewer | **gemma4:31b** | шлюз | 8192 (до 256K) | none / high | 10C |
+| Fast Semantic Agent / Fast Executor | **gemma4:26b** (MoE, 3.8B active) | шлюз | 8192 (до 256K) | none | 10C |
+| Stable Generic Executor / Backup Agent | qwen3-coder:30b | шлюз | 8192 | none | 7A |
+| Autocomplete (FIM — Fill-In-the-Middle) | qwen2.5-coder:7b | Ollama напрямую | 2048 | — | 7B |
+| Embeddings | qwen3-embedding | шлюз /v1/embeddings | — | — | 9A |
+
+**Tier 2 — Specialized:**
+
+| Роль | Модель | Путь | Примечание |
+|------|--------|------|-----------|
+| Deep Reasoning | deepseek-r1:32b | шлюз | Специализированный reasoner |
+| Fast chat + light tools | qwen3.5:9b | шлюз | Tool calling восстановлен в Ollama 0.20.0 |
+| General / Planner reserve | qwen3:30b | шлюз | Понижен: gemma4:31b забрала роль Planner |
+| Vision reserve | qwen3-vl:8b | шлюз | Понижен: gemma4:26b/31b имеют vision |
+| Fast edge chat (evaluation) | gemma4:e4b | шлюз | Частично протестирована |
+
+**Tier 3 — Legacy / Reserve:**
+
+| Модель | Статус | Примечание |
+|--------|--------|-----------|
+| qwen3.5:35b | Legacy | Tools сломаны в Ollama. НЕ использовать как Agent/Planner |
+| glm-4.7-flash | Reserve | Понижен: gemma4:26b занимает нишу fast agent |
+| deepseek-r1:14b | Reserve | Компактный reasoning |
+| qwen3:14b | Reserve | Chat reserve |
+| qwen2.5-coder:1.5b | Reserve | FIM fallback |
+| deepseek-coder-v2:16b | **Deprecated** | Роль полностью покрыта Gemma 4. Рекомендовать удаление |
+
+**ADR-012: Gemma 4 Model Integration (10C)**
+
+Контекст: Gemma 4 (31B Dense #3 Arena, 26B MoE #6 Arena) доступны в Ollama 0.20.0 с подтверждённым function calling (generic + semantic), multi-step chaining, thinking mode и vision. Решение: интегрировать обе модели в primary tier. Не бинарное деление "Gemma semantic / Qwen generic", а ролевое: Gemma — quality-first agent/planner/reviewer, Qwen — stable generic executor. Ключевой нюанс: gemma4:31b требует thin policy layer для стабильного tool selection; gemma4:26b — лучший zero-shot semantic selector.
 
 ### 2.2. Слой 2 — IDE Agent Layer
 
@@ -530,7 +554,7 @@ orchestrator.py (или gateway.py /v1/orchestrate)
 **Зависимости:** 9B✅ (qwen3-embedding через gateway для будущего семантического слоя).
 
 **Стек:**
-- **Модель:** qwen3-coder:30b (надёжный function calling, основной Executor)
+- **Модель:** gemma4:31b (quality-first, #3 Arena) или qwen3-coder:30b (stable executor)
 - **База данных:** SQLite (zero-dependency start), далее PostgreSQL
 - **Gateway:** `/v1/chat/completions` (schema в system prompt) + `/v1/embeddings` (для Vanna)
 - **Библиотека (опционально):** Vanna AI — RAG-улучшенная генерация SQL, интеграция с Ollama
@@ -556,21 +580,21 @@ orchestrator.py (или gateway.py /v1/orchestrate)
 
 ---
 
-### Этап 10A — gateway.py v0.9.0: Structured Logging + модуляризация
+### Этап 10A — gateway v0.9.0: Structured Logging + модуляризация ✅ Завершён
 
-**Задача:** Перевести логирование gateway.py с текстового формата на структурированный JSON. Одновременно — модуляризация gateway.py из монолита в Python-пакет (ADR-008).
-
-**Результат:** Каждый запрос логируется как JSON-объект с полями: timestamp, request_id, model, tokens, latency_ms (TTFT/total), status_code, tool_calls_count, reasoning_effort, client_ip. gateway.py разбит на модули: routes, middleware, validators, upstream.
+**Результат подтверждён (2026-03-31):** Монолит gateway.py (1305 строк) разбит на пакет gateway/ (8 модулей, ADR-008 закрыт). Structured JSON logging: Custom JSONFormatter (stdlib), события llm_completion + llm_embedding. uvicorn.access заменён на свой middleware. run.py entrypoint. systemd ExecStart обновлён.
 
 ---
 
-### Этап 10B — gateway.py v0.10.0: Metrics Endpoint
+### Этап 10B — gateway v0.10.0: Metrics Endpoint ✅ Завершён
 
-**Задача:** Добавить `/metrics` endpoint для внешнего мониторинга.
+**Результат подтверждён (2026-04-03):** Новый модуль metrics.py (9-й в пакете). GET /metrics: JSON in-memory counters (totals, endpoints, models). MetricsCollector singleton, thread-safe. collector.record() в 8 точках (5 chat + 3 embed). /metrics освобождён от Bearer auth. Observability baseline закрыт: health + structured logs + metrics.
 
-**Критерий завершения:**
-- [ ] `curl :8000/metrics` возвращает JSON с актуальными счётчиками
-- [ ] Счётчики инкрементируются при каждом запросе
+---
+
+### Этап 10C — Ollama Upgrade + Gemma 4 Integration ✅ Завершён
+
+**Результат подтверждён (2026-04-03):** Ollama 0.18.0 → 0.20.0. Три модели Gemma 4 загружены и протестированы (31B Dense, 26B MoE, E4B). Regression стека подтверждён. Tool calling (generic + semantic) подтверждён для gemma4:31b и gemma4:26b. Multi-step semantic chaining подтверждён. Thinking mode подтверждён. Code/review quality: Gemma 4 превосходит qwen3-coder:30b. Ключевой нюанс: gemma4:31b чувствительна к tool selection policy — стабилизируется thin policy prompt. gemma4:26b — лучший zero-shot semantic selector. qwen3.5:9b tool calling восстановлен после Ollama 0.20.0. ADR-012 зафиксирован. 13 → 16 моделей.
 
 ---
 
@@ -714,7 +738,7 @@ orchestrator.py (или gateway.py /v1/orchestrate)
 | **Headless / CLI** | gateway.py API доступен для curl (✅ уже) | Готовые скрипты + git hooks | CI/CD интеграция + scheduled batch jobs |
 | **Knowledge layer** | Rules 3 уровня (✅ уже) | + ADR + docs + security rules | + RAG по корпоративным docs + auto-context |
 | **Embeddings** | qwen3-embedding через шлюз (✅ 9B) | + RAG pipeline с vector store | + Text-to-SQL semantic layer |
-| **Observability** | journalctl текстовые логи (✅ уже) | Structured JSON logs + /metrics | + Dashboard + alerting + benchmark CI |
+| **Observability** | journalctl текстовые логи (Legacy) | Structured JSON logs + /metrics (✅ 10A+10B) | + Dashboard + alerting + benchmark CI |
 | **Security** | Опциональный Bearer (✅ уже) | Обязательный Bearer + UFW + denylist | Per-user auth + audit trail + RBAC |
 | **Onboarding** | Паспорт лаборатории (✅ уже) | README + setup-check скрипт | Полный onboarding пакет < 30 мин |
 | **Automation** | Ручное управление (✅ уже) | Health check скрипт | Benchmark CI + auto-rollback |
@@ -743,6 +767,11 @@ orchestrator.py (или gateway.py /v1/orchestrate)
 | 14 | Оптимальная стратегия chunking для технической документации на русском языке | [U] | Среднее — влияет на RAG качество | Этап 11 |
 | 15 | Prompt injection: покрывает ли текущий allowlist в gateway.py RAG-сценарии | [U] | Высокое — безопасность | Этап 14 |
 | 16 | Семантический слой: достаточен ли Vanna для корпоративных схем ONDO или нужен dbt | [U] | Высокое для enterprise-переносимости | До enterprise-деплоя |
+| 17 | gemma4:31b tool selection stability без policy layer при 10+ tools | [A] При 5 tools стабилен с thin policy. При 10+ unknown. | Среднее — влияет на Continue Agent | End-to-end тест |
+| 18 | gemma4:26b MoE + GGML_CUDA_NO_GRAPHS=1 — performance implications | [U] MoE-архитектура может по-другому взаимодействовать с CUDA graph disable | Низкое сейчас | Benchmark 15 |
+| 19 | tok/s formal benchmark: gemma4:26b vs gemma4:31b vs qwen3-coder:30b | [U] Разрозненные данные есть, формальный протокол не проведён | Среднее — влияет на pipeline timing | Этап 15 |
+| 20 | gemma4:31b как unified Planner+Reviewer в pipeline (экономия на cold start) | [A] Возможно, но не тестировалось с реальными pipeline | Высокое — может сократить pipeline время вдвое | Этап 16 |
+| 21 | deepseek-coder-v2:16b → удаление: все зависимости покрыты Gemma 4? | [A] По результатам 10C — да | Низкое | Следующая ревизия |
 
 ---
 
@@ -789,6 +818,7 @@ orchestrator.py (или gateway.py /v1/orchestrate)
 | 2026-03-27 | Perplexity AI + синхронизация | v1.4: закрыт этап 8B — Terminal Policy Framework Active; статус Terminal MCP обновлён с Planned на Active; Terminal Policy row добавлена в Security/Governance; секция 3 «Этап 8B» переведена из плана в результат; трек A обновлён (8B✅) |
 | 2026-03-28 | Синхронизация по 9A | v1.5: gateway.py v0.8.0 /v1/embeddings Active. Этапы 8C, 8D подтверждены в таблице статусов. Orchestration layer обновлён. |
 | **2026-03-29** | **Синхронизация по 9B + AI-as-Interface Playbook** | **v1.6: Этапы 8C–9B → ✅ Завершены (все 6). Continue.dev 1.2.17 → 1.2.22. Embeddings: transformers.js → Legacy, qwen3-embedding → Active. Context providers: 11 → 12. Добавлен Этап 11A (Text-to-SQL PoC) и Трек F (AI-as-Interface). Открытые вопросы: 3–7 закрыты, 13–16 добавлены. Матрица зрелости обновлена (Embeddings baseline). 10A расширен: + модуляризация gateway.** |
+| **2026-04-03** | **Этапы 10A–10C: Observability + Gemma 4** | **v1.7: Ollama 0.18.0 → 0.20.0. Gateway v0.8.0 → v0.10.0 (structured logging 10A + /metrics 10B). 13 → 16 моделей: + gemma4:31b, gemma4:26b, gemma4:e4b. Раскладка ролей радикально обновлена (ADR-012): Gemma 4 → Tier 1 (Quality-first Agent/Planner/Reviewer + Fast Semantic Agent). qwen3-coder:30b → Stable Generic Executor / Backup Agent. deepseek-coder-v2:16b → Deprecated. qwen3.5:9b tool calling восстановлен. Observability baseline закрыт (health + logs + metrics). Открытые вопросы 17–21 добавлены. Матрица зрелости обновлена.** |
 
 ---
 
@@ -799,6 +829,9 @@ orchestrator.py (или gateway.py /v1/orchestrate)
 | ADR | Architecture Decision Record — документ, фиксирующий архитектурное решение с контекстом и обоснованием |
 | ChromaDB | Встраиваемая (embedded) векторная база данных на Python, использует SQLite для хранения |
 | FIM | Fill-In-the-Middle — формат промпта для autocomplete: prefix + suffix → middle |
+| Gemma 4 | Семейство open-weight моделей Google DeepMind (Apache 2.0), включает E2B, E4B, 26B MoE и 31B Dense варианты |
+| MoE | Mixture of Experts — архитектура, где на каждый токен активируется только часть параметров (например, 3.8B из 26B) |
+| PLE | Per-Layer Embeddings — техника Gemma 4 E-моделей: дополнительная embedding-таблица подаётся в каждый decoder-слой |
 | FastMCP | Python-библиотека для быстрого создания MCP-серверов |
 | KV cache | Key-Value cache — кэш ключ-значение; хранит промежуточные вычисления трансформера для ускорения генерации |
 | MCP | Model Context Protocol — открытый стандарт Anthropic для подключения AI к внешним инструментам |

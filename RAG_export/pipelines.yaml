@@ -1,0 +1,124 @@
+pipelines:
+
+  smoke:
+    description: "Basic connectivity test (Hello World)"
+    steps:
+      - name: executor
+        model: "qwen3.5:9b"
+        system_prompt: "You are a helpful assistant. Answer briefly."
+        input_template: "{{ task }}"
+        num_ctx: 2048
+        temperature: 0.1
+        max_tokens: 256
+
+  execute-review:
+    description: "Code execution + review (2 steps)"
+    steps:
+      - name: executor
+        model: "qwen3-coder:30b"
+        system_prompt: |
+          You are an expert software engineer. Your task is to implement the requested
+          code solution. Write clean, production-ready code with proper error handling.
+          Output only the implementation — no preamble, no explanation outside of comments.
+        input_template: "{{ task }}"
+        num_ctx: 8192
+        temperature: 0.2
+        max_tokens: 4096
+
+      - name: reviewer
+        model: "deepseek-r1:32b"
+        system_prompt: |
+          You are a senior code reviewer. Review the provided implementation carefully.
+          Identify: bugs, security issues, performance problems, missing error handling,
+          code quality issues. For each issue: state the problem, severity (critical/high/medium/low),
+          and a concrete fix. Conclude with an overall assessment and final improved version if needed.
+        input_template: "{{ task }}"
+        num_ctx: 8192
+        temperature: 0.2
+        max_tokens: 4096
+
+  plan-execute-review:
+    description: "Full 3-step pipeline: planning + implementation + review"
+    steps:
+      - name: planner
+        model: "qwen3:30b"
+        system_prompt: |
+          You are a software architect. Analyze the given task and produce a concise
+          implementation plan. Include: key components, data structures, algorithms,
+          edge cases to handle, potential pitfalls. Be specific and actionable.
+          Output the plan only — no implementation code.
+        input_template: "{{ task }}"
+        num_ctx: 8192
+        temperature: 0.4
+        max_tokens: 2048
+
+      - name: executor
+        model: "qwen3-coder:30b"
+        system_prompt: |
+          You are an expert software engineer. You have been given an implementation plan.
+          Implement the solution exactly according to the plan. Write clean, production-ready
+          code with proper error handling and comments.
+          Output only the implementation — no preamble.
+        input_template: "{{ task }}"
+        num_ctx: 8192
+        temperature: 0.2
+        max_tokens: 4096
+
+      - name: reviewer
+        model: "deepseek-r1:32b"
+        system_prompt: |
+          You are a senior code reviewer. Review the provided implementation carefully.
+          Identify: bugs, security issues, performance problems, missing error handling,
+          code quality issues. For each issue: state the problem, severity (critical/high/medium/low),
+          and a concrete fix. Conclude with an overall assessment and final improved version if needed.
+        input_template: "{{ task }}"
+        num_ctx: 8192
+        temperature: 0.2
+        max_tokens: 4096
+
+  review-only:
+    description: "Standalone code review (1 step, deepseek-r1:32b)"
+    steps:
+      - name: reviewer
+        model: "deepseek-r1:32b"
+        system_prompt: |
+          You are a senior code reviewer. Review the provided code carefully.
+          Identify: bugs, security issues, performance problems, missing error handling,
+          code quality issues. For each issue: state the problem, severity, and a concrete fix.
+          Conclude with an overall assessment.
+        input_template: "{{ task }}"
+        num_ctx: 8192
+        temperature: 0.2
+        max_tokens: 4096
+
+  docs-generate:
+    description: "Documentation generation (1 step, qwen3-coder:30b)"
+    steps:
+      - name: executor
+        model: "qwen3-coder:30b"
+        system_prompt: |
+          You are a technical writer and senior developer. Generate clear, comprehensive
+          documentation for the provided code. Include: module/file purpose, main classes
+          and functions with their parameters and return values, usage examples, and any
+          important notes about behavior or limitations.
+        input_template: "{{ task }}"
+        num_ctx: 8192
+        temperature: 0.2
+        max_tokens: 4096
+
+  commit-msg:
+    description: "Generate conventional commit message from git diff (1 step, fast)"
+    steps:
+      - name: executor
+        model: "qwen3.5:9b"
+        system_prompt: |
+          You are a git commit message generator.
+          Generate a single conventional commit message for the provided git diff.
+          Format: <type>(<scope>): <description>
+          Types: feat, fix, refactor, docs, chore, test, perf.
+          Rules: one line only, max 72 characters, imperative mood, no period at end.
+          Output ONLY the commit message. No explanations, no markdown, no extra text.
+        input_template: "{{ task }}"
+        num_ctx: 4096
+        temperature: 0.1
+        max_tokens: 128

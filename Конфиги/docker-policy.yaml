@@ -1,0 +1,118 @@
+# =============================================================================
+# docker-policy.yaml — Docker MCP Server Policy Configuration
+# =============================================================================
+# Этап 12: MCP Docker
+# ADR-017: Docker MCP Policy Model
+#
+# Этот файл загружается при старте docker-mcp server.
+# Изменение policy не требует правки кода — только restart сервиса.
+# =============================================================================
+
+# ---------------------------------------------------------------------------
+# Категории инструментов и их разрешения
+# ---------------------------------------------------------------------------
+categories:
+  # READ — информационные запросы, без side effects
+  read:
+    enabled: true
+    # Все read tools разрешены без дополнительных ограничений
+
+  # LIFECYCLE — управление состоянием существующих контейнеров
+  lifecycle:
+    enabled: true
+    # start_container, stop_container, restart_container
+    # Каждая операция логируется в audit trail
+
+  # EXEC — выполнение команд внутри контейнеров
+  exec:
+    enabled: true
+    # Только команды из allowlist, команды из denylist блокируются
+    command_allowlist:
+      - "ls"
+      - "cat"
+      - "head"
+      - "tail"
+      - "env"
+      - "ps"
+      - "df"
+      - "du"
+      - "whoami"
+      - "hostname"
+      - "date"
+      - "uptime"
+      - "free"
+      - "top -bn1"
+      - "printenv"
+      - "id"
+      - "uname -a"
+      - "which"
+    command_denylist:
+      - "rm -rf"
+      - "rm -r"
+      - "shutdown"
+      - "reboot"
+      - "kill"
+      - "pkill"
+      - "killall"
+      - "dd"
+      - "mkfs"
+      - "fdisk"
+      - "mount"
+      - "umount"
+      - "chmod 777"
+      - "chown"
+      - "passwd"
+      - "useradd"
+      - "userdel"
+      - "curl"
+      - "wget"
+      - "apt"
+      - "yum"
+      - "pip install"
+      - "npm install"
+
+# ---------------------------------------------------------------------------
+# Явно запрещённые операции (не реализованы в v1)
+# Добавление требует отдельного ADR или дополнения к ADR-017
+# ---------------------------------------------------------------------------
+blocked_operations:
+  - "run"           # docker run — создание новых контейнеров
+  - "build"         # docker build — сборка образов
+  - "rm"            # docker rm — удаление контейнеров
+  - "rmi"           # docker rmi — удаление образов
+  - "pull"          # docker pull — загрузка образов из registry
+  - "push"          # docker push — отправка образов в registry
+  - "volume_rm"     # docker volume rm — удаление volumes
+  - "network_rm"    # docker network rm — удаление сетей
+  - "prune"         # docker system prune — массовая очистка
+
+# ---------------------------------------------------------------------------
+# Лимиты
+# ---------------------------------------------------------------------------
+limits:
+  # Максимальное количество строк в logs (tail)
+  logs_tail_max: 500
+
+  # Timeout для stats (секунды)
+  stats_timeout_sec: 10
+
+  # Максимальное количество контейнеров в list (0 = без лимита)
+  list_max_containers: 0
+
+  # Максимальное количество образов в list (0 = без лимита)
+  list_max_images: 0
+
+# ---------------------------------------------------------------------------
+# Audit logging
+# ---------------------------------------------------------------------------
+logging:
+  # Уровень логирования для всех операций
+  level: "info"
+
+  # Audit trail: все LIFECYCLE и EXEC операции логируются с audit=true
+  audit_categories:
+    - "lifecycle"
+    - "exec"
+
+  # Формат: structured JSON (совместим с gateway logging_config.py)
+  format: "json"

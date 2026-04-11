@@ -1,0 +1,330 @@
+name: Lab RTX3090
+version: 0.0.1
+schema: v1
+
+context:
+  - provider: code
+  - provider: repo-map
+  - provider: file
+  - provider: currentFile
+  - provider: open
+  - provider: diff
+  - provider: terminal
+  - provider: tree
+  - provider: problems
+  - provider: clipboard
+  - provider: os
+
+models:
+  # --- Embeddings (backend через gateway) ---
+  - name: qwen3-embedding
+    provider: openai
+    model: qwen3-embedding
+    apiBase: http://192.168.0.128:8000/v1
+    apiKey: sk-lab-2d2a22b559b9c5901acaa9fc7dda2974f553bb09
+    roles:
+      - embed
+    embedOptions:
+      maxChunkSize: 512
+      maxBatchSize: 5
+    requestOptions:
+      timeout: 60000
+      extraBodyProperties:
+        encoding_format: float
+
+  # --- Autocomplete FIM (напрямую в Ollama, минует gateway) ---
+  - name: autocomplete
+    provider: ollama
+    model: qwen2.5-coder:7b
+    apiBase: http://192.168.0.128:11434
+    roles:
+      - autocomplete
+    requestOptions:
+      timeout: 30000
+    autocompleteOptions:
+      debounceDelay: 500
+      maxPromptTokens: 2048
+      multilineCompletions: auto
+      modelTimeout: 30000
+
+  # --- Tier 1: Primary Workhorses (ADR-012) ---
+
+  - name: gemma4-31b
+    provider: openai
+    model: gemma4:31b
+    apiBase: http://192.168.0.128:8000/v1
+    apiKey: sk-lab-2d2a22b559b9c5901acaa9fc7dda2974f553bb09
+    capabilities:
+      - image_input
+    roles:
+      - chat
+      - edit
+      - apply
+    defaultCompletionOptions:
+      temperature: 0.3
+      stream: true
+    requestOptions:
+      timeout: 600000
+      extraBodyProperties:
+        num_ctx: 32768
+        reasoning_effort: "high"
+
+  - name: gemma4-26b
+    provider: openai
+    model: gemma4:26b
+    apiBase: http://192.168.0.128:8000/v1
+    apiKey: sk-lab-2d2a22b559b9c5901acaa9fc7dda2974f553bb09
+    capabilities:
+      - image_input
+    roles:
+      - chat
+      - edit
+      - apply
+    defaultCompletionOptions:
+      temperature: 0.3
+      stream: true
+    requestOptions:
+      timeout: 600000
+      extraBodyProperties:
+        num_ctx: 32768
+        reasoning_effort: "high"
+
+  - name: qwen3-coder
+    provider: openai
+    model: qwen3-coder:30b
+    apiBase: http://192.168.0.128:8000/v1
+    apiKey: sk-lab-2d2a22b559b9c5901acaa9fc7dda2974f553bb09
+    roles:
+      - chat
+      - edit
+      - apply
+    defaultCompletionOptions:
+      temperature: 0.1
+    requestOptions:
+      timeout: 600000
+      extraBodyProperties:
+        num_ctx: 32768
+        reasoning_effort: "none"
+
+  # --- Tier 2: Specialized ---
+
+  - name: qwen35-9b
+    provider: openai
+    model: qwen3.5:9b
+    apiBase: http://192.168.0.128:8000/v1
+    apiKey: sk-lab-2d2a22b559b9c5901acaa9fc7dda2974f553bb09
+    capabilities:
+      - image_input
+    roles:
+      - chat
+      - edit
+      - apply
+    defaultCompletionOptions:
+      temperature: 0.3
+    requestOptions:
+      timeout: 600000
+      extraBodyProperties:
+        num_ctx: 8192
+        reasoning_effort: "none"
+
+  - name: deepseek-r1
+    provider: openai
+    model: deepseek-r1:32b
+    apiBase: http://192.168.0.128:8000/v1
+    apiKey: sk-lab-2d2a22b559b9c5901acaa9fc7dda2974f553bb09
+    roles:
+      - chat
+    defaultCompletionOptions:
+      temperature: 0.5
+      stream: true
+      presence_penalty: 0.6
+      frequency_penalty: 0.5
+    requestOptions:
+      timeout: 600000
+      extraBodyProperties:
+        num_ctx: 32768
+        reasoning_effort: "high"
+
+  # --- Tier 3: Legacy / Reserve ---
+
+  - name: qwen35
+    provider: openai
+    model: qwen3.5:35b
+    apiBase: http://192.168.0.128:8000/v1
+    apiKey: sk-lab-2d2a22b559b9c5901acaa9fc7dda2974f553bb09
+    capabilities:
+      - image_input
+    roles:
+      - chat
+      - edit
+      - apply
+    defaultCompletionOptions:
+      temperature: 0.3
+      stream: true
+    requestOptions:
+      timeout: 600000
+      extraBodyProperties:
+        num_ctx: 32768
+        reasoning_effort: "high"
+
+  - name: glm-flash
+    provider: openai
+    model: glm-4.7-flash
+    apiBase: http://192.168.0.128:8000/v1
+    apiKey: sk-lab-2d2a22b559b9c5901acaa9fc7dda2974f553bb09
+    roles:
+      - chat
+      - edit
+      - apply
+    #systemMessage: "You are an expert software engineer. Be concise. Provide clean, production-ready code. When editing, focus only on the necessary changes."
+    defaultCompletionOptions:
+      temperature: 0.3
+      stream: true
+    requestOptions:
+      timeout: 600000
+      extraBodyProperties:
+        num_ctx: 32768
+        reasoning_effort: "high"
+
+  - name: GPT OSS 20B
+    provider: openai
+    model: gpt-oss:20b
+    apiBase: http://192.168.0.128:8000/v1
+    apiKey: sk-lab-2d2a22b559b9c5901acaa9fc7dda2974f553bb09
+    roles:
+      - chat
+      - edit
+      - apply
+    defaultCompletionOptions:
+      temperature: 0.5
+      stream: true
+      presence_penalty: 0.6
+      frequency_penalty: 0.5
+    requestOptions:
+      timeout: 600000
+      extraBodyProperties:
+        num_ctx: 32768
+        reasoning_effort: "high"
+
+  - name: qwen3-coder-next-poc
+    provider: openai
+    model: qwen3-coder-next:q4_K_M
+    apiBase: http://192.168.0.128:8000/v1
+    apiKey: sk-lab-2d2a22b559b9c5901acaa9fc7dda2974f553bb09
+    roles:
+      - chat
+      - edit
+      - apply
+    defaultCompletionOptions:
+      temperature: 0.1
+      maxTokens: 4096
+    requestOptions:
+      timeout: 600000
+      extraBodyProperties:
+        num_ctx: 16384
+        reasoning_effort: "none"
+
+
+  - name: qwen3-vl
+    provider: openai
+    model: qwen3-vl:8b
+    apiBase: http://192.168.0.128:8000/v1
+    apiKey: sk-lab-2d2a22b559b9c5901acaa9fc7dda2974f553bb09
+    capabilities:
+      - image_input
+    roles:
+      - chat
+    defaultCompletionOptions:
+      temperature: 0.5
+    requestOptions:
+      timeout: 600000
+      extraBodyProperties:
+        num_ctx: 8192
+        reasoning_effort: "none"
+
+prompts:
+  - name: review
+    description: Code review with actionable feedback
+    prompt: |
+      Review the provided code. For each issue found:
+
+      1. State the problem clearly.
+      2. Explain why it matters (bug, performance, readability, security).
+      3. Show the fix.
+
+      Focus on: bugs, error handling, edge cases, readability, naming.
+      Skip praise and generic advice. Only flag real issues.
+
+  - name: refactor
+    description: Refactor code for clarity and maintainability
+    prompt: |
+      Refactor the provided code. Requirements:
+
+      - Improve readability and structure without changing behavior.
+      - Extract repeated logic into functions if appropriate.
+      - Simplify conditionals and reduce nesting.
+      - Improve naming where it helps clarity.
+
+      Show the refactored code, then briefly list what changed and why.
+
+  - name: docstring
+    description: Generate documentation for functions and classes
+    prompt: |
+      Write documentation for the provided code:
+
+      - For Python: Google-style docstrings with Args, Returns, Raises sections.
+      - For JavaScript: JSDoc format with @param, @returns, @throws tags.
+      - For other languages: use the conventional doc format.
+
+      Include a one-line summary, then details only if the function is non-trivial.
+      Do not restate what is obvious from the signature.
+
+  - name: commit
+    description: Generate a commit message from current changes
+    prompt: |
+      Write a git commit message for the provided diff. Follow conventional commits format:
+
+          type(scope): short description
+
+          Optional body with details.
+
+      Types: feat, fix, refactor, docs, style, test, chore, perf.
+      Scope: the module or area affected.
+      Description: imperative mood, lowercase, no period at the end.
+      Body: only if the change is non-trivial. Explain what and why, not how.
+
+      Output only the commit message, nothing else.
+
+  - name: explain
+    description: Explain how the selected code works
+    prompt: |
+      Explain the provided code step by step:
+
+      1. What does this code do overall (one sentence).
+      2. Walk through the logic, explaining each significant block.
+      3. Note any non-obvious patterns, tricks, or potential pitfalls.
+
+      Assume the reader is a developer who understands the language but is new to this codebase.
+
+  - name: tests
+    description: Generate high-value unit tests for the selected code
+    prompt: |
+      You are a senior software engineer helping a colleague write unit tests.
+
+      Write unit tests for the provided code with these rules:
+
+      - Focus on behavior, not implementation details.
+      - Cover both happy path and important edge cases.
+      - Use the existing testing framework in this project if it is detectable from the codebase.
+      - If the framework is unclear, propose tests in a common style for this language
+        (for example: pytest for Python, Jest/Vitest for JavaScript/TypeScript, JUnit for Java).
+
+      For the tests you generate:
+      - Group them logically by scenario.
+      - Use clear, intention-revealing test names.
+      - Avoid unnecessary mocks; only mock external services, I/O, and network calls.
+      - Prefer Arrange-Act-Assert structure.
+
+      After the code block with tests, briefly list:
+      - What main behaviors are covered.
+      - What important edge cases (if any) are still NOT covered and could be added later.

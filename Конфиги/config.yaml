@@ -62,7 +62,6 @@ models:
       - apply
     defaultCompletionOptions:
       temperature: 0.3
-      stream: true
     requestOptions:
       timeout: 600000
       extraBodyProperties:
@@ -82,7 +81,6 @@ models:
       - apply
     defaultCompletionOptions:
       temperature: 0.3
-      stream: true
     requestOptions:
       timeout: 600000
       extraBodyProperties:
@@ -136,7 +134,6 @@ models:
       - chat
     defaultCompletionOptions:
       temperature: 0.5
-      stream: true
       presence_penalty: 0.6
       frequency_penalty: 0.5
     requestOptions:
@@ -160,7 +157,6 @@ models:
       - apply
     defaultCompletionOptions:
       temperature: 0.3
-      stream: true
     requestOptions:
       timeout: 600000
       extraBodyProperties:
@@ -176,10 +172,8 @@ models:
       - chat
       - edit
       - apply
-    #systemMessage: "You are an expert software engineer. Be concise. Provide clean, production-ready code. When editing, focus only on the necessary changes."
     defaultCompletionOptions:
       temperature: 0.3
-      stream: true
     requestOptions:
       timeout: 600000
       extraBodyProperties:
@@ -197,7 +191,6 @@ models:
       - apply
     defaultCompletionOptions:
       temperature: 0.5
-      stream: true
       presence_penalty: 0.6
       frequency_penalty: 0.5
     requestOptions:

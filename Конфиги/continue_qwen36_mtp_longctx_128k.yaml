@@ -1,0 +1,26 @@
+# Continue profile: Qwen3.6 27B MTP long-context 128K
+# Important:
+# - Gateway currently routes only the historical model id to provider=vllm-mtp.
+# - Do not replace model with qwen3.6-27b-mtp or qwen3.6-27b-lorbus-mtp-longctx-128k
+#   until gateway routing is explicitly updated.
+
+- name: qwen36-27b-mtp-longctx-128k
+  provider: openai
+  model: qwen3.6-27b-lorbus-mtp-triton-ctx4k
+  apiBase: http://192.168.0.128:8000/v1
+  apiKey: sk-REPLACE_WITH_LAB_KEY
+  roles:
+    - chat
+    - edit
+    - apply
+  defaultCompletionOptions:
+    temperature: 0.1
+    maxTokens: 1024
+  requestOptions:
+    timeout: 600000
+    extraBodyProperties:
+      num_ctx: 131072
+      max_tokens: 1024
+      reasoning_effort: "none"
+      chat_template_kwargs:
+        enable_thinking: false

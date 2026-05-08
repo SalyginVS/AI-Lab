@@ -310,3 +310,41 @@ ROLE=controlled bounded executor candidate
 PRODUCTION_AUTONOMOUS_AGENT_READY=no
 NEXT_RECOMMENDED_ACTION=commit/document gateway patch after repo hygiene review
 ```
+
+---
+
+## 10. Postscript 2026-05-08 — Documentation Source-of-Truth Correction
+
+После первичной интеграции был выполнен отдельный repo-hygiene разбор, который выявил процессную ошибку: runtime repo `/home/vladimir/llm-gateway` на сервере начал восприниматься как Git/source-of-truth контур. Это признано неправильным для AI-Lab.
+
+Фактическое решение после corrective action:
+
+```text
+Canonical documentation/source-of-truth:
+  /home/vladimir/llm/AI-Lab
+  git@github.com:SalyginVS/AI-Lab.git
+
+Server runtime:
+  /home/vladimir/llm-gateway
+  no Git repository
+  no local bare origin
+```
+
+Удалены с сервера:
+
+```text
+/home/vladimir/llm-gateway/.git
+/home/vladimir/git-remotes/llm-gateway.git
+/home/vladimir/git-remotes
+```
+
+Проверка после удаления:
+
+```text
+llm-gateway.service=active
+/health=200
+gateway version=0.12.0
+pipelines_count=6
+```
+
+Обновлённый вывод: gateway patch и MTP integration нужно фиксировать в Obsidian/GitHub документации, а не через server-side Git history.

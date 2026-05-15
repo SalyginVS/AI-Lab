@@ -268,3 +268,80 @@ READONLY_WRAPPER_STATUS=validated
 BOUNDED_EDIT_WRAPPER_STATUS=validated_in_sandbox
 REPO_WRITE_STATUS=not_yet_validated
 ```
+
+---
+
+## Approved repo-write mode
+
+`oc-ailab-edit` прошёл controlled repo-write smoke против AI-Lab documentation repo.
+
+Evidence:
+
+```text
+adee92f test: validate OpenCode bounded repo write
+```
+
+Разрешённый режим:
+
+```text
+OPEN_CODE_REPO_WRITE_MODE=allowed_only_for_small_scoped_docs_edits_with_manual_review
+AUTONOMOUS_AGENT_READY=no
+```
+
+### Usage constraints
+
+Разрешено:
+
+- small scoped documentation edits;
+- explicit directory boundary via wrapper argument;
+- one small change set per run;
+- manual review before commit;
+- deterministic post-checks.
+
+Обязательно после каждого write-run:
+
+```bash
+pgrep -af 'opencode' || echo "NO_OPENCODE_PROCESS_FOUND"
+git status --short --branch
+git diff
+grep -RInE 'sk-lab-|AILAB_GATEWAY_TOKEN|Bearer ' <changed-path> || true
+```
+
+Запрещено:
+
+- using OpenCode as autonomous repo agent;
+- enabling `bash`;
+- enabling `task` / subagent;
+- enabling `webfetch` / `websearch`;
+- enabling `external_directory`;
+- using `edit=ask` in scripted `opencode run`;
+- using `--dangerously-skip-permissions`.
+
+### Tool boundary wording
+
+Use this evidence wording:
+
+```text
+No successful use of bash/task/web/external_directory was observed.
+These tools are denied by wrapper policy.
+The visible OpenCode trace showed only read/edit operations inside the scoped directory.
+Post-state checks showed no boundary breach.
+```
+
+Do not overstate this as full internal telemetry proof.
+
+### PATH note
+
+If shell returns:
+
+```text
+oc-ailab-edit: No such file or directory
+```
+
+use the absolute wrapper path:
+
+```bash
+/home/vladimir/.local/bin/oc-ailab-edit <dir> "<prompt>"
+```
+
+or ensure `~/.local/bin` is present in `PATH`.

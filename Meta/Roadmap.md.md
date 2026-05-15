@@ -51,3 +51,26 @@ tags: [meta]
 ## Операционный принцип
 
 Roadmap больше не должен выглядеть как “этап 8A в работе”, если паспорт и архитектура уже фиксируют платформу в эксплуатации. Источник фактического статуса — актуальный паспорт лаборатории; Roadmap является навигационной картой, а не независимой версией истины.
+
+---
+
+## 2026-05-15 — OpenCode controlled terminal-agent lane
+
+Статус: завершено.
+
+Результат:
+
+```text
+REPO_WRITE_SMOKE=PASS
+OPEN_CODE_REPO_WRITE_MODE=allowed_only_for_small_scoped_docs_edits_with_manual_review
+AUTONOMOUS_AGENT_READY=no
+```
+
+OpenCode принят не как autonomous repo agent, а как controlled terminal-agent lane для read-only анализа и малых scoped documentation edits с ручным review.
+
+Связанные артефакты:
+
+- `Решения/ADR-029_OpenCode_Controlled_Terminal_Agent_Lane.md`
+- `Грабли/084_opencode_wrapper_not_in_path.md`
+- `Конфиги/opencode_ailab_wrappers.md`
+- `Этапы/2026-05-15_OpenCode_Controlled_Terminal_Agent/Результаты.md`

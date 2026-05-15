@@ -19,8 +19,8 @@ remote: git@github.com:SalyginVS/AI-Lab.git
 
 ## Навигация
 
-- **[[Паспорт лаборатории]]** — фактическое состояние стенда; актуальная версия: `Паспорт_лаборатории_v34.md`.
-- **[[Целевая архитектура]]** — архитектурные принципы и целевое состояние; актуальная версия: `Целевая_архитектура_AI_Coding_Platform_v1_20.md`.
+- **[[Паспорт лаборатории]]** — фактическое состояние стенда; актуальная версия: `Паспорт_лаборатории_v35.md`.
+- **[[Целевая архитектура]]** — архитектурные принципы и целевое состояние; актуальная версия: `Целевая_архитектура_AI_Coding_Platform_v1_21.md`.
 - **[[Meta/Roadmap]]** — состояние этапов и треков.
 - **Этапы/** — хронология: один каталог/файл на завершённый технический этап.
 - **Грабли/** — найденные проблемы в формате симптом → причина → решение.
@@ -56,3 +56,25 @@ remote: git@github.com:SalyginVS/AI-Lab.git
 ## Рекомендуемые плагины Obsidian
 
 Dataview, Templater, Calendar, Graph Analysis.
+
+---
+
+## OpenCode controlled terminal-agent lane
+
+Статус: accepted / bounded active for small scoped documentation edits.
+
+Ключевое решение:
+
+```text
+REPO_WRITE_SMOKE=PASS
+OPEN_CODE_REPO_WRITE_MODE=allowed_only_for_small_scoped_docs_edits_with_manual_review
+AUTONOMOUS_AGENT_READY=no
+```
+
+Главные документы:
+
+- `Решения/ADR-029_OpenCode_Controlled_Terminal_Agent_Lane.md`
+- `Конфиги/opencode_ailab_wrappers.md`
+- `Грабли/083_opencode_run_edit_ask_auto_reject_exit_zero.md`
+- `Грабли/084_opencode_wrapper_not_in_path.md`
+- `Этапы/2026-05-15_OpenCode_Controlled_Terminal_Agent/Результаты.md`

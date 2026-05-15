@@ -28,3 +28,4 @@
 "ADR-015 Трек F и этап 11A Text-to-SQL.md"	"subsidiary"	"secondary"	"C:\llm\AI-Lab\Решения\subsidiary"	"implementation-level decision"	"ADR-011 Трек F (AI-as-Interface) и этап 11A (Text-to-SQL PoC)"
 "ADR-016 Sync orchestrate self-call.md"	"subsidiary"	"secondary"	"C:\llm\AI-Lab\Решения\subsidiary"	"implementation-level decision"	"ADR-016 Sync orchestrate self-call"
 "ADR-017.md"	"subsidiary"	"secondary"	"C:\llm\AI-Lab\Решения\subsidiary"	"implementation-level decision"	"ADR-013: Text-to-SQL PoC — Evaluator separation и остановка prompt micro-tuning"
+"ADR-029_OpenCode_Controlled_Terminal_Agent_Lane.md"	"canonical"	"primary"	"C:\llm\AI-Lab\Решения"	"terminal-agent lane governance decision after repo-write validation"	"ADR-029: OpenCode Controlled Terminal-Agent Lane"

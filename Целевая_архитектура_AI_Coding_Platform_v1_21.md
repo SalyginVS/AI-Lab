@@ -476,7 +476,24 @@ Promotion path для таких lane: bounded task → controlled executor → 
 
 ---
 
+
+### 7.17. Client surface determines model operational fit (ADR-030)
+
+Model verdict в AI Lab должен фиксировать execution surface: client/harness, routing path, context packaging, tool protocol, apply mechanism и permission boundary.
+
+Причина: VS Code built-in Chat/Copilot direct Ollama показал существенно лучший practical agent result, а ранее ограниченная `GLM4.7` в этом surface показала противоположный результат.
+
+Следствия:
+
+- `GLM4.7` требует revalidation, а не model-level rejection.
+- VS Code built-in Chat/Copilot direct Ollama добавляется как candidate primary daily-agent lane.
+- Pi добавляется в mandatory evaluation backlog рядом с OpenCode.
+- Continue остаётся в стеке, но должен быть пересравнен с direct VS Code surface.
+
+
 ## 8. Журнал ревью
+
+| **2026-05-24** | **Client surface / VS Code direct Ollama signal** | **ADR-030 accepted: model verdicts must include execution surface. VS Code built-in Chat/Copilot direct Ollama becomes candidate primary daily-agent lane. GLM4.7 moves to revalidation_required_surface_dependent. Pi added to mandatory evaluation backlog beside OpenCode.** |
 
 | **2026-05-24** | **Ollama 0.24.0 controlled archive upgrade** | **Runtime upgraded `0.23.4 -> 0.24.0` via `.tar.zst` archive path. CUDA v13 / RTX 3090 confirmed. Direct Ollama smoke PASS. Gateway `/health`, `/v1/models`, `/v1/chat/completions` PASS after explicit gateway restart. qwen3.6:27b at 131K context shows CPU/GPU split due to VRAM pressure; not an upgrade failure.** |
 

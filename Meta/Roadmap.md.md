@@ -54,6 +54,24 @@ Roadmap больше не должен выглядеть как “этап 8A 
 
 ---
 
+## 2026-05-24 - VS Code built-in Chat/Copilot direct Ollama signal
+
+Зафиксирован новый operational signal: встроенный Chat/Copilot в VS Code, работающий напрямую с Ollama, показал заметно лучшую стабильность, скорость и предсказуемость tool application в agent mode.
+
+Ключевой вывод:
+
+- model verdict зависит от execution surface;
+- `GLM4.7` переводится в `revalidation_required_surface_dependent`;
+- VS Code built-in direct Ollama становится candidate primary daily-agent lane;
+- Pi добавляется в mandatory evaluation backlog рядом с OpenCode;
+- Continue остаётся, но должен быть пересравнен с direct VS Code surface.
+
+Артефакты:
+
+- `Этапы/2026-05-24_VSCode_Builtin_Chat_Ollama_Direct/Результаты.md`
+- `Решения/ADR-030_Client_Surface_Determines_Model_Operational_Fit.md`
+
+
 ## 2026-05-24 - Ollama 0.24.0 controlled archive upgrade
 
 Ollama runtime обновлён `0.23.4 -> 0.24.0` через controlled archive path без pipe-installer.

@@ -13,7 +13,7 @@ tags: [meta]
 | Трек | Статус | Комментарий |
 |---|---|---|
 | Gateway / OpenAI-compatible API | Active | Gateway v0.12.0, `/health`, `/metrics`, `/orchestrate`, embeddings |
-| Ollama inference lane | Active | Основной локальный model backend |
+| Ollama inference lane | Active | Основной локальный model backend; `0.24.0` controlled archive upgrade PASS |
 | vLLM MTP inference lane | PoC / bounded active | `qwen36-27b-mtp-bounded`, не Agent |
 | Continue / VS Code | Active | Chat/Edit/Apply/Agent profiles по role contract |
 | MCP tools | Active | Git/RAG/Docker/related tool layer по паспортам/справочникам |
@@ -53,6 +53,25 @@ tags: [meta]
 Roadmap больше не должен выглядеть как “этап 8A в работе”, если паспорт и архитектура уже фиксируют платформу в эксплуатации. Источник фактического статуса — актуальный паспорт лаборатории; Roadmap является навигационной картой, а не независимой версией истины.
 
 ---
+
+## 2026-05-24 - Ollama 0.24.0 controlled archive upgrade
+
+Ollama runtime обновлён `0.23.4 -> 0.24.0` через controlled archive path без pipe-installer.
+
+Статус:
+
+- Ollama runtime: PASS.
+- CUDA v13 / RTX 3090: PASS.
+- Direct Ollama smoke: PASS.
+- Gateway health/models/chat regression: PASS.
+- Backup: `/home/vladimir/ollama_runtime_backup_before_0.24.0_20260524_080312`.
+
+Артефакты:
+
+- `Этапы/2026-05-24_Ollama_0240_Controlled_Upgrade/Результаты.md`
+- `Конфиги/ollama_0240_controlled_archive_upgrade.md`
+- `Паспорт_лаборатории_v37.md`
+
 
 ## 2026-05-15 — OpenCode controlled terminal-agent lane
 

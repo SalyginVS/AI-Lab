@@ -19,7 +19,7 @@ remote: git@github.com:SalyginVS/AI-Lab.git
 
 ## Навигация
 
-- **[[Паспорт лаборатории]]** — фактическое состояние стенда; актуальная версия: `Паспорт_лаборатории_v35.md`.
+- **[[Паспорт лаборатории]]** — фактическое состояние стенда; актуальная версия: `Паспорт_лаборатории_v37.md`.
 - **[[Целевая архитектура]]** — архитектурные принципы и целевое состояние; актуальная версия: `Целевая_архитектура_AI_Coding_Platform_v1_21.md`.
 - **[[Meta/Roadmap]]** — состояние этапов и треков.
 - **Этапы/** — хронология: один каталог/файл на завершённый технический этап.
@@ -39,7 +39,7 @@ remote: git@github.com:SalyginVS/AI-Lab.git
 | Documentation | `/home/vladimir/llm/AI-Lab` + GitHub |
 | Server runtime | `192.168.0.128`, `/home/vladimir/llm-gateway`, no Git repo |
 | Gateway | Active, `/health=200`, version `0.12.0` |
-| Ollama lane | Active |
+| Ollama lane | Active, Ollama `0.24.0` controlled archive upgrade PASS |
 | vLLM MTP lane | PoC / bounded active для `qwen36-27b-mtp-bounded` |
 | Strategy | Depth over Speed + controlled bounded execution |
 
@@ -78,3 +78,10 @@ AUTONOMOUS_AGENT_READY=no
 - `Грабли/083_opencode_run_edit_ask_auto_reject_exit_zero.md`
 - `Грабли/084_opencode_wrapper_not_in_path.md`
 - `Этапы/2026-05-15_OpenCode_Controlled_Terminal_Agent/Результаты.md`
+
+
+## Recent runtime update
+
+### 2026-05-24 - Ollama 0.24.0 controlled archive upgrade
+
+Ollama runtime upgraded from `0.23.4` to `0.24.0` via controlled `.tar.zst` archive path. Direct Ollama smoke, CUDA backend, gateway `/health`, `/v1/models`, and `/v1/chat/completions` regression passed. See `Этапы/2026-05-24_Ollama_0240_Controlled_Upgrade/Результаты.md`.

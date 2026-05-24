@@ -2,7 +2,7 @@
 
 **Версия:** 1.21
 **Дата:** 2026-05-15
-**Базовый стек:** Ubuntu 24.04 / RTX 3090 / Ollama 0.20.7 + vLLM MTP lane / gateway v0.12.0+patch / Continue.dev v1.2.22+
+**Базовый стек:** Ubuntu 24.04 / RTX 3090 / Ollama 0.24.0 + vLLM MTP lane / gateway v0.12.0+patch / Continue.dev v1.2.22+
 **Стратегия:** Continue-first platform, Depth over Speed, локальность как принцип
 **Назначение:** Лаборатория для наработки решений → перенос на Enterprise
 **Паспорт стенда:** v35.0 (2026-05-15)
@@ -46,7 +46,7 @@
 │     Copilot BYOK (secondary) — plain chat only                      │
 ├─────────────────────────────────────────────────────────────────────┤
 │  1. INFERENCE / BACKEND                                             │
-│     Ollama 0.20.7 → gateway v0.12.0+patch → /v1/chat/completions   │
+│     Ollama 0.24.0 -> gateway v0.12.0+patch → /v1/chat/completions   │
 │     vLLM MTP lane → gateway provider=vllm-mtp → Continue bounded     │
 │     + /v1/embeddings + /v1/metrics + /v1/orchestrate                │
 │     DEFAULT_NUM_CTX = 131072 (ADR-020)                              │
@@ -65,7 +65,7 @@
 
 | Слой | Компонент | Статус | Этап реализации |
 |------|-----------|--------|-----------------|
-| 1. Inference/Backend | Ollama **0.20.7** + systemd | **Active** | 1–7B, 10C, 14A, **Post-R** |
+| 1. Inference/Backend | Ollama **0.24.0** + systemd | **Active** | 1–7B, 10C, 14A, **Post-R** |
 | 1. Inference/Backend | gateway v0.12.0+patch (/chat/completions, /models, /health, /embeddings, /metrics, /orchestrate) | **Active** | 1–16, **Post-R (ADR-020)** |
 | 1. Inference/Backend | vLLM MTP lane: `qwen3.6-27b-lorbus-mtp-triton-ctx4k` через provider `vllm-mtp` | **PoC / bounded active** | 2026-05-08, ADR-027 |
 | 1. Inference/Backend | **Gateway context policy: DEFAULT_NUM_CTX=131072 (ADR-020)** | **Active** | **Post-R ✅** |
@@ -115,7 +115,7 @@
 ### 2.1. Слой 1 — Inference / Backend
 
 **Текущее состояние (v31):**
-- **Ollama 0.20.7**, systemd, override.conf (7 переменных)
+- **Ollama 0.24.0**, systemd, override.conf (7 переменных)
 - gateway v0.12.0+patch (11 модулей), **DEFAULT_NUM_CTX=131072** (ADR-020)
 - **10 моделей** (R: 17→12; Post-R: −1 deepseek-r1:32b; v31: −1 gemma4:26b)
 - OLLAMA_MAX_LOADED_MODELS=2, NUM_PARALLEL=1, Flash Attention, KV cache q8_0
@@ -130,7 +130,7 @@ Root cause 8K ceiling через gateway = устаревший `DEFAULT_NUM_CTX
 - 131K validated через gateway (один успешный run)
 - GPU utilization не измерен в этом run (inference, не факт)
 - Повторяемая стабильность TBD
-- Рутинная стабильность 4–8K на Ollama 0.20.7 TBD
+- Рутинная стабильность 4–8K на Ollama 0.24.0 TBD
 - Вопросы #25 (SWA) и #32 (FA) — [A] Partially addressed, не закрыты
 
 **Решение по маршрутизации моделей (ADR-012, обновлено v31 с routing refinement + ADR-021):**
@@ -345,7 +345,7 @@ Roadmap из v1.0 полностью реализован. Платформа в
 | 29 | Consolidation двух venv | [U] | Среднее | При рефакторинге |
 | 30 | gemma4:31b primary semantic SQL | [A] Подтверждено | Среднее | При обновлении ADR-012 |
 | 31 | Dual orchestration path | [A] Оба Active | Низкое | Стратегическое решение |
-| 32 | Ollama FA bug | **[A] Partially addressed.** Ollama 0.20.7, 131K прошёл. Рутинная стабильность 4–8K не валидирована. | Высокое | **Рутинное тестирование** |
+| 32 | Ollama FA bug | **[A] Partially addressed.** Ollama 0.24.0, 131K context работает, но рутинная стабильность 4–8K после upgrade требует наблюдения. | Высокое | **Рутинное тестирование** |
 | 33 | Continue.dev CI/CD pivot | [Weak Signal] | Высокое | Мониторинг |
 | 34 | VS Code Copilot native Ollama | [Weak Signal] | Среднее | Исследование |
 | 35 | Wave 2 model cleanup: gemma4:e4b, glm-4.7-flash, qwen3.5:35b, qwen3-coder-next, gpt-oss:20b | **[A] Partially closed v31→v32.** qwen3.5:35b → Reserve (v32, ADR-025; ранее Active bounded executor v31). Остальные — через протокол ADR-022 + Грабли #76 (cutoff gate). | Низкое (диск) | Стратегическое решение |
@@ -477,6 +477,8 @@ Promotion path для таких lane: bounded task → controlled executor → 
 ---
 
 ## 8. Журнал ревью
+
+| **2026-05-24** | **Ollama 0.24.0 controlled archive upgrade** | **Runtime upgraded `0.23.4 -> 0.24.0` via `.tar.zst` archive path. CUDA v13 / RTX 3090 confirmed. Direct Ollama smoke PASS. Gateway `/health`, `/v1/models`, `/v1/chat/completions` PASS after explicit gateway restart. qwen3.6:27b at 131K context shows CPU/GPU split due to VRAM pressure; not an upgrade failure.** |
 
 | Дата | Источник | Что изменилось |
 |------|----------|----------------|

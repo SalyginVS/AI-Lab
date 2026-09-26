@@ -1,0 +1,12 @@
+source_repo=mradermacher/Qwen3.8-Flash-Next-GGUF
+quantization=Q8_0
+merged_size=188224949760
+
+=== SHARD SHA256 ===
+84efec5a757187ed33203270da511fd22182d00f86b43ad51fbf1c78996aac93  Qwen3.8-Flash-Next.Q8_0.gguf.part1of4
+569eb913e8360df86203596c0ffb046b763149feb73897afd0fb869bd539a165  Qwen3.8-Flash-Next.Q8_0.gguf.part2of4
+2117252d3833e6caade389ab96a3ba107b50347fc1e24f126cb5e9896154b028  Qwen3.8-Flash-Next.Q8_0.gguf.part3of4
+fbcc7b49e53ea8588819859c2ca8ac0e7c4e1f05a4df3c78ad0d721ebca7ce6e  Qwen3.8-Flash-Next.Q8_0.gguf.part4of4
+
+=== MERGED FILE ===
+size=188224949760 path=Qwen3.8-Flash-Next.Q8_0.gguf

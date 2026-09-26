@@ -1,0 +1,17 @@
+{
+  "workspace": "/home/vladimir/vpe_next_hidden_eval/run1/q6",
+  "scope_ok": true,
+  "protected_failures": [],
+  "unexpected_files": [],
+  "regression_pass": true,
+  "public_pass": true,
+  "hidden_pass": 100,
+  "hidden_total": 100,
+  "hidden_failures": [],
+  "digest_advisory": {
+    "actual": "a342aeb0dfefa7cce27f98b740768a9608c01c49859d6fb6b999adbe3c075dbf",
+    "matches_full_published_state": false,
+    "matches_staged_only": true
+  },
+  "overall_pass": true
+}

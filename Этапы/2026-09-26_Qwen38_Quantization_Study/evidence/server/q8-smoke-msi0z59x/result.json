@@ -1,0 +1,49 @@
+{
+  "status": "Q8_RUNTIME_SMOKE_PASS",
+  "checks": {
+    "request_completed": true,
+    "model": true,
+    "normal_stop": true,
+    "answer": true,
+    "context_262144": true,
+    "quant_Q8_0": true,
+    "gpu_used": true,
+    "exclusive_q8_after": true,
+    "baseline_unchanged": true
+  },
+  "curl_exit": 0,
+  "guard": null,
+  "errors": [],
+  "answer": "Q8_RUNTIME_OK:703",
+  "minimum_mem_available_GiB": 59.7316780090332,
+  "peak_swap_used_GiB": 0.064697265625,
+  "runtime": {
+    "name": "qwen3.8-flash-next:125b-a6b-q8_0-ab-262k",
+    "model": "qwen3.8-flash-next:125b-a6b-q8_0-ab-262k",
+    "size": 74661054379,
+    "digest": "64a2f0455da740fc5db26173a54f153e0a395f9d706e40b674a7c1655315c878",
+    "details": {
+      "parent_model": "",
+      "format": "gguf",
+      "family": "qwen4exp",
+      "families": [
+        "qwen4exp"
+      ],
+      "parameter_size": "176.9B",
+      "quantization_level": "Q8_0"
+    },
+    "expires_at": "2026-09-26T13:47:22.225140788Z",
+    "size_vram": 19975309884,
+    "context_length": 262144
+  },
+  "metrics": {
+    "prompt_eval_count": 74,
+    "eval_count": 63,
+    "load_duration": 23486774496,
+    "prompt_eval_duration": 40819297000,
+    "eval_duration": 16124525000,
+    "total_duration": 80436147681
+  },
+  "long_context_input_validated": false,
+  "optimal_throughput_proven": false
+}

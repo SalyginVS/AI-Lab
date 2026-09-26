@@ -1,0 +1,8 @@
+{
+  "status": "Q8_IMPORT_PASS",
+  "model": "qwen3.8-flash-next:125b-a6b-q8_0-ab-262k",
+  "digest": "64a2f0455da740fc5db26173a54f153e0a395f9d706e40b674a7c1655315c878",
+  "merged_sha256": "205780364663652e04cf0db98d43768cc87523ae7d012d4926af8b5cedf016f3",
+  "merged_source_deleted": false,
+  "baseline_unchanged": true
+}

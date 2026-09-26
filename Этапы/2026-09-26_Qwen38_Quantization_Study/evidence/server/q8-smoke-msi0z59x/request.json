@@ -1,0 +1,16 @@
+{
+  "model": "qwen3.8-flash-next:125b-a6b-q8_0-ab-262k",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Compute 37 * 19. Reply only with Q8_RUNTIME_OK:<result>, without explanation."
+    }
+  ],
+  "think": "xhigh",
+  "stream": true,
+  "keep_alive": "30m",
+  "options": {
+    "num_ctx": 262144,
+    "num_predict": 2048
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "models": [
+    {
+      "name": "qwen3.8-flash-next:125b-a6b-q8_0-ab-262k",
+      "model": "qwen3.8-flash-next:125b-a6b-q8_0-ab-262k",
+      "size": 74661054379,
+      "digest": "64a2f0455da740fc5db26173a54f153e0a395f9d706e40b674a7c1655315c878",
+      "details": {
+        "parent_model": "",
+        "format": "gguf",
+        "family": "qwen4exp",
+        "families": [
+          "qwen4exp"
+        ],
+        "parameter_size": "176.9B",
+        "quantization_level": "Q8_0"
+      },
+      "expires_at": "2026-09-26T13:47:22.225140788Z",
+      "size_vram": 19975309884,
+      "context_length": 262144
+    }
+  ]
+}

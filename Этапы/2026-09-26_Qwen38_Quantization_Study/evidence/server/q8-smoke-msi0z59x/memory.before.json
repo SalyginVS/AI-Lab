@@ -1,0 +1,11 @@
+{
+  "time": "2026-09-26T13:16:01.750762+00:00",
+  "mem_available_bytes": 65337266176,
+  "swap_used_bytes": 0,
+  "pswpin_pages": 0,
+  "pswpout_pages": 0,
+  "pgmajfault": 7683,
+  "memory_pressure": "some avg10=0.00 avg60=0.00 avg300=0.00 total=130\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=129",
+  "io_pressure": "some avg10=0.00 avg60=0.00 avg300=0.09 total=1211516\nfull avg10=0.00 avg60=0.00 avg300=0.09 total=1185908",
+  "gpu_csv_MiB_MiB_util_W_C": "1, 24576, 0, 17.78, 38"
+}

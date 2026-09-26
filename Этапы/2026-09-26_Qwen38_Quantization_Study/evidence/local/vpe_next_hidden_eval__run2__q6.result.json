@@ -1,0 +1,28 @@
+{
+  "workspace": "/home/vladimir/vpe_next_hidden_eval/run2/q6",
+  "scope_ok": true,
+  "protected_failures": [],
+  "unexpected_files": [],
+  "regression_pass": true,
+  "public_pass": true,
+  "hidden_pass": 98,
+  "hidden_total": 100,
+  "hidden_failures": [
+    {
+      "name": "G03_snapshot_records_immutable_view",
+      "pass": false,
+      "detail": "AssertionError: 'evil' != 'x'"
+    },
+    {
+      "name": "G03_snapshot_records_repeat_copy",
+      "pass": false,
+      "detail": "AssertionError: 'z' != 'x'"
+    }
+  ],
+  "digest_advisory": {
+    "actual": "ac4927c6726e5667e0960715921bed3a1e4cd88688da98e84259647aa0305aab",
+    "matches_full_published_state": true,
+    "matches_staged_only": false
+  },
+  "overall_pass": false
+}

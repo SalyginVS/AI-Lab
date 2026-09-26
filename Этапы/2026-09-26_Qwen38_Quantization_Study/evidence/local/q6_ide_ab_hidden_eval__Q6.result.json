@@ -1,0 +1,11 @@
+{
+  "scope_ok": true,
+  "touched": [
+    "src/revision_policy/resolver.py"
+  ],
+  "public_tests_pass": true,
+  "hidden_pass": 24,
+  "hidden_total": 24,
+  "hidden_failures": [],
+  "overall_pass": true
+}

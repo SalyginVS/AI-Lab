@@ -1,0 +1,8 @@
+{
+  "schema_ok": true,
+  "queries": 6,
+  "decision_correct": 4,
+  "evidence_correct": 4,
+  "full_correct": 4,
+  "case_pass": false
+}

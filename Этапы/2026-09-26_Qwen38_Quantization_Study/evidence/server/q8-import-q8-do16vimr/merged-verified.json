@@ -1,0 +1,28 @@
+{
+  "size": 188224949760,
+  "sha256": "205780364663652e04cf0db98d43768cc87523ae7d012d4926af8b5cedf016f3",
+  "parts": [
+    {
+      "part": "Qwen3.8-Flash-Next.Q8_0.gguf.part1of4",
+      "size": 47244640256,
+      "sha256": "84efec5a757187ed33203270da511fd22182d00f86b43ad51fbf1c78996aac93"
+    },
+    {
+      "part": "Qwen3.8-Flash-Next.Q8_0.gguf.part2of4",
+      "size": 47244640256,
+      "sha256": "569eb913e8360df86203596c0ffb046b763149feb73897afd0fb869bd539a165"
+    },
+    {
+      "part": "Qwen3.8-Flash-Next.Q8_0.gguf.part3of4",
+      "size": 47244640256,
+      "sha256": "2117252d3833e6caade389ab96a3ba107b50347fc1e24f126cb5e9896154b028"
+    },
+    {
+      "part": "Qwen3.8-Flash-Next.Q8_0.gguf.part4of4",
+      "size": 46491028992,
+      "sha256": "fbcc7b49e53ea8588819859c2ca8ac0e7c4e1f05a4df3c78ad0d721ebca7ce6e"
+    }
+  ],
+  "source_repo": "mradermacher/Qwen3.8-Flash-Next-GGUF",
+  "source_digests_origin": "User-verified Hugging Face LFS metadata, 2026-09-26"
+}

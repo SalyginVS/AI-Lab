@@ -111,3 +111,46 @@ OpenCode принят не как autonomous repo agent, а как controlled te
 - `Грабли/084_opencode_wrapper_not_in_path.md`
 - `Конфиги/opencode_ailab_wrappers.md`
 - `Этапы/2026-05-15_OpenCode_Controlled_Terminal_Agent/Результаты.md`
+
+---
+
+## 2026-10-06 — Qwen3.8 Q6 + Pi complex bounded executor
+
+Статус: завершено / accepted.
+
+Результат:
+
+```text
+Q6_COMPLEX_BOUNDED_EXECUTOR=ACCEPTED
+PI_HARNESS_BASELINE=ACCEPTED
+AUTONOMOUS_AGENT_READY=NOT_ESTABLISHED
+```
+
+Deployment contract:
+
+- Pi 1.0.3;
+- VS Code + pi-vscode 0.0.9;
+- Ollama 0.35.1 direct;
+- Q6 context 262144;
+- thinking max -> xhigh;
+- compaction 32768/20000;
+- client timeout disabled;
+- agent/provider retry disabled;
+- Q6 server profile CPU_MOE=43 + PLE CPU + lazy mmap.
+
+LeaseFlow evidence:
+
+```text
+first-pass: owner 61/61, public 18/18, local 219/219
+final:      owner 61/61, public 18/18, local 232/232
+self-review: 7 real defect classes fixed
+```
+
+Новый mandatory workflow: execution contract + first-pass checkpoint + full self-review + regression repair + external review.
+
+Артефакты:
+
+- `Решения/ADR-031_Qwen38_Q6_Pi_Complex_Bounded_Executor_Deployment_Contract.md`
+- `Этапы/2026-10-06_Qwen38_Q6_Pi_Complex_Bounded_Executor/Результаты.md`
+- `Конфиги/pi_qwen38_q6_long_context_harness.md`
+- `Грабли/086_pi_long_context_harness_not_global.md`

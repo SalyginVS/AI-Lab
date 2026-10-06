@@ -19,7 +19,7 @@ remote: git@github.com:SalyginVS/AI-Lab.git
 
 ## Навигация
 
-- **[[Паспорт лаборатории]]** — фактическое состояние стенда; актуальная версия: `Паспорт_лаборатории_v37.md`.
+- **[[Паспорт лаборатории]]** — фактическое состояние стенда; актуальная версия: `Паспорт_лаборатории_v38.md`.
 - **[[Целевая архитектура]]** — архитектурные принципы и целевое состояние; актуальная версия: `Целевая_архитектура_AI_Coding_Platform_v1_21.md`.
 - **[[Meta/Roadmap]]** — состояние этапов и треков.
 - **Этапы/** — хронология: один каталог/файл на завершённый технический этап.
@@ -85,3 +85,28 @@ AUTONOMOUS_AGENT_READY=no
 ### 2026-05-24 - Ollama 0.24.0 controlled archive upgrade
 
 Ollama runtime upgraded from `0.23.4` to `0.24.0` via controlled `.tar.zst` archive path. Direct Ollama smoke, CUDA backend, gateway `/health`, `/v1/models`, and `/v1/chat/completions` regression passed. See `Этапы/2026-05-24_Ollama_0240_Controlled_Upgrade/Результаты.md`.
+
+---
+
+## 2026-10-06 — Qwen3.8 Q6 + Pi complex bounded executor
+
+На проверенном deployment contract Qwen3.8 Flash-Next Q6_K через Pi 1.0.3 принята как **Complex Bounded Engineering Executor**.
+
+Ключевой evidence:
+
+```text
+first-pass owner evaluator 61/61 PASS
+final owner evaluator      61/61 PASS
+public                     18/18 PASS
+local                      219 -> 232 PASS
+mandatory self-review      7 defect classes fixed
+```
+
+Pi long-context harness закреплён глобально: context 262144, output 32768, compaction 32768/20000, client timeout disabled, automatic agent/provider retry disabled.
+
+См.:
+
+- `Решения/ADR-031_Qwen38_Q6_Pi_Complex_Bounded_Executor_Deployment_Contract.md`
+- `Этапы/2026-10-06_Qwen38_Q6_Pi_Complex_Bounded_Executor/Результаты.md`
+- `Конфиги/pi_qwen38_q6_long_context_harness.md`
+- `Грабли/086_pi_long_context_harness_not_global.md`

@@ -1,0 +1,24 @@
+[
+  {
+    "repository": "searxng/searxng",
+    "repo_digest": "sha256:8bb6a6f677a758cefa4ae2c9f5da1012876e428a4388e3e86f34be4ca715330a",
+    "live_image_id": "sha256:bc17fe8afaba2ab0efc76a654a54b5fae983080869b7e9506369d9bc93896b80",
+    "head_digest": "sha256:8bb6a6f677a758cefa4ae2c9f5da1012876e428a4388e3e86f34be4ca715330a",
+    "registry_serves": true,
+    "media_type": "application/vnd.oci.image.index.v1+json",
+    "linux_amd64_digest": "sha256:4112d4864885b7ef2fe678b18839633ebbcd3272271ac67ca671e19ae193d773",
+    "config_digest": "sha256:bc17fe8afaba2ab0efc76a654a54b5fae983080869b7e9506369d9bc93896b80",
+    "config_equals_live_id": true
+  },
+  {
+    "repository": "valkey/valkey",
+    "repo_digest": "sha256:ccfa19b0d743e48927e1c8c14e39e0acb97b5cea347fef0bfe340247fea920cd",
+    "live_image_id": "sha256:793f59d5064974d427d0e5604875cc932642d68b49f832bedf615bb55282e9fa",
+    "head_digest": "sha256:ccfa19b0d743e48927e1c8c14e39e0acb97b5cea347fef0bfe340247fea920cd",
+    "registry_serves": true,
+    "media_type": "application/vnd.oci.image.index.v1+json",
+    "linux_amd64_digest": "sha256:dd021e69e0a204fbb25b39c332c3dd61d51853d0a67e34f523cf1e1ab15fe478",
+    "config_digest": "sha256:793f59d5064974d427d0e5604875cc932642d68b49f832bedf615bb55282e9fa",
+    "config_equals_live_id": true
+  }
+]

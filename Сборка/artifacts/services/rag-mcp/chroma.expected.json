@@ -1,0 +1,19 @@
+{
+  "collections": [
+    {
+      "name": "sql_knowledge",
+      "dimension": 4096,
+      "records": 34
+    },
+    {
+      "name": "lab_docs",
+      "dimension": 4096,
+      "records": 18
+    }
+  ],
+  "embedding_model_from_code": "qwen3-embedding",
+  "embedding_api": "gateway /v1/embeddings",
+  "embedding_metadata_in_snapshot": "legacy; model identity unavailable in SQLite schema",
+  "primary_reindex_collection": "lab_docs",
+  "private_backup_only_collection": "sql_knowledge"
+}

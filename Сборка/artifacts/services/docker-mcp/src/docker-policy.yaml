@@ -1,0 +1,76 @@
+categories:
+  read:
+    enabled: true
+
+  lifecycle:
+    enabled: true
+
+  exec:
+    enabled: true
+    command_allowlist:
+      - "ls"
+      - "cat"
+      - "head"
+      - "tail"
+      - "env"
+      - "ps"
+      - "df"
+      - "du"
+      - "whoami"
+      - "hostname"
+      - "date"
+      - "uptime"
+      - "free"
+      - "top -bn1"
+      - "printenv"
+      - "id"
+      - "uname -a"
+      - "which"
+    command_denylist:
+      - "rm -rf"
+      - "rm -r"
+      - "shutdown"
+      - "reboot"
+      - "kill"
+      - "pkill"
+      - "killall"
+      - "dd"
+      - "mkfs"
+      - "fdisk"
+      - "mount"
+      - "umount"
+      - "chmod 777"
+      - "chown"
+      - "passwd"
+      - "useradd"
+      - "userdel"
+      - "curl"
+      - "wget"
+      - "apt"
+      - "yum"
+      - "pip install"
+      - "npm install"
+
+blocked_operations:
+  - "run"
+  - "build"
+  - "rm"
+  - "rmi"
+  - "pull"
+  - "push"
+  - "volume_rm"
+  - "network_rm"
+  - "prune"
+
+limits:
+  logs_tail_max: 500
+  stats_timeout_sec: 10
+  list_max_containers: 0
+  list_max_images: 0
+
+logging:
+  level: "info"
+  audit_categories:
+    - "lifecycle"
+    - "exec"
+  format: "json"

@@ -1,0 +1,56 @@
+{
+  "gateway": {
+    "bundled": [
+      "pipelines.yaml",
+      "gateway/__init__.py"
+    ],
+    "generated_private": [
+      ".env"
+    ],
+    "generated_runtime": [
+      "logs/nightly-health.log"
+    ],
+    "notes": "health-check reads .env, pipelines.yaml and gateway constants; cron directory is created before use"
+  },
+  "rag-mcp": {
+    "bundled": [
+      "gateway_embeddings.py",
+      "indexer.py",
+      "chunker.py",
+      "docs/**"
+    ],
+    "generated_runtime": [
+      "index_status.json",
+      "../rag-data/chroma/**"
+    ],
+    "notes": "indexer replaces lab_docs only; corpus paths are absolute literals; arbitrary document reads confined to DOCS_ROOT"
+  },
+  "docker-mcp": {
+    "bundled": [
+      "docker-policy.yaml"
+    ],
+    "external_runtime": [
+      "Docker socket/API from docker.from_env"
+    ]
+  },
+  "searxng-mcp": {
+    "external_runtime": [
+      "SEARXNG_URL HTTP endpoint"
+    ]
+  },
+  "searxng": {
+    "bundled": [
+      "docker-compose.yml",
+      "docker-compose.pin.yml",
+      "settings.yml.in"
+    ],
+    "generated_private": [
+      ".env",
+      "core-config/settings.yml"
+    ],
+    "generated_runtime": [
+      "core-data Docker volume",
+      "valkey-data Docker volume"
+    ]
+  }
+}

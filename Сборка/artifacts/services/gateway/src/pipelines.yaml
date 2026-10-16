@@ -1,0 +1,11 @@
+pipelines:
+
+  smoke:
+    description: "Basic gateway/orchestration connectivity test"
+    steps:
+      - name: executor
+        model: "kat-coder-v2.5-dev:256k"
+        system_prompt: "You are a helpful assistant. Answer briefly."
+        input_template: "{{ task }}"
+        temperature: 0.1
+        max_tokens: 256

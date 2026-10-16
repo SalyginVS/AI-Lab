@@ -1,0 +1,27 @@
+[Unit]
+Description=AI Lab SearXNG MCP Web Search
+Wants=network-online.target
+After=network-online.target docker.service
+Requires=docker.service
+
+[Service]
+Type=simple
+User=@LAB_OPERATOR@
+Group=@LAB_OPERATOR@
+WorkingDirectory=@LAB_SERVICE_ROOT@/searxng-mcp
+
+Environment=SEARXNG_URL=http://127.0.0.1:8080
+Environment=PYTHONDONTWRITEBYTECODE=1
+
+ExecStart=@LAB_SERVICE_ROOT@/searxng-mcp/.venv/bin/python @LAB_SERVICE_ROOT@/searxng-mcp/server.py
+
+Restart=on-failure
+RestartSec=3
+
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=read-only
+
+[Install]
+WantedBy=multi-user.target

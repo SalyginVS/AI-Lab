@@ -1,0 +1,2 @@
+[Service]
+EnvironmentFile=@LAB_SERVICE_ROOT@/llm-gateway/.env

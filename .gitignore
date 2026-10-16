@@ -1,0 +1,14 @@
+# User/device-local editor and vault state. Not canonical project knowledge.
+.obsidian/
+.vscode/
+.continue/
+.trash/
+
+# OS/editor transient files.
+.DS_Store
+Thumbs.db
+*~
+*.swp
+*.swo
+__pycache__/
+*.pyc

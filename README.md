@@ -2,111 +2,57 @@
 tags: [meta]
 ---
 
-# AI Lab Knowledge Base
+# AI Lab RTX 3090 — Knowledge Base
 
-Obsidian vault для домашней AI Coding Platform на базе локального LLM-сервера RTX 3090.
+Каноническая документация локальной AI Coding Platform. Репозиторий содержит инженерные решения, проверяемые результаты испытаний, конфигурационные baselines и эксплуатационные процедуры.
 
-## Source of truth
+**Последний подтверждённый снимок runtime: 2026-10-06.** Это не live-статус на 2026-10-16. Для новых изменений после 6 октября требуются отдельные evidence и acceptance.
 
-Канонический контур документации:
+## Источники истины
 
-```text
-/home/vladimir/llm/AI-Lab
-remote: git@github.com:SalyginVS/AI-Lab.git
-```
+- [Паспорт лаборатории v38](Паспорт_лаборатории_v38.md): фактическое состояние на 2026-10-06.
+- [Целевая архитектура v1.22](Целевая_архитектура_AI_Coding_Platform_v1_22.md): актуальная схема слоёв, контрактов и ограничений.
+- [Рабочий процесс](Meta/Рабочий%20процесс.md) и [Roadmap](Meta/Roadmap.md).
+- [ADR-030](Решения/ADR-030_Client_Surface_Determines_Model_Operational_Fit.md): operational fit зависит от client surface.
+- [ADR-031](Решения/ADR-031_Qwen38_Q6_Pi_Complex_Bounded_Executor_Deployment_Contract.md): Q6 + Pi, accepted deployment contract.
+- [Pi long-context harness](Конфиги/pi_qwen38_q6_long_context_harness.md).
+- [Qwen38 Quantization Study](Этапы/2026-09-26_Qwen38_Quantization_Study/Результаты.md): историческое сравнение Q5/Q6/Q8.
+- [Q6 complex executor acceptance](Этапы/2026-10-06_Qwen38_Q6_Pi_Complex_Bounded_Executor/Результаты.md).
 
-Сервер `192.168.0.128` — runtime filesystem. Он не является Git/source-of-truth контуром для документации, ADR, паспортов или архитектурных решений.
+## Подтверждённый baseline 2026-10-06
 
-## Навигация
-
-- **[[Паспорт лаборатории]]** — фактическое состояние стенда; актуальная версия: `Паспорт_лаборатории_v38.md`.
-- **[[Целевая архитектура]]** — архитектурные принципы и целевое состояние; актуальная версия: `Целевая_архитектура_AI_Coding_Platform_v1_21.md`.
-- **[[Meta/Roadmap]]** — состояние этапов и треков.
-- **Этапы/** — хронология: один каталог/файл на завершённый технический этап.
-- **Грабли/** — найденные проблемы в формате симптом → причина → решение.
-- **Решения/** — ADR (Architecture Decision Records — документы архитектурных решений).
-- **Конфиги/** — эталонные конфигурации с комментариями.
-- **Briefings/** — переносимые briefing-блоки для внешних AI/research tools.
-
-## Инфраструктурный snapshot
-
-Версионная таблица в README не является source of truth. Актуальные версии фиксируются в паспорте лаборатории.
-
-Короткий статус на 2026-05-08:
-
-| Контур | Статус |
+| Компонент | Подтверждённое состояние |
 |---|---|
-| Documentation | `/home/vladimir/llm/AI-Lab` + GitHub |
-| Server runtime | `192.168.0.128`, `/home/vladimir/llm-gateway`, no Git repo |
-| Gateway | Active, `/health=200`, version `0.12.0` |
-| Ollama lane | Active, Ollama `0.24.0` controlled archive upgrade PASS |
-| vLLM MTP lane | PoC / bounded active для `qwen36-27b-mtp-bounded` |
-| Strategy | Depth over Speed + controlled bounded execution |
+| Сервер | Ubuntu 24.04.5 LTS; RTX 3090 24 GiB; RAM 62 GiB |
+| Ollama | 0.35.1; `OLLAMA_CONTEXT_LENGTH=262144`; KV `q8_0` |
+| Gateway | v0.12.0; последний `/health` PASS, 6 моделей / 1 pipeline |
+| Client | Dell Precision 5560, VS Code, Pi 1.0.3, pi-vscode 0.0.9 |
+| Qwen3.8 Q6 | Complex Bounded Engineering Executor через Pi; 61/61 owner evaluator PASS |
+| Qwen3.8 Q5 | Ранее подтверждённый 262144 long-context baseline |
+| Управление | Manual approval, scope lock, mandatory self-review, independent acceptance |
 
-## Полный пакет переносимости
+Q6-роль подтверждена **только** для конкретного Pi/Ollama deployment contract. Не равнозначна автономному агенту, архитектурному владельцу или гарантии превосходства над Q5.
 
-Вместе с паспортом и целевой архитектурой используется пакет переносимости:
+## Документационные разделы
 
-1. `Portability_Gap_Analysis.md` — анализ пробелов переносимости.
-2. `01_Операционный_справочник_v1.md` — эксплуатация, восстановление, диагностика.
-3. `02_Gateway_техническая_спецификация_v1.md` — внутренняя реализация gateway.
-4. `03_Конфигурация_клиента_v1.md` — Continue / MCP / rules / client setup.
-5. `04_Enterprise_Transfer_Brief_v1.md` — переносимость паттернов в enterprise context.
+- `Решения/`: ADR и канонические архитектурные решения.
+- `Этапы/`: результаты проверок, даты, acceptance evidence.
+- `Грабли/`: подтверждённые failure modes, причины и исправления.
+- `Конфиги/`: принятые baselines и образцы конфигураций.
+- `Компоненты/`, `Модели/`: технические карточки (у старых карточек исторический статус).
+- `Meta/`: процесс, Roadmap и глоссарий.
+- `Briefings/`: исследовательские материалы.
 
-## Рекомендуемые плагины Obsidian
+`01_Операционный_справочник_v1.md`, `02_Gateway_техническая_спецификация_v1.md`, `03_Конфигурация_клиента_v1.md`, `04_Enterprise_Transfer_Brief_v1.md` и `Portability_Gap_Analysis.md` относятся к **апрельскому baseline**. Для текущего Pi/Ollama не применять устаревшие значения поверх паспорта v38 и ADR-031.
 
-Dataview, Templater, Calendar, Graph Analysis.
+## Исторические материалы и воспроизводимость
 
----
+Очистка 2026-10-16 удаляет из `main` экспортные копии, Obsidian/VS Code UI-state, устаревшие паспорта и raw benchmark assets. **Содержимое сохранено в отдельной архивной Git-ветке** `archive/pre-cleanup-2026-10-16` на исходном коммите.
 
-## OpenCode controlled terminal-agent lane
+Исследование Q5/Q6/Q8 в `main` сохраняет `Результаты.md` и SHA256-манифест архивных артефактов. Если нужен точный ретест, извлечь frozen fixtures/evidence из архивной ветки и сверить SHA256. Исторический hidden evaluator в публичном репозитории не подходит как секретный evaluator для новых тестов.
 
-Статус: accepted / bounded active for small scoped documentation edits.
+Локальная копия документации: `/home/vladimir/llm/AI-Lab`, remote `git@github.com:SalyginVS/AI-Lab.git`. Серверные runtime-директории не являются документационным Git source of truth.
 
-Ключевое решение:
+## Изменения после 2026-10-06
 
-```text
-REPO_WRITE_SMOKE=PASS
-OPEN_CODE_REPO_WRITE_MODE=allowed_only_for_small_scoped_docs_edits_with_manual_review
-AUTONOMOUS_AGENT_READY=no
-```
-
-Главные документы:
-
-- `Решения/ADR-029_OpenCode_Controlled_Terminal_Agent_Lane.md`
-- `Конфиги/opencode_ailab_wrappers.md`
-- `Грабли/083_opencode_run_edit_ask_auto_reject_exit_zero.md`
-- `Грабли/084_opencode_wrapper_not_in_path.md`
-- `Этапы/2026-05-15_OpenCode_Controlled_Terminal_Agent/Результаты.md`
-
-
-## Recent runtime update
-
-### 2026-05-24 - Ollama 0.24.0 controlled archive upgrade
-
-Ollama runtime upgraded from `0.23.4` to `0.24.0` via controlled `.tar.zst` archive path. Direct Ollama smoke, CUDA backend, gateway `/health`, `/v1/models`, and `/v1/chat/completions` regression passed. See `Этапы/2026-05-24_Ollama_0240_Controlled_Upgrade/Результаты.md`.
-
----
-
-## 2026-10-06 — Qwen3.8 Q6 + Pi complex bounded executor
-
-На проверенном deployment contract Qwen3.8 Flash-Next Q6_K через Pi 1.0.3 принята как **Complex Bounded Engineering Executor**.
-
-Ключевой evidence:
-
-```text
-first-pass owner evaluator 61/61 PASS
-final owner evaluator      61/61 PASS
-public                     18/18 PASS
-local                      219 -> 232 PASS
-mandatory self-review      7 defect classes fixed
-```
-
-Pi long-context harness закреплён глобально: context 262144, output 32768, compaction 32768/20000, client timeout disabled, automatic agent/provider retry disabled.
-
-См.:
-
-- `Решения/ADR-031_Qwen38_Q6_Pi_Complex_Bounded_Executor_Deployment_Contract.md`
-- `Этапы/2026-10-06_Qwen38_Q6_Pi_Complex_Bounded_Executor/Результаты.md`
-- `Конфиги/pi_qwen38_q6_long_context_harness.md`
-- `Грабли/086_pi_long_context_harness_not_global.md`
+По переписке запланирован security-стенд с Qwen3.8 CYBERSECURITY NVFP4, Strix и benchmark `AI_Lab_Qwen38_Security_Benchmark_v1_0_1`. Текущий runtime/installation/benchmark acceptance в этом репозитории **не подтверждён**. После live-сверки создать новый паспорт и отдельный этап с evidence, не переписывая успешные прошлые проверки.

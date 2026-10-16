@@ -1,3 +1,87 @@
+# Целевая архитектура AI Coding Platform
+
+**Версия:** 1.22
+**Редакция:** 2026-10-16
+**Фактическая база:** Паспорт v38, verified snapshot от 2026-10-06.
+**Статус:** Current architecture, subject to live runtime revalidation.
+**Supersedes as current runtime guidance:** v1.21 (2026-05-15). Полный текст v1.21 автоматически добавляется к v1.22 как историческое приложение (с SHA256), также сохранён в Git history / archive branch.
+
+## 1. Назначение и приоритеты
+
+AI Lab RTX 3090 — локальный инженерный стенд для испытаний больших языковых моделей, execution harness, инструментов и методов validation. Принцип **Depth over Speed** сохраняется. Расширение не должно регрессировать подтверждённые 262144 context и q8_0 KV по умолчанию.
+
+Архитектура отличает: (a) **target** — проектное устройство; (b) **verified implementation** — результаты на дату паспорта; (c) **pending** — гипотезы и новые направления без достаточного evidence. Runtime-статус фиксируется в паспорте, а не выводится из этого документа.
+
+## 2. Слои и интерфейсы
+
+| Слой | Механизм | Подтверждение / граница |
+|---|---|---|
+| 1. Inference / Backend | Ollama 0.35.1 на Ubuntu 24.04.5, RTX 3090 24 GiB + 62 GiB RAM; gateway v0.12.0 | Ollama context=262144, Flash Attention ON, KV q8_0, parallel=1; последний gateway health=PASS 2026-10-06 |
+| 2. Client / IDE | VS Code + Pi 1.0.3 + pi-vscode 0.0.9; Continue, Qwen Code и OpenCode как отдельные surfaces | Q6 acceptance относится **только** к Pi direct-Ollama. Не переносить verdict на другие клиенты |
+| 3. Tool / Apply | Инструменты исполнения и изменения файлов в ограниченном workspace; исторически MCP Git/RAG/Docker | Tool access определяется client-specific permission boundary, а не обещаниями модели |
+| 4. Orchestration / Harness | Pi bounded execution, compaction, retries, reasoning mapping; gateway pipelines как отдельный старый контур | Серьёзные задачи Q6: context=262144, output=32768, compaction reserve=32768/keep=20000, timeout=0, auto-retry OFF |
+| 5. Knowledge / Context | GitHub/Obsidian AI-Lab, паспорт, ADR, результаты, конфиги, RAG corpus | Единственный durable документационный source of truth — GitHub/локальный vault, не серверные runtime-папки |
+| 6. Governance / Security | Ролевой deployment contract, approval gates, allowed/forbidden scope, secrets boundary | Q6 не является unbounded autonomous agent / architecture owner; independent acceptance обязателен |
+| 7. Observability / Verification | Health-check, logs, hashes, tests, first-pass checkpoint, diff review, regression repair | Повышение роли только через реальные acceptance-тесты на том же execution surface |
+
+## 3. Deployment contracts моделей
+
+### Qwen3.8 Flash-Next Q5
+
+`qwen3.8-flash-next:125b-a6b-q5_K_M-ab-262k` — long-context baseline. Прямой Ollama-тест до ~224929 prompt tokens завершился PASS при runtime context_length=262144. Сентябрьское сравнение квантизаций завершено; его scope ограничен конкретными benchmark-тестами.
+
+### Qwen3.8 Flash-Next Q6
+
+`qwen3.8-flash-next:125b-a6b-q6_K-ab-262k` — **Complex Bounded Engineering Executor ACCEPTED** через Pi 1.0.3 и Ollama 0.35.1. Обязательная связка: model-specific runner wrapper, reasoning compatibility repair, explicit task contract и полный verification loop. LeaseFlow acceptance: внешний evaluator 61/61 на first-pass и final; локальные tests 219→232.
+
+Положительный октябрьский verdict **не отменяет** сентябрьский вывод об отсутствии воспроизводимого преимущества Q6/Q8 над Q5 в ином benchmark: это различные acceptance scopes.
+
+### Другие lanes
+
+`kat-coder-v2.5-dev:256k`, `qwen38-rvn-sandbox-native:256k`, `qwen2.5-coder:7b`, `qwen3-embedding:latest` перечислены в паспорте v38 с соответствующими ролями.
+
+Майский vLLM MTP, Continue и OpenCode contour задокументированы в своих ADR/этапах, но их состояние **на 2026-10-16 не перепроверено**. Нельзя автоматически считать их текущими primary agents.
+
+## 4. Обязательный execution cycle
+
+`confirmed evidence → TASK/spec → allowed scope / invariants → bounded execution → first-pass checkpoint → full self-review → regression repairs → full tests → final diff → READY_FOR_REVIEW → external ACCEPTANCE`
+
+Сначала восстанавливать project-specific decisions и previous acceptance. Зелёные first-pass tests не завершают задачу. Модель не выдаёт себе `ACCEPTED`. Причина failure определяется отдельно: model behavior, client/harness, inference runtime, tests или integration.
+
+## 5. Текущие инварианты
+
+- Не снижать `OLLAMA_CONTEXT_LENGTH=262144`, не ухудшать KV `q8_0` ради обхода проблем.
+- Не менять Ollama runner/global placement так, чтобы Q6-specific профиль применился к Q5/другим моделям.
+- После обновления Ollama проверять CUDA path, Q6 wrapper и Q5 isolation.
+- Не подменять local/GitHub documentation server-side Git-репозиторием.
+- Accepted role у модели является `model + quant + runtime + client + tools + context + safety policy`, а не свойством одного имени модели.
+- Для новых, потенциально конфликтующих решений требовать evidence и новый ADR, не переписывать прошлый acceptance.
+
+## 6. Новое security-направление: не повышено до accepted
+
+На 2026-10-16 информация о `Qwen3.8-Flash-Next-CYBERSECURITY-NVFP4`, Strix и security benchmark основана на постановке задач после 6 октября, а не на новом GitHub acceptance. Подтвердить deployment, integrations, fixtures neutrality, отсутствие answer leakage и результат запусков перед фиксацией следующего паспорта. Никаких выводов о готовности Strix/benchmark заранее не делать.
+
+## 7. Канонические источники
+
+- `Паспорт_лаборатории_v38.md` — последний verified runtime snapshot (2026-10-06).
+- `Решения/ADR-030_Client_Surface_Determines_Model_Operational_Fit.md` — model/client surface.
+- `Решения/ADR-031_Qwen38_Q6_Pi_Complex_Bounded_Executor_Deployment_Contract.md` — Q6 role и gates.
+- `Конфиги/pi_qwen38_q6_long_context_harness.md` — конфигурация Pi.
+- `Этапы/2026-10-06_Qwen38_Q6_Pi_Complex_Bounded_Executor/Результаты.md` — evaluation evidence.
+- `Этапы/2026-09-26_Qwen38_Quantization_Study/Результаты.md` — квантование.
+- `Meta/Рабочий процесс.md` — полномочия и source of truth.
+
+Предыдущая целевая архитектура v1.21 — исторический baseline, не live runtime specification.
+
+
+---
+
+## 8. Полный исторический baseline v1.21 (2026-05-15)
+
+Следующий текст сохранён **без изменений** для совместимости с ранее принятыми архитектурными решениями и регрессионной проверки. Указанные в нём версии/runtime-статусы являются историческими; при противоречии действует паспорт v38 и ADR-030/031.
+
+**SHA256 исходного v1.21:** `012aabd2379ec2385bca3e3ee950470b13aec9c483d23d0512c59c60bd15a791`
+
 # Целевая архитектура: Локальная AI Coding Platform
 
 **Версия:** 1.21

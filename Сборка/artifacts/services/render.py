@@ -25,7 +25,7 @@ def main():
         (a.output/'docker-compose.yml').write_bytes((a.source/'searxng/docker-compose.yml').read_bytes().replace(b'@LAB_SERVICE_ROOT@',a.root.encode()))
     elif a.command=='credentials':
         user,client,orchestrator=[secrets.token_hex(32) for _ in range(3)]
-        tokens={user:a.operator,client:'client',orchestrator:'orchestrator'}
+        tokens={user:a.operator,client:'roadwarrior',orchestrator:'orchestrator'}
         write_private(a.output,"LLM_GATEWAY_TOKENS='"+json.dumps(tokens,separators=(',',':'))+"'\nLLM_ORCHESTRATOR_TOKEN="+orchestrator+'\n')
     else:
         text=a.template.read_text();assert text.count('@SEARXNG_SECRET_KEY@')==1

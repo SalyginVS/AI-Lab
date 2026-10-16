@@ -1,0 +1,1 @@
+{# AI_LAB_Q6_REASONING_ALIAS_V1 #}{% if reasoning_effort is defined and reasoning_effort == 'max' %}{% set reasoning_effort = 'xhigh' %}{% endif %}

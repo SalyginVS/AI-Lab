@@ -1,0 +1,143 @@
+{
+  "vscode": {
+    "version": "1.142.0",
+    "commit": "6d62b1d5dace93a33b3a6d3eca1317bd5e15bcb1",
+    "url": "https://update.code.visualstudio.com/commit:6d62b1d5dace93a33b3a6d3eca1317bd5e15bcb1/linux-x64/stable",
+    "metadata_url": "https://update.code.visualstudio.com/api/versions/1.142.0/linux-x64/stable",
+    "source_sha256": "fcc1ccb435685adcc748287bbde524589569deedb6b4ad5560071583cbe00ae0",
+    "download_sha256": "fcc1ccb435685adcc748287bbde524589569deedb6b4ad5560071583cbe00ae0",
+    "size": 345727690,
+    "application_files_match": 2504,
+    "application_files_differ": [
+      "extensions/copilot/node_modules/@github/copilot/sdk/prebuilds/linux-x64/runtime.node",
+      "extensions/copilot/node_modules/@github/copilot/sdk/prebuilds/linux-x64/cli-native.node",
+      "extensions/microsoft-authentication/dist/libmsalruntime.so",
+      "extensions/microsoft-authentication/dist/msal-node-runtime.node",
+      "node_modules.asar.unpacked/@parcel/watcher/build/Release/watcher.node",
+      "node_modules.asar.unpacked/windows-foreground-love/build/Release/foreground_love.node",
+      "node_modules.asar.unpacked/windows-foreground-love/build/Release/obj.target/foreground_love.node",
+      "node_modules.asar.unpacked/node-pty/build/Release/pty.node",
+      "node_modules.asar.unpacked/kerberos/build/Release/obj.target/kerberos.node",
+      "node_modules.asar.unpacked/kerberos/build/Release/kerberos.node",
+      "node_modules.asar.unpacked/@github/copilot-sdk-linux-x64/prebuilds/linux-x64/copilot-runtime",
+      "node_modules.asar.unpacked/@github/copilot-sdk-linux-x64/prebuilds/linux-x64/runtime.node",
+      "node_modules.asar.unpacked/native-is-elevated/build/Release/iselevated.node",
+      "node_modules.asar.unpacked/native-keymap/build/Release/keymapping.node",
+      "node_modules.asar.unpacked/@vscode/os-proxy-resolver-linux-x64-gnu/os_proxy_resolver.node",
+      "node_modules.asar.unpacked/@vscode/deviceid/build/Release/windows.node",
+      "node_modules.asar.unpacked/@vscode/spdlog/build/Release/spdlog.node",
+      "node_modules.asar.unpacked/@vscode/vsce-sign/bin/vsce-sign",
+      "node_modules.asar.unpacked/@vscode/native-watchdog/build/Release/watchdog.node",
+      "node_modules.asar.unpacked/@vscode/policy-watcher/build/Release/vscode-policy-watcher.node",
+      "node_modules.asar.unpacked/@vscode/sqlite3/build/Release/vscode-sqlite3.node",
+      "node_modules.asar.unpacked/vsda/build/Release/vsda.node",
+      "node_modules/vsda/build/Release/vsda.node"
+    ],
+    "application_files_missing": [
+      "extensions/json-language-features/server/.npmrc",
+      "extensions/git/node_modules/@vscode/fs-copyfile/.gitattributes",
+      "extensions/css-language-features/server/.npmrc",
+      "extensions/terminal-suggest/.gitignore",
+      "extensions/tunnel-forwarding/.vscode/launch.json",
+      "extensions/html-language-features/server/.npmrc",
+      "extensions/debug-auto-launch/.vscode/launch.json"
+    ]
+  },
+  "vsix": {
+    "version": "0.0.9",
+    "url": "https://open-vsx.org/api/pi0/pi-vscode/0.0.9/file/pi0.pi-vscode-0.0.9.vsix",
+    "checksum_url": "https://open-vsx.org/api/pi0/pi-vscode/0.0.9/file/pi0.pi-vscode-0.0.9.sha256",
+    "source_sha256": "d5a5283c1136d4a3120d2626de875d5fc8cf1625c609c5dcc85f2097a909dd47",
+    "download_sha256": "d5a5283c1136d4a3120d2626de875d5fc8cf1625c609c5dcc85f2097a909dd47",
+    "size": 31380,
+    "marketplace_sha256": "d5a5283c1136d4a3120d2626de875d5fc8cf1625c609c5dcc85f2097a909dd47",
+    "files_match_raw": false,
+    "comparisons": [
+      {
+        "file": "package.json",
+        "source_sha256": "27f36dbca89a0fcbb336afa7895f948d48dea2abd81755eadbf3bdbdb7682548",
+        "live_sha256": "44d3495912aaec1f715799f4590a05f914b58411ef090da7de1546dfbacc3b4b",
+        "result": "MISMATCH"
+      },
+      {
+        "file": "readme.md",
+        "source_sha256": "7184b6f68d204562ac267d905389f610288c83a45e1a20546c1842b00f868092",
+        "live_sha256": "7184b6f68d204562ac267d905389f610288c83a45e1a20546c1842b00f868092",
+        "result": "MATCH"
+      },
+      {
+        "file": "LICENSE.txt",
+        "source_sha256": "06085bad763de4dc8cbb246bd3d5d1b6fddaabfc711ee0d5b2e628f4e11a3ee1",
+        "live_sha256": "06085bad763de4dc8cbb246bd3d5d1b6fddaabfc711ee0d5b2e628f4e11a3ee1",
+        "result": "MATCH"
+      },
+      {
+        "file": "dist/extension.cjs",
+        "source_sha256": "96828537ba00930e89986f161a244e15e30946e1e9369c36550409aef3a64d82",
+        "live_sha256": "96828537ba00930e89986f161a244e15e30946e1e9369c36550409aef3a64d82",
+        "result": "MATCH"
+      },
+      {
+        "file": "bridge/pi-vscode-bridge.js",
+        "source_sha256": "bda670d2f2e4b9afe565d45543f6dfe8129ab6ef5dc2f2d80e3b1bbe1813a98f",
+        "live_sha256": "bda670d2f2e4b9afe565d45543f6dfe8129ab6ef5dc2f2d80e3b1bbe1813a98f",
+        "result": "MATCH"
+      },
+      {
+        "file": "assets/logo.svg",
+        "source_sha256": "78c0f4f8f642323893f98a6826d2326f41a35b94a42cef832e2fa55a6c618afa",
+        "live_sha256": "78c0f4f8f642323893f98a6826d2326f41a35b94a42cef832e2fa55a6c618afa",
+        "result": "MATCH"
+      },
+      {
+        "file": "assets/logo-light.svg",
+        "source_sha256": "6e2d0290bd8f26b7d439dfbd0bcff53574a1c3f39b4c9d07a0049e9a75d9e215",
+        "live_sha256": "6e2d0290bd8f26b7d439dfbd0bcff53574a1c3f39b4c9d07a0049e9a75d9e215",
+        "result": "MATCH"
+      },
+      {
+        "file": "assets/icon.png",
+        "source_sha256": "3f6c777daaa69836667cb5d68ab241c53fc7708209d81b20f4ce1f6e0a06cc2f",
+        "live_sha256": "3f6c777daaa69836667cb5d68ab241c53fc7708209d81b20f4ce1f6e0a06cc2f",
+        "result": "MATCH"
+      },
+      {
+        "file": "assets/fonts/pi-icons.woff2",
+        "source_sha256": "7ba1a707a90a035fafffe1228a1ceb194f27e9693eb81c85f3e00c9013e0bd48",
+        "live_sha256": "7ba1a707a90a035fafffe1228a1ceb194f27e9693eb81c85f3e00c9013e0bd48",
+        "result": "MATCH"
+      },
+      {
+        "file": "assets/fonts/pi-icons.json",
+        "source_sha256": "e5bb88c3340ded54b0091eb3559db0fc32a21546da1088fa36c16c359392f37d",
+        "live_sha256": "e5bb88c3340ded54b0091eb3559db0fc32a21546da1088fa36c16c359392f37d",
+        "result": "MATCH"
+      }
+    ],
+    "package_json_without_installer_metadata_match": true,
+    "installer_metadata_present": true,
+    "extra_installed_files": [
+      ".vsixmanifest"
+    ]
+  },
+  "fd": {
+    "version": "10.5.0",
+    "url": "https://github.com/sharkdp/fd/releases/download/v10.5.0/fd-v10.5.0-x86_64-unknown-linux-musl.tar.gz",
+    "checksum_url": "https://github.com/sharkdp/fd/releases/expanded_assets/v10.5.0",
+    "source_sha256": "761c72dc8e120d85b22292063be8a796e2eeb20eb3e4f38b8fa2343ccf3514a7",
+    "download_sha256": "761c72dc8e120d85b22292063be8a796e2eeb20eb3e4f38b8fa2343ccf3514a7",
+    "size": 1573549,
+    "binary_sha256": "e79642a479d2816c887047476bbe6ad229465f30de031033574dee2a095e0037",
+    "live_sha256": "e79642a479d2816c887047476bbe6ad229465f30de031033574dee2a095e0037"
+  },
+  "rg": {
+    "version": "15.2.0",
+    "url": "https://github.com/BurntSushi/ripgrep/releases/download/15.2.0/ripgrep-15.2.0-x86_64-unknown-linux-musl.tar.gz",
+    "checksum_url": "https://github.com/BurntSushi/ripgrep/releases/download/15.2.0/ripgrep-15.2.0-x86_64-unknown-linux-musl.tar.gz.sha256",
+    "source_sha256": "33e15bcf1624b25cdd2a55813a47a2f95dbe126268203e76aa6a585d1e7b149c",
+    "download_sha256": "33e15bcf1624b25cdd2a55813a47a2f95dbe126268203e76aa6a585d1e7b149c",
+    "size": 2265718,
+    "binary_sha256": "e62198eb19b136b88c330af83647b5a962cb99b6b1f066758568f12de1974849",
+    "live_sha256": "e62198eb19b136b88c330af83647b5a962cb99b6b1f066758568f12de1974849"
+  }
+}

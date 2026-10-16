@@ -1,0 +1,65 @@
+{
+    "settings": {
+        "modelThinkingLevels": {
+            "ailab-gateway/qwen38-rvn-sandbox-native:256k": "max"
+        },
+        "compaction": {
+            "modelOverrides": {
+                "ailab-gateway/qwen38-rvn-sandbox-native:256k": {
+                    "reserveTokens": 32768,
+                    "keepRecentTokens": 20000
+                }
+            }
+        }
+    },
+    "models": {
+        "providers": {
+            "ailab-gateway": {
+                "baseUrl": "http://LAB-SERVER-HOST:8000/v1",
+                "api": "openai-completions",
+                "compat": {
+                    "supportsDeveloperRole": false,
+                    "supportsReasoningEffort": true,
+                    "supportsUsageInStreaming": true,
+                    "supportsFinishReason": true,
+                    "supportsStrictMode": false,
+                    "maxTokensField": "max_tokens",
+                    "thinkingFormat": "reasoning_effort"
+                },
+                "models": [
+                    {
+                        "id": "qwen38-rvn-sandbox-native:256k",
+                        "name": "Qwen3.8 RVN Sandbox Native 256K",
+                        "reasoning": true,
+                        "thinkingLevelMap": {
+                            "off": "none",
+                            "minimal": "low",
+                            "low": "low",
+                            "medium": "medium",
+                            "high": "high",
+                            "xhigh": "xhigh",
+                            "max": "xhigh"
+                        },
+                        "input": [
+                            "text"
+                        ],
+                        "contextWindow": 262144,
+                        "maxTokens": 32768,
+                        "samplingParams": {
+                            "temperature": 1.0,
+                            "top_p": 0.95,
+                            "presence_penalty": 1.5,
+                            "top_k": 20
+                        },
+                        "cost": {
+                            "input": 0,
+                            "output": 0,
+                            "cacheRead": 0,
+                            "cacheWrite": 0
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}

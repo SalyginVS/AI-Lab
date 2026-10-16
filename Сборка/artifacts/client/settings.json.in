@@ -1,0 +1,60 @@
+{
+  "defaultProvider": "ailab-ollama",
+  "defaultModel": "qwen3.8-flash-next:125b-a6b-q5_K_M-ab-262k",
+  "defaultThinkingLevel": "max",
+  "modelThinkingLevels": {
+    "ailab-ollama/qwen3.8-flash-next:125b-a6b-q5_K_M-ab-262k": "max",
+    "ailab-gateway/kat-coder-v2.5-dev:256k": "max",
+    "ailab-gateway/qwen38-rvn-sandbox-native:256k": "max",
+    "ailab-ollama/qwen3.8-flash-next:125b-a6b-q6_K-ab-262k": "max"
+  },
+  "defaultTools": [
+    "read",
+    "grep",
+    "find",
+    "ls",
+    "write",
+    "edit",
+    "bash"
+  ],
+  "defaultProjectTrust": "ask",
+  "externalEditor": "code --wait",
+  "compaction": {
+    "enabled": true,
+    "reserveTokens": 32768,
+    "keepRecentTokens": 20000,
+    "modelOverrides": {
+      "ailab-ollama/qwen3.8-flash-next:125b-a6b-q5_K_M-ab-262k": {
+        "reserveTokens": 32768,
+        "keepRecentTokens": 20000
+      },
+      "ailab-ollama/qwen3.8-flash-next:125b-a6b-q6_K-ab-262k": {
+        "reserveTokens": 32768,
+        "keepRecentTokens": 20000
+      },
+      "ailab-gateway/kat-coder-v2.5-dev:256k": {
+        "reserveTokens": 32768,
+        "keepRecentTokens": 20000
+      },
+      "ailab-gateway/qwen38-rvn-sandbox-native:256k": {
+        "reserveTokens": 32768,
+        "keepRecentTokens": 20000
+      }
+    }
+  },
+  "enableInstallTelemetry": false,
+  "enableAnalytics": false,
+  "lastChangelogVersion": "1.0.3",
+  "theme": "dark",
+  "httpIdleTimeoutMs": 0,
+  "retry": {
+    "enabled": false,
+    "maxRetries": 0,
+    "baseDelayMs": 2000,
+    "maxAgentDelayMs": 60000,
+    "provider": {
+      "maxRetries": 0,
+      "maxRetryDelayMs": 60000
+    }
+  }
+}

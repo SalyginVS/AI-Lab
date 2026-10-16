@@ -1,0 +1,82 @@
+{
+  "T": "20261016T120000Z",
+  "base_url": "https://snapshot.ubuntu.com/ubuntu/20261016T120000Z/",
+  "signatures": "VERIFIED",
+  "trust_anchor": "/usr/share/keyrings/ubuntu-archive-keyring.gpg",
+  "indexes": [
+    {
+      "suite": "resolute",
+      "path": "main/binary-amd64/Packages.xz",
+      "sha256": "ed9ac41cb263efaecc5a06a0742dc56570e2fb5ff94c4f2e4b2fbdcddd73cf24",
+      "size": 1480032
+    },
+    {
+      "suite": "resolute",
+      "path": "restricted/binary-amd64/Packages.xz",
+      "sha256": "147c90b597ef6c1d1480f9cfe44f49201e9c2c0a1071f3ebec9e4de51690ccbd",
+      "size": 151900
+    },
+    {
+      "suite": "resolute",
+      "path": "restricted/binary-i386/Packages.xz",
+      "sha256": "6be462648d051e4ed37be6b0b37e672f7c0833f5ca0cd9979699f17322996269",
+      "size": 13560
+    },
+    {
+      "suite": "resolute",
+      "path": "universe/binary-amd64/Packages.xz",
+      "sha256": "1587be86d66d38542325215e0e109f75bd695c8f24d793ace2762038a6ad581e",
+      "size": 15960824
+    },
+    {
+      "suite": "resolute-updates",
+      "path": "main/binary-amd64/Packages.xz",
+      "sha256": "dac3bdbfd53f88d3a74176ece03f3521ba9e1f255f4a1e36767df8f50d6993a4",
+      "size": 737948
+    },
+    {
+      "suite": "resolute-updates",
+      "path": "restricted/binary-amd64/Packages.xz",
+      "sha256": "7f290bbeae578daa6a2779f93aa83e3bee950f9d500fb461c3d0485bd2c99e9b",
+      "size": 507508
+    },
+    {
+      "suite": "resolute-updates",
+      "path": "restricted/binary-i386/Packages.xz",
+      "sha256": "e4ff3f26e0a6d1993f0a8bd0c05fc2f61d1568acf07411ffb75988c1f3631bcc",
+      "size": 14368
+    },
+    {
+      "suite": "resolute-updates",
+      "path": "universe/binary-amd64/Packages.xz",
+      "sha256": "a175c4d3b567f7b5f7234950f31b6b6465900b22d357252094faa3bab51b1bd8",
+      "size": 329332
+    },
+    {
+      "suite": "resolute-security",
+      "path": "main/binary-amd64/Packages.xz",
+      "sha256": "52c862536ffe7b896e6d48304c950125eb5f6f1ae7ec075a114a4ca3e8b8fcae",
+      "size": 602168
+    },
+    {
+      "suite": "resolute-security",
+      "path": "restricted/binary-amd64/Packages.xz",
+      "sha256": "62d2c6c804fe06fe344bffefd84eaad74f5aba06f5f974aad29224f6e0393a02",
+      "size": 494896
+    },
+    {
+      "suite": "resolute-security",
+      "path": "restricted/binary-i386/Packages.xz",
+      "sha256": "e4ff3f26e0a6d1993f0a8bd0c05fc2f61d1568acf07411ffb75988c1f3631bcc",
+      "size": 14368
+    },
+    {
+      "suite": "resolute-security",
+      "path": "universe/binary-amd64/Packages.xz",
+      "sha256": "85b7c03dc944b12be0dd747784e7331567d33fd3211c06fb0bddbb307c3abf92",
+      "size": 201548
+    }
+  ],
+  "matched": 37,
+  "selected": 37
+}

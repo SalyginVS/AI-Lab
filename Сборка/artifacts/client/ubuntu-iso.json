@@ -1,0 +1,8 @@
+{
+  "name": "ubuntu-26.04-desktop-amd64.iso",
+  "url": "https://releases.ubuntu.com/26.04/ubuntu-26.04-desktop-amd64.iso",
+  "sha256": "487f87faaf547ea30e0aba4d5b53346292571256b25333a978db1692bcee9dd2",
+  "signature": "VERIFIED",
+  "downloaded": false,
+  "media_info": "Ubuntu 26.04 \"Resolute Raccoon\" - Release amd64 (20260423.1)"
+}

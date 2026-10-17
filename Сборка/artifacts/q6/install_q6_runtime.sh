@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-exec python3 - "$SCRIPT_DIR" "$@" <<'PY'
+exec python3 -I - "$SCRIPT_DIR" "$@" <<'PY'
 """Q6 runtime package. Reads GGUF metadata; never reads tensor data."""
 import argparse
 import hashlib

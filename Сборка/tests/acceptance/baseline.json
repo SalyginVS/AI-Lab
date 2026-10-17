@@ -115,9 +115,7 @@
       "compose_services": {
         "value": [
           "core",
-          "valkey",
-          "core-data",
-          "valkey-data"
+          "valkey"
         ],
         "source": "RB-10 A.3 F06; RB-07; Сборка/artifacts/services/images.json"
       }

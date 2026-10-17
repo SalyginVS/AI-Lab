@@ -9,6 +9,7 @@ p=argparse.ArgumentParser(description='Install pinned postboot checks; no model 
 p.add_argument('--repo',type=Path,default=package.parents[2])
 p.add_argument('--commit',help='Full source commit, required for an exported git archive')
 p.add_argument('--root',type=Path,default=Path('/'),help='Offline staging root; skips systemctl and account lookup')
+p.add_argument('--baseline-name',default='baseline.live-2026-10-17.json',help='Baseline filename already included in the installed suite')
 p.add_argument('--uninstall',action='store_true')
 a=p.parse_args(sys.argv[2:]);root=a.root.resolve();staging=root!=Path('/')
 if not staging and os.geteuid()!=0:raise SystemExit('Run installer as root')
@@ -57,6 +58,13 @@ for line in (package/'SHA256SUMS').read_text().splitlines():
  digest,name=line.split('  ',1)
  if hashlib.sha256((package/name).read_bytes()).hexdigest()!=digest:raise SystemExit('Postboot artifact checksum mismatch: '+name)
 names=['Сборка/tests/acceptance/t_fast_server.sh','Сборка/tests/acceptance/evaluate.py','Сборка/tests/acceptance/baseline.json','Сборка/tests/acceptance/baseline.live-2026-10-17.json','Сборка/artifacts/q6/llama-server.wrapper.in']
+baseline_names={Path(n).name for n in names if n.startswith('Сборка/tests/acceptance/') and Path(n).match('baseline*.json')}
+if not re.fullmatch(r'baseline[^/]*\.json',a.baseline_name) or a.baseline_name not in baseline_names:
+ raise SystemExit('Baseline must be a baseline*.json file included in the installed suite')
+postboot_source=(package/'postboot-check.sh.in').read_bytes()
+baseline_line=b'baseline_name=baseline.live-2026-10-17.json'
+if postboot_source.count(baseline_line)!=1:raise SystemExit('Expected exactly one baseline_name assignment')
+postboot_script=postboot_source.replace(baseline_line,('baseline_name='+a.baseline_name).encode())
 data={n:(repo/n).read_bytes() for n in names};data['SOURCE_COMMIT']=(commit+'\n').encode()
 data['SHA256SUMS']=''.join(hashlib.sha256(v).hexdigest()+'  '+n+'\n' for n,v in data.items()).encode()
 data['INSTALLATION.json']=(json.dumps({'installer':'ailab-postboot-v1','commit':commit},sort_keys=True)+'\n').encode()
@@ -75,7 +83,7 @@ else:
   if tmp.exists():shutil.rmtree(tmp)
 unit_bytes=(package/'ailab-postboot-check.service.in').read_text().replace('@LAB_OPERATOR@',operator).encode()
 if b'@LAB_' in unit_bytes:raise SystemExit('Unresolved unit marker')
-put(libexec/'postboot-check.sh',(package/'postboot-check.sh.in').read_bytes(),0o755)
+put(libexec/'postboot-check.sh',postboot_script,0o755)
 put(libexec/'known-findings.json',(package/'known-findings.json').read_bytes(),0o644)
 put(unit,unit_bytes,0o644)
 link=suite_parent/('.current-'+str(os.getpid()));link.symlink_to(destination.name);os.replace(link,suite_parent/'current')

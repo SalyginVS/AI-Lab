@@ -15,9 +15,16 @@ p=argparse.ArgumentParser(description=__doc__)
 p.add_argument('--base',default=BASE,help='Base commit for public diff and Markdown frontmatter comparison')
 p.add_argument('--start',default=START,help='Last accepted package commit; later artifact changes require acceptance')
 p.add_argument('--allow-notes',default='Q6-WRAPPER,SRV-OS',help='Comma-separated component IDs whose NOTES may change')
+p.add_argument('--allow-artifact-dir',type=Path,help='Permit accepted-byte changes only inside this repository artifact directory')
 p.add_argument('--static-only',action='store_true');p.add_argument('--working-tree',action='store_true')
 p.add_argument('--evidence-root',type=Path);p.add_argument('--freshness',type=Path);p.add_argument('--output',type=Path)
 a=p.parse_args();BASE=a.base;START=a.start;results={};candidates=[]
+allowed_artifact_dir=None
+if a.allow_artifact_dir is not None:
+ allowed_artifact_dir=(ROOT/a.allow_artifact_dir).resolve()
+ artifact_root=(ROOT/'Сборка/artifacts').resolve()
+ if not allowed_artifact_dir.is_dir() or allowed_artifact_dir==artifact_root or not allowed_artifact_dir.is_relative_to(artifact_root):
+  p.error('--allow-artifact-dir must select an existing directory strictly inside Сборка/artifacts')
 def git(*args):return subprocess.check_output(['git','-c','core.quotepath=false','-C',str(ROOT),*args])
 for option,ref in [('base',BASE),('start',START)]:
  q=subprocess.run(['git','-C',str(ROOT),'rev-parse','--verify','--end-of-options',ref+'^{commit}'],capture_output=True,text=True)
@@ -138,6 +145,7 @@ for f in sorted((ROOT/'Сборка/artifacts').rglob('SHA256SUMS')):
 changed=git('diff','--name-only','-z',START,*([] if a.working_tree else ['HEAD'])).decode().split('\0')
 accepted_paths=set(git('ls-tree','-r','--name-only','-z',START).decode().split('\0'))
 def protected_change(n):
+ if allowed_artifact_dir is not None and (ROOT/n).is_relative_to(allowed_artifact_dir) and (ROOT/n).resolve().is_relative_to(allowed_artifact_dir):return False
  if n in accepted_paths:
   return n.startswith(('Сборка/artifacts/','Сборка/tests/acceptance/','Решения/')) or n=='Целевая_архитектура_AI_Coding_Platform_v1_22.md'
  if n.startswith('Сборка/artifacts/postboot/'):return False

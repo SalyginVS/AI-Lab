@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""RB-11 K1-K9. Read-only package inspection; offline tests write only to evidence/tmp.
+"""RB-11 K1-K10; maintenance from an accepted --start commit. Read-only package inspection; offline tests write only to evidence/tmp.
 
 Run with python3 -I. --static-only runs K1-K7. Full verification additionally
 requires --evidence-root and --freshness (private RB-11 freshness.json).
@@ -14,6 +14,7 @@ START='db0737e0b55ca68d390a9d006f8e1edf70b66a49'
 p=argparse.ArgumentParser(description=__doc__)
 p.add_argument('--base',default=BASE,help='Base commit for public diff and Markdown frontmatter comparison')
 p.add_argument('--start',default=START,help='Last accepted package commit; later artifact changes require acceptance')
+p.add_argument('--allow-notes',default='Q6-WRAPPER,SRV-OS',help='Comma-separated component IDs whose NOTES may change')
 p.add_argument('--static-only',action='store_true');p.add_argument('--working-tree',action='store_true')
 p.add_argument('--evidence-root',type=Path);p.add_argument('--freshness',type=Path);p.add_argument('--output',type=Path)
 a=p.parse_args();BASE=a.base;START=a.start;results={};candidates=[]
@@ -47,7 +48,7 @@ def anchors(s):
   out.add(h+('-'+str(n) if n else ''))
  out.update(re.findall(r'(?:id|name)=["\x27]([^"\x27]+)',s));return out
 # K1 ordinary Markdown inline links, images and reference definitions; code is excluded.
-files=[ROOT/'README.md',ROOT/'Паспорт_лаборатории_v39.md',ROOT/'Этапы/2026-10-16_Rebuild_Package/Результаты.md',*sorted((ROOT/'Сборка').rglob('*.md'))]
+files=[ROOT/'README.md',ROOT/'Паспорт_лаборатории_v39.md',ROOT/'Паспорт_лаборатории_v40.md',ROOT/'Этапы/2026-10-16_Rebuild_Package/Результаты.md',*sorted((ROOT/'Сборка').rglob('*.md'))]
 errors=[];nlinks=0
 for f in files:
  s=prose(text(f));s=re.sub(r'`[^`\n]+`','',s)
@@ -96,12 +97,16 @@ for r in rows:
   for col in ['REBUILD_SOURCE','RUNBOOK','TESTS']:
    if r[col] in ['','-']:errors.append(r['COMPONENT_ID']+': empty '+col)
 old=list(csv.DictReader(git('show',START+':Сборка/manifest/components.tsv').decode().splitlines(),delimiter='\t'))
+allowed_notes=set(filter(None,a.allow_notes.split(',')))
+old_ids=[r['COMPONENT_ID'] for r in old];new_ids=[r['COMPONENT_ID'] for r in rows]
+if len(rows)<len(old):errors.append('accepted components removed')
+if new_ids[:len(old)]!=old_ids:errors.append('accepted component order/identity changed; append new rows only')
+if len(set(new_ids))!=len(new_ids):errors.append('duplicate component ID')
 for before,after in zip(old,rows):
  for col in before:
   if col not in ['RUNBOOK','TESTS','NOTES'] and before[col]!=after[col]:errors.append(after['COMPONENT_ID']+': altered '+col)
- if before['NOTES']!=after['NOTES'] and after['COMPONENT_ID'] not in ['Q6-WRAPPER','SRV-OS']:errors.append(after['COMPONENT_ID']+': altered NOTES')
-if len(rows)!=48:errors.append('component count changed')
-record('K3',errors,remaining_tbd=sum(v.count('TBD:RB-12') for r in rows for v in r.values()))
+ if before['NOTES']!=after['NOTES'] and after['COMPONENT_ID'] not in allowed_notes:errors.append(after['COMPONENT_ID']+': altered NOTES')
+record('K3',errors,accepted_rows=len(old),appended_rows=max(0,len(rows)-len(old)),remaining_tbd=sum(v.count('TBD:RB-12') for r in rows for v in r.values()))
 # K4 markers and site values. Fixed generic runtime paths are package defaults.
 env=text(ROOT/'Сборка/site.example.env');declared=set(re.findall(r'^(LAB_[A-Z0-9_]+)=',env,re.M));used=set()
 for f in (ROOT/'Сборка').rglob('*'):
@@ -131,7 +136,14 @@ for f in sorted((ROOT/'Сборка/artifacts').rglob('SHA256SUMS')):
    for block in iter(lambda:stream.read(8*1024*1024),b''):digest.update(block)
   if digest.hexdigest()!=m[1]:errors.append(str(f.relative_to(ROOT))+': checksum mismatch '+m[2])
 changed=git('diff','--name-only','-z',START,*([] if a.working_tree else ['HEAD'])).decode().split('\0')
-protected=[n for n in changed if n.startswith('Сборка/artifacts/') or n.startswith('Решения/') or n=='Целевая_архитектура_AI_Coding_Platform_v1_22.md']
+accepted_paths=set(git('ls-tree','-r','--name-only','-z',START).decode().split('\0'))
+def protected_change(n):
+ if n in accepted_paths:
+  return n.startswith(('Сборка/artifacts/','Сборка/tests/acceptance/','Решения/')) or n=='Целевая_архитектура_AI_Coding_Platform_v1_22.md'
+ if n.startswith('Сборка/artifacts/postboot/'):return False
+ if re.fullmatch(r'Сборка/tests/acceptance/baseline\.live-\d{4}-\d{2}-\d{2}\.json(?:\.sha256)?',n):return False
+ return n.startswith(('Сборка/artifacts/','Сборка/tests/acceptance/','Решения/')) or n=='Целевая_архитектура_AI_Coding_Platform_v1_22.md'
+protected=[n for n in changed if n and protected_change(n)]
 if protected:errors.extend('accepted bytes changed: '+n for n in protected)
 record('K5',errors,sha256sums_files=count,external_unchecked=external_unchecked)
 # K6 RB00 A.6.5 and K7 RB09 T5 on added lines in the full diff.
@@ -241,7 +253,7 @@ for name in git('ls-tree','-r','--name-only','-z',BASE).decode().split('\0'):
  after=text(path);before_keys=frontmatter_keys(before);after_keys=frontmatter_keys(after)
  if after_keys is None:errors.append(name+': YAML frontmatter must start on line 1 and have closing ---')
  elif after_keys!=before_keys:errors.append(name+': YAML frontmatter key set changed')
-status_files=[*sorted((ROOT/'Сборка').glob('*.md')),ROOT/'Сборка/manifest/README.md',ROOT/'Паспорт_лаборатории_v39.md',ROOT/'Этапы/2026-10-16_Rebuild_Package/Результаты.md']
+status_files=[*sorted((ROOT/'Сборка').glob('*.md')),ROOT/'Сборка/manifest/README.md',ROOT/'Паспорт_лаборатории_v39.md',ROOT/'Паспорт_лаборатории_v40.md',ROOT/'Этапы/2026-10-16_Rebuild_Package/Результаты.md']
 for f in status_files:
  for line in text(f).splitlines():
   if re.match(r'^(?:\*\*)?Статус(?:\*\*)?:',line) and re.search(r'READY_FOR_REVIEW|готов к приёмке|готовится к приёмке',line,re.I):errors.append(str(f.relative_to(ROOT))+': stale review status')

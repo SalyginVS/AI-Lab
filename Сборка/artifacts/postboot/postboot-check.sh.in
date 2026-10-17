@@ -1,0 +1,92 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+suite=/opt/ailab-acceptance/current
+baseline_name=baseline.live-2026-10-17.json
+service_root="$HOME/llm-gateway"
+boot_id=$(cat /proc/sys/kernel/random/boot_id)
+stamp=$(date -u +%Y%m%dT%H%M%S.%NZ)
+output="$service_root/logs/postboot/${stamp}_${boot_id:0:8}"
+mkdir -p -- "$output"
+ready=0
+deadline=$((SECONDS + 600))
+while (( SECONDS < deadline )); do
+  if curl --fail --silent --max-time 5 http://127.0.0.1:11434/api/version > "$output/ollama-readiness.json" &&
+     curl --fail --silent --max-time 5 http://127.0.0.1:8000/health > "$output/gateway-readiness.json" &&
+     python3 -I - "$output" <<'PY'
+import json,sys
+from pathlib import Path
+p=Path(sys.argv[1]);version=json.loads((p/'ollama-readiness.json').read_text());health=json.loads((p/'gateway-readiness.json').read_text())
+assert version.get('version') and health.get('ollama')=='ok'
+PY
+  then
+    ready=1
+    break
+  fi
+  sleep 2
+done
+health_rc=125
+tfast_rc=125
+evaluate_rc=125
+if (( ready )); then
+  if (cd -- "$suite" && sha256sum -c SHA256SUMS) > "$output/suite-checksums.out" 2>&1; then
+    if (cd -- "$service_root" && bash scripts/health-check.sh) > "$output/healthcheck.out" 2>&1; then
+      health_rc=0
+    else
+      health_rc=$?
+    fi
+    if bash "$suite/Сборка/tests/acceptance/t_fast_server.sh" > "$output/t_fast_server.json" 2> "$output/t_fast_server.err"; then
+      tfast_rc=0
+    else
+      tfast_rc=$?
+    fi
+    if python3 -I "$suite/Сборка/tests/acceptance/evaluate.py" --raw "$output/t_fast_server.json" --baseline "$suite/Сборка/tests/acceptance/$baseline_name" --output "$output/t_fast_server_evaluated.json" > "$output/evaluator.out" 2>&1; then
+      evaluate_rc=0
+    else
+      evaluate_rc=$?
+    fi
+  fi
+fi
+python3 -I - "$output" "$ready" "$health_rc" "$tfast_rc" "$evaluate_rc" /usr/local/libexec/ailab/known-findings.json <<'PY'
+import datetime,json,re,subprocess,sys
+from pathlib import Path
+out=Path(sys.argv[1]);ready=bool(int(sys.argv[2]));hc_rc,tf_rc,ev_rc=map(int,sys.argv[3:6])
+registry=Path(sys.argv[6]);statuses={};effective={};errors=[];applied=[];resolved=[]
+health=(out/'healthcheck.out').read_text(errors='replace') if (out/'healthcheck.out').exists() else ''
+rows=re.findall(r'^\[(OK|FAIL)\]',health,re.M);passed=rows.count('OK');failed=rows.count('FAIL')
+try:
+ findings=json.loads(registry.read_text())
+ assert isinstance(findings,list)
+ assert all(isinstance(f,dict) and all(isinstance(f.get(k),str) and f[k] for k in ['test','check','ref','accepted_on']) for f in findings)
+ known={(f['test'],f['check']):f for f in findings}
+ assert len(known)==len(findings)
+except (OSError,ValueError,TypeError,AssertionError):
+ known={};errors.append('invalid_known_findings_registry')
+try:
+ results=json.loads((out/'t_fast_server_evaluated.json').read_text())['results']
+ statuses={row['id']:row['status'] for row in results}
+ assert len(results)==len(statuses) and set(statuses)=={'F01','F02','F03','F04','F05','F06','F07'}
+ assert all(s in ['PASS','FAIL','TEST_DEFECT','REVALIDATE','DRIFT','INFO'] for s in statuses.values())
+ effective=dict(statuses)
+ for row in results:
+  checks=row['checks'];assert isinstance(checks,list)
+  for check in checks:
+   key=(row['id'],check['check'])
+   if key in known and check['status']=='PASS':resolved.append(known[key])
+  if row['status']=='FAIL':
+   nonpass=[check for check in checks if check['status']!='PASS']
+   if nonpass and all((row['id'],check['check']) in known for check in nonpass):
+    effective[row['id']]='KNOWN'
+    applied.extend(known[(row['id'],check['check'])] for check in nonpass)
+except (OSError,KeyError,ValueError,TypeError,AssertionError):errors.append('invalid_evaluated_protocol')
+if not ready:result,code='FAIL',2;errors.append('service_readiness_timeout')
+elif hc_rc!=0 or passed!=20 or failed or len(rows)!=20 or tf_rc or ev_rc not in [0,1] or errors or any(s in ['FAIL','TEST_DEFECT'] for s in effective.values()):result,code='FAIL',1
+elif 'REVALIDATE' in effective.values():result,code='REVALIDATE',3
+elif 'DRIFT' in effective.values():result,code='DRIFT',0
+else:result,code='PASS',0
+kernel=subprocess.run(['uname','-r'],capture_output=True,text=True).stdout.strip();driver=subprocess.run(['nvidia-smi','--query-gpu=driver_version','--format=csv,noheader'],capture_output=True,text=True).stdout.strip()
+summary={'time':datetime.datetime.now(datetime.timezone.utc).isoformat(),'boot_id':Path('/proc/sys/kernel/random/boot_id').read_text().strip(),'kernel':kernel,'nvidia_driver':driver,'ready':ready,'health':{'passed':passed,'failed':failed,'total':len(rows),'returncode':hc_rc},'tfast':statuses,'tfast_effective':effective,'known_applied':applied,'known_resolved':resolved,'tfast_returncode':tf_rc,'evaluator_returncode':ev_rc,'result':result,'exit_code':code,'errors':errors}
+(out/'summary.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2)+'\n')
+print('AILAB_POSTBOOT result='+result+' kernel='+kernel+' health='+str(passed)+'/'+str(len(rows))+' tfast='+','.join(k+':'+v for k,v in sorted(statuses.items()))+' known='+','.join(sorted({f['test'] for f in applied}))+' known_resolved='+','.join(sorted({f['test'] for f in resolved})),flush=True)
+raise SystemExit(code)
+PY

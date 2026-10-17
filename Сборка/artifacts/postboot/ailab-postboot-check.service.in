@@ -1,0 +1,14 @@
+[Unit]
+Description=AI Lab checks after each server boot
+After=network-online.target ollama.service llm-gateway.service rag-mcp.service docker-mcp.service searxng-mcp.service docker.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=@LAB_OPERATOR@
+Group=@LAB_OPERATOR@
+ExecStart=/usr/local/libexec/ailab/postboot-check.sh
+TimeoutStartSec=1500
+
+[Install]
+WantedBy=multi-user.target

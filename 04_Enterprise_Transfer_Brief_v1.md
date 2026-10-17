@@ -1,3 +1,5 @@
+HISTORICAL: исторический документ; актуальный [порядок сборки](Сборка/00_Порядок_сборки.md).
+
 # Enterprise Transfer Brief: Lab RTX3090 → ONDO Production
 
 **Версия:** 1.0  

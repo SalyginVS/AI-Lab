@@ -1,0 +1,90 @@
+{
+  "accepted_public_parent": "c355c240eda02c26366acabf53db3bf80e1335ac",
+  "files": [
+    {
+      "source": "Сборка/20_Ollama.md",
+      "sha256": "1515720454800405b36ba3420903cd8928043c2cf136b662b27284bb34ee3a46",
+      "bytes": 17534
+    },
+    {
+      "source": "Сборка/30_Модели.md",
+      "sha256": "c99524238bdc4df0c441bfec928e964330fbe398ce8d70ff25a40887aeaeb10a",
+      "bytes": 41599
+    },
+    {
+      "source": "Сборка/40_Q6_runtime.md",
+      "sha256": "6797553b23c62493a162e3bfc366de2f4585e02d85257d60cf2c8e0e3f89481e",
+      "bytes": 20580
+    },
+    {
+      "source": "Сборка/artifacts/q6/llama-server.wrapper.in",
+      "sha256": "f07f08baf630b0bfa92b52f26972c035add89aa0b5babf5dbdd245ccd65d9819",
+      "bytes": 1014
+    },
+    {
+      "source": "Сборка/artifacts/q6/SHA256SUMS",
+      "sha256": "98525e896580db36811dea0d285badb5e102b62629532495f277081578ca50e9",
+      "bytes": 950
+    },
+    {
+      "source": "Сборка/artifacts/ollama/override.conf.in",
+      "sha256": "638f6d45729a5cad17fad9dc38eaa8e641d0142a7d4d529a04559545892bec85",
+      "bytes": 326
+    },
+    {
+      "source": "Сборка/artifacts/ollama/90-fn3090-keepalive.conf",
+      "sha256": "5560a0a9ea36246b7eb2f4a4210780bd3ea75344e259b29faa5ed3597dbe3e5c",
+      "bytes": 46
+    },
+    {
+      "source": "Сборка/artifacts/client/baseline/models.json",
+      "sha256": "6ea9fcedf647ed4bf68d2ce362937757a7253426cf860a6c4fb0397e5b621261",
+      "bytes": 2486
+    },
+    {
+      "source": "Сборка/artifacts/client/baseline/settings.json",
+      "sha256": "06f500e23a920d7010e3c058bd7aa8e13e4acbe576d6d49104b23221b508ef7d",
+      "bytes": 1017
+    },
+    {
+      "source": "Сборка/artifacts/client/sources.json",
+      "sha256": "2b1237d651efc0b09b14e7f4feae494be67700457b0da7e0be433d187b3a5f73",
+      "bytes": 7652
+    },
+    {
+      "source": "Сборка/artifacts/platform/ctk-packages.lock",
+      "sha256": "4f1693bb5388f03ce32bb07c0655570c3adf5c734ec921672ef2e3818b63dfe8",
+      "bytes": 138
+    },
+    {
+      "source": "Сборка/artifacts/platform/key-packages.tsv",
+      "sha256": "49ab80838169d266a2e4c1fbc1b9915576647cbb64c9f1b4643f1610ae73ab42",
+      "bytes": 7753
+    },
+    {
+      "source": "Сборка/artifacts/services/searxng/docker-compose.yml",
+      "sha256": "f476d3f9c5be24216ba1c762bffdb5985b64187559d869e15da3518dfd8b5a15",
+      "bytes": 731
+    },
+    {
+      "source": "Сборка/artifacts/services/gateway/revisions/rb07.1/pipelines.yaml",
+      "sha256": "62f7b22c6be78e5b57db22f7272625a3ad5ef584bbef7789050004ae9b2d2083",
+      "bytes": 334
+    },
+    {
+      "source": "RB-06/rb06_ubuntu_packages.lock",
+      "sha256": "0c978267545f91080939000cebb2df26543e6e17241b36ad2d3ae19348a53d8a",
+      "bytes": 30102
+    },
+    {
+      "source": "RB-06/rb06_snapshot_table.tsv",
+      "sha256": "c75d2c6fc87d1a0a2d72e2351dd5e65856dd57fb1ebdd7c2ddc09ede2087d04e",
+      "bytes": 218389
+    },
+    {
+      "source": "RB-08/rb08_pi_live_hashes.json",
+      "sha256": "d438ac00ab826b2bf6084facec5e5ca17abaf0d1e6b3360c436dff3c839d4a7c",
+      "bytes": 2003292
+    }
+  ]
+}

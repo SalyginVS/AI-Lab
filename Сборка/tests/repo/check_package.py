@@ -16,6 +16,7 @@ p.add_argument('--base',default=BASE,help='Base commit for public diff and Markd
 p.add_argument('--start',default=START,help='Last accepted package commit; later artifact changes require acceptance')
 p.add_argument('--allow-notes',default='Q6-WRAPPER,SRV-OS',help='Comma-separated component IDs whose NOTES may change')
 p.add_argument('--allow-artifact-dir',type=Path,help='Permit accepted-byte changes only inside this repository artifact directory')
+p.add_argument('--allow-file',type=Path,action='append',default=[],help='Permit accepted-byte changes to this exact regular file; repeatable, never a directory')
 p.add_argument('--static-only',action='store_true');p.add_argument('--working-tree',action='store_true')
 p.add_argument('--evidence-root',type=Path);p.add_argument('--freshness',type=Path);p.add_argument('--output',type=Path)
 a=p.parse_args();BASE=a.base;START=a.start;results={};candidates=[]
@@ -25,6 +26,12 @@ if a.allow_artifact_dir is not None:
  artifact_root=(ROOT/'Сборка/artifacts').resolve()
  if not allowed_artifact_dir.is_dir() or allowed_artifact_dir==artifact_root or not allowed_artifact_dir.is_relative_to(artifact_root):
   p.error('--allow-artifact-dir must select an existing directory strictly inside Сборка/artifacts')
+allowed_files=set()
+for value in a.allow_file:
+ candidate=Path(os.path.abspath(ROOT/value))
+ if not candidate.is_relative_to(ROOT) or not candidate.is_file() or candidate.is_symlink() or candidate.resolve()!=candidate:
+  p.error('--allow-file must select an existing regular file inside the repository, never a directory or symlink')
+ allowed_files.add(candidate.relative_to(ROOT).as_posix())
 def git(*args):return subprocess.check_output(['git','-c','core.quotepath=false','-C',str(ROOT),*args])
 for option,ref in [('base',BASE),('start',START)]:
  q=subprocess.run(['git','-C',str(ROOT),'rev-parse','--verify','--end-of-options',ref+'^{commit}'],capture_output=True,text=True)
@@ -126,6 +133,11 @@ for k,v in re.findall(r'^(LAB_[A-Z0-9_]+)=(.*)$',env,re.M):
 record('K4',errors,declared=len(declared),used=len(used))
 # K5 accepted artifact checksums and protection of accepted bytes.
 errors=[];count=0;external_unchecked=[]
+immutable_files={'Сборка/tests/acceptance/baseline.json','Сборка/tests/acceptance/baseline.live-2026-10-17.json','Сборка/tests/acceptance/evaluate.py'}
+for name in sorted(immutable_files):
+ source=ROOT/name
+ if not source.is_file() or source.is_symlink() or source.read_bytes()!=git('show',START+':'+name):
+  errors.append('immutable accepted bytes changed: '+name)
 for f in sorted((ROOT/'Сборка/artifacts').rglob('SHA256SUMS')):
  count+=1
  for l in text(f).splitlines():
@@ -145,6 +157,8 @@ for f in sorted((ROOT/'Сборка/artifacts').rglob('SHA256SUMS')):
 changed=git('diff','--name-only','-z',START,*([] if a.working_tree else ['HEAD'])).decode().split('\0')
 accepted_paths=set(git('ls-tree','-r','--name-only','-z',START).decode().split('\0'))
 def protected_change(n):
+ if n in immutable_files:return True
+ if n in allowed_files:return False
  if allowed_artifact_dir is not None and (ROOT/n).is_relative_to(allowed_artifact_dir) and (ROOT/n).resolve().is_relative_to(allowed_artifact_dir):return False
  if n in accepted_paths:
   return n.startswith(('Сборка/artifacts/','Сборка/tests/acceptance/','Решения/')) or n=='Целевая_архитектура_AI_Coding_Platform_v1_22.md'

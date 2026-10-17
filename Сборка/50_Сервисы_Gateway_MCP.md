@@ -294,3 +294,44 @@ Q6 с рассуждением может не успеть сформирова
 ShellCheck ревизии с --severity=warning: 0 предупреждений.
 Полный запуск ShellCheck содержит 20 информационных SC2329 о косвенных вызовах функций через check.
 Эти сообщения сохранены в evidence; исходная структура вызова функций не менялась.
+
+## 10. Проверка после включения
+
+На живом сервере 2026-10-17 установлена согласованная пара RB-07.1. Источник: RB-10.1 ACCEPTED_WITH_LIMITATIONS; health и M10 дали 20/20. Cron03:00 сохранён. Основной сигнал после включения даёт ailab-postboot-check.
+
+Для установки пары на согласованной системе сначала проверить SHA256SUMS ревизии. Сохранить оба старых файла в одном приватном каталоге. Пути сервисов сохраняют ограничение раздела 9.
+
+```bash
+V="$LAB_REBUILD_ROOT/Сборка/artifacts/services/gateway/revisions/rb07.1"
+(cd "$V" && sha256sum -c SHA256SUMS)
+G="$HOME/llm-gateway"
+B="$G/backups/rb07.1-$(date -u +%Y%m%dT%H%M%SZ)"
+mkdir -p "$B/scripts"
+cp -p "$G/scripts/health-check.sh" "$B/scripts/health-check.sh"
+cp -p "$G/pipelines.yaml" "$B/pipelines.yaml"
+(cd "$B" && sha256sum scripts/health-check.sh pipelines.yaml > SHA256SUMS)
+install -m 0755 "$V/scripts/health-check.sh" "$G/scripts/health-check.sh"
+install -m 0644 "$V/pipelines.yaml" "$G/pipelines.yaml"
+sudo systemctl restart llm-gateway.service
+(cd "$G" && bash scripts/health-check.sh)
+```
+
+Ожидается 20/20. Сверить хеши установленных двух файлов с ревизией. При ошибке вернуть оба файла из B, сверив SHA256SUMS backup, и перезапустить только gateway. Не заменять один файл отдельно. Credentials и данные не менять.
+
+Health-check RB-07.1 читает политику Q6 из pipelines.yaml, но не обращается к Q6. Реальный модельный запрос в нём относится к embedding. Для ответа Q6 нужен разрешённый T-MED.
+
+Артефакты службы: [postboot](artifacts/postboot/). LAB_OPERATOR уже объявлен в site.example.env. Оператор и одноимённая группа должны существовать. Установщик запускается на сервере из чистого checkout закреплённого коммита или проверенного git archive с файлом SOURCE_COMMIT. Для archive передать полный --commit.
+
+```bash
+P="$LAB_REBUILD_ROOT/Сборка/artifacts/postboot"
+C=$(git -C "$LAB_REBUILD_ROOT" rev-parse HEAD)
+sudo env LAB_OPERATOR="$LAB_OPERATOR" bash "$P/install_postboot.sh" --repo "$LAB_REBUILD_ROOT" --commit "$C"
+sudo systemctl start ailab-postboot-check.service
+systemctl status ailab-postboot-check.service
+```
+
+Установщик проверяет SHA256SUMS артефактов, создаёт /opt/ailab-acceptance/<commit12>/ и переключает current. Минимальный набор: T-FAST сервера, оценщик, оба baseline и wrapper-шаблон для проверки хеша. SOURCE_COMMIT и SHA256SUMS закрепляют копию. Затем устанавливаются root:root скрипт 0755, реестр 0644 и unit0644, выполняются daemon-reload и enable. Установщик сам службу не запускает. Повторный install того же коммита проверяет неизменность каталога и не переписывает его.
+
+Для удаления: sudo bash "$P/install_postboot.sh" --uninstall. Остановятся и отключатся только postboot-служба; удалятся её unit, скрипт, реестр, current и каталоги с маркером этого установщика. Журналы и более старые наборы без маркера сохраняются. Для офлайн-проверки поддержан --root /absolute/temp/root: systemctl и поиск учётной записи пропускаются, живая система не меняется.
+
+Итог: [90](90_Acceptance_suite.md#служба-после-включения). При обновлении сохранять прежний commit и устанавливать новый каталог. Смена эталона проходит по [80](80_Восстановление_и_апгрейд.md#смена-платформы).

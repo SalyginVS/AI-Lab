@@ -21,5 +21,12 @@
   "b79ebb86100428f9d58cdb09cdd47d583562bbbabf4989c8283bb4bf13d81c36": "Ложное: исходник анализатора, имя переменной либо регулярное выражение, не значение секрета.",
   "4e273c63de3eba39f9aa518860d93a78ac65521f4a3cbd90d684cf95beb05cca": "Ложное: разделитель строк/регулярного выражения (два двоеточия), не адрес площадки.",
   "612509b54d7b75302a90be2fa01e392df5bae72695c1af0c55845e81403139c4": "Ложное: исходник анализатора, имя переменной либо регулярное выражение, не значение секрета.",
-  "2da8754c20f5578790ae68b6e0a34bad9aa63959e378856b877dfa8071af624b": "Ложное: регулярное выражение проверяет номера и слова; не сетевое правило."
+  "2da8754c20f5578790ae68b6e0a34bad9aa63959e378856b877dfa8071af624b": "Ложное: регулярное выражение проверяет номера и слова; не сетевое правило.",
+  "65e9c8cc719d087a9a7ff6667dbecbe0e339ff19624521ec74213bbcb94b5d6a": "Reviewed RB-11.1: Debian package name/version copied from C4 F07; not a password value.",
+  "40f6404947f14bf5142463e7836f317d36f59973874ea2414f49535d2534f57e": "Reviewed RB-11.1: dotted package version copied from C4 F07; not an IP address or protection rule.",
+  "ca6f4bc39874562fe7f5e42ee3a28fbaafef3e0373de57f9cd30882fcb47d860": "Reviewed RB-11.1: dotted package version copied from C4 F07; not an IP address or protection rule.",
+  "79e111fb7392d30cc50533d38f2cd45ed85b1d0133848fae717c31e20ddf5ea7": "Reviewed RB-11.1: Debian package name/version copied from C4 F07; not a password value.",
+  "a699b35658926bd1cc070300799d9daf7dfadd3ee0131045ff640a34e4ace262": "Reviewed RB-11.1: dotted package version copied from C4 F07; not an IP address or protection rule.",
+  "8ca7ef6705d1e1d2d572ab7989521b50740d69d0c1ba2ec9eb3e88cfe081569a": "Reviewed RB-11.1: dotted package version copied from C4 F07; not an IP address or protection rule.",
+  "47cbc3411a86647bf020439f6acc56a9646b228661469534155d7e0118e8f9d6": "Reviewed RB-11.1: dotted package version copied from C4 F07; not an IP address or protection rule."
 }

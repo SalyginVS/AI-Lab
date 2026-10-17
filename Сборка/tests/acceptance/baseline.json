@@ -1267,6 +1267,10 @@
       "comparison": {
         "value": "max absolute difference; same ordered strings; finite numbers; reference established once on live system",
         "source": "RB-04 L-1; RB-10 A.3 M05"
+      },
+      "strings_sha256": {
+        "value": "2c3520a6727741f643de735379a7c9c138295d1a0d0fb54a92cb21edc687d030",
+        "source": "Сборка/tests/acceptance/embedding_strings.json (RB-10 fixed input before first run)"
       }
     },
     "M06": {

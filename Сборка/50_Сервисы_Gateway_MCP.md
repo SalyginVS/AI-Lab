@@ -325,10 +325,13 @@ Health-check RB-07.1 читает политику Q6 из pipelines.yaml, но 
 ```bash
 P="$LAB_REBUILD_ROOT/Сборка/artifacts/postboot"
 C=$(git -C "$LAB_REBUILD_ROOT" rev-parse HEAD)
-sudo env LAB_OPERATOR="$LAB_OPERATOR" bash "$P/install_postboot.sh" --repo "$LAB_REBUILD_ROOT" --commit "$C"
+# Новая сборка по lock RB-06, ядро 146:
+sudo env LAB_OPERATOR="$LAB_OPERATOR" bash "$P/install_postboot.sh" --repo "$LAB_REBUILD_ROOT" --commit "$C" --baseline-name baseline.json
 sudo systemctl start ailab-postboot-check.service
 systemctl status ailab-postboot-check.service
 ```
+
+Для принятой живой платформы 147 используется значение по умолчанию `--baseline-name baseline.live-2026-10-17.json`. Выбор разрешён только среди baseline*.json, включённых в устанавливаемый набор. На ядре 146 нужен baseline.json. После решения владельца о другой платформе перейти на её эталон по [80](80_Восстановление_и_апгрейд.md#смена-платформы). Эта правка не требует переустановки службы на действующем сервере.
 
 Установщик проверяет SHA256SUMS артефактов, создаёт /opt/ailab-acceptance/<commit12>/ и переключает current. Минимальный набор: T-FAST сервера, оценщик, оба baseline и wrapper-шаблон для проверки хеша. SOURCE_COMMIT и SHA256SUMS закрепляют копию. Затем устанавливаются root:root скрипт 0755, реестр 0644 и unit0644, выполняются daemon-reload и enable. Установщик сам службу не запускает. Повторный install того же коммита проверяет неизменность каталога и не переписывает его.
 

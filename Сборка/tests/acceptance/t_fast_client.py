@@ -25,6 +25,7 @@ test('C02',c02)
 def c03():
  # Read installed application metadata without launching VS Code.
  candidates=[Path('/snap/code/current/usr/share/code/resources/app/package.json'),Path('/usr/share/code/resources/app/package.json')]
+ candidates.extend(sorted((H/'.local/opt/vscode').glob('*/VSCode-linux-x64/resources/app/package.json')))
  existing=[p for p in candidates if p.is_file()];v=[json.loads(p.read_text())['version'] for p in existing]
  ex=[]
  for p in (H/'.vscode/extensions').glob('pi0.pi-vscode-*/package.json'):

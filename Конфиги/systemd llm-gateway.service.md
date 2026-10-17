@@ -1,9 +1,9 @@
-HISTORICAL: устаревший источник; [замена](../Сборка/artifacts/services/units/llm-gateway.service.in).
-
 ---
 tags: [конфиг, gateway]
 дата: 2026-03-15
 ---
+
+HISTORICAL: устаревший источник; [замена](../Сборка/artifacts/services/units/llm-gateway.service.in).
 
 # systemd: llm-gateway.service
 

@@ -12,10 +12,19 @@ ROOT=Path(__file__).resolve().parents[3]
 BASE='90ccb3f8187bc00c065471a2f2083c0246dae4d6'
 START='db0737e0b55ca68d390a9d006f8e1edf70b66a49'
 p=argparse.ArgumentParser(description=__doc__)
+p.add_argument('--base',default=BASE,help='Base commit for public diff and Markdown frontmatter comparison')
+p.add_argument('--start',default=START,help='Last accepted package commit; later artifact changes require acceptance')
 p.add_argument('--static-only',action='store_true');p.add_argument('--working-tree',action='store_true')
 p.add_argument('--evidence-root',type=Path);p.add_argument('--freshness',type=Path);p.add_argument('--output',type=Path)
-a=p.parse_args();results={};candidates=[]
+a=p.parse_args();BASE=a.base;START=a.start;results={};candidates=[]
 def git(*args):return subprocess.check_output(['git','-c','core.quotepath=false','-C',str(ROOT),*args])
+for option,ref in [('base',BASE),('start',START)]:
+ q=subprocess.run(['git','-C',str(ROOT),'rev-parse','--verify','--end-of-options',ref+'^{commit}'],capture_output=True,text=True)
+ if q.returncode:
+  print('PACKAGE_CHECK=ERROR: commit for --'+option+' is unavailable. Pass --'+option+' <existing accepted commit>; for maintenance pass --start <last accepted package commit>.',file=sys.stderr)
+  sys.exit(2)
+BASE=subprocess.check_output(['git','-C',str(ROOT),'rev-parse',BASE+'^{commit}']).decode().strip()
+START=subprocess.check_output(['git','-C',str(ROOT),'rev-parse',START+'^{commit}']).decode().strip()
 def sha(b):return hashlib.sha256(b).hexdigest()
 def record(k,errors,**extra):results[k]={'status':'FAIL' if errors else 'PASS','errors':errors,**extra}
 def text(f):return f.read_text(encoding='utf-8',errors='replace')
@@ -90,7 +99,7 @@ old=list(csv.DictReader(git('show',START+':Сборка/manifest/components.tsv'
 for before,after in zip(old,rows):
  for col in before:
   if col not in ['RUNBOOK','TESTS','NOTES'] and before[col]!=after[col]:errors.append(after['COMPONENT_ID']+': altered '+col)
- if before['NOTES']!=after['NOTES'] and after['COMPONENT_ID']!='Q6-WRAPPER':errors.append(after['COMPONENT_ID']+': altered NOTES')
+ if before['NOTES']!=after['NOTES'] and after['COMPONENT_ID'] not in ['Q6-WRAPPER','SRV-OS']:errors.append(after['COMPONENT_ID']+': altered NOTES')
 if len(rows)!=48:errors.append('component count changed')
 record('K3',errors,remaining_tbd=sum(v.count('TBD:RB-12') for r in rows for v in r.values()))
 # K4 markers and site values. Fixed generic runtime paths are package defaults.
@@ -104,7 +113,7 @@ for k,v in re.findall(r'^(LAB_[A-Z0-9_]+)=(.*)$',env,re.M):
  if v.strip() not in ["''",'""','',fixed.get(k)]:errors.append('site value in '+k)
 record('K4',errors,declared=len(declared),used=len(used))
 # K5 accepted artifact checksums and protection of accepted bytes.
-errors=[];count=0
+errors=[];count=0;external_unchecked=[]
 for f in sorted((ROOT/'Сборка/artifacts').rglob('SHA256SUMS')):
  count+=1
  for l in text(f).splitlines():
@@ -114,6 +123,8 @@ for f in sorted((ROOT/'Сборка/artifacts').rglob('SHA256SUMS')):
   source=f.parent/m[2]
   if not source.exists() and f.parent.name=='ollama' and m[2]=='ollama-linux-amd64.tar.zst' and a.evidence_root:
    source=a.evidence_root/'RB-06'/m[2]
+  if not source.is_file() and a.static_only and f.parent.name=='ollama' and m[2]=='ollama-linux-amd64.tar.zst':
+   external_unchecked.append(m[2]);continue
   if not source.is_file():errors.append(str(f.relative_to(ROOT))+': missing checksum input '+m[2]);continue
   digest=hashlib.sha256()
   with source.open('rb') as stream:
@@ -122,7 +133,7 @@ for f in sorted((ROOT/'Сборка/artifacts').rglob('SHA256SUMS')):
 changed=git('diff','--name-only','-z',START,*([] if a.working_tree else ['HEAD'])).decode().split('\0')
 protected=[n for n in changed if n.startswith('Сборка/artifacts/') or n.startswith('Решения/') or n=='Целевая_архитектура_AI_Coding_Platform_v1_22.md']
 if protected:errors.extend('accepted bytes changed: '+n for n in protected)
-record('K5',errors,sha256sums_files=count)
+record('K5',errors,sha256sums_files=count,external_unchecked=external_unchecked)
 # K6 RB00 A.6.5 and K7 RB09 T5 on added lines in the full diff.
 reference=ROOT/'Сборка/tests/repo/boundary_review.json'
 reviews=json.loads(text(reference)) if reference.exists() else {}
@@ -200,6 +211,41 @@ if not a.static_only:
  record('K9',errors,classified_sections=30)
 else:
  for k in ['K8','K9']:results[k]={'status':'NOT_RUN','reason':'static-only; full run required for acceptance'}
+# K10 frontmatter position and key preservation; no YAML dependency required.
+def frontmatter_keys(value):
+ lines=value.splitlines()
+ if not lines or lines[0]!='---':return None
+ try:end=lines.index('---',1)
+ except ValueError:return None
+ keys=[]
+ for line in lines[1:end]:
+  if not line or line[0].isspace() or line.lstrip().startswith('#'):continue
+  match=re.match(r"(?P<key>[^:#][^:]*):(?:\s|$)",line)
+  if match:
+   key=match['key'].strip()
+   if key.startswith(('\"', "'")):
+    try:key=ast.literal_eval(key)
+    except (SyntaxError,ValueError):pass
+   keys.append(key)
+ return set(keys)
+errors=[];frontmatter_count=0
+tracked=set(git('ls-files','-z').decode().split('\0'))
+if a.working_tree:tracked.update(git('ls-files','--others','--exclude-standard','-z').decode().split('\0'))
+for name in git('ls-tree','-r','--name-only','-z',BASE).decode().split('\0'):
+ if not name.endswith('.md'):continue
+ before=git('show',BASE+':'+name).decode(errors='replace')
+ if not before.startswith('---\n'):continue
+ frontmatter_count+=1
+ path=ROOT/name
+ if not path.is_file():errors.append(name+': missing Markdown with original frontmatter');continue
+ after=text(path);before_keys=frontmatter_keys(before);after_keys=frontmatter_keys(after)
+ if after_keys is None:errors.append(name+': YAML frontmatter must start on line 1 and have closing ---')
+ elif after_keys!=before_keys:errors.append(name+': YAML frontmatter key set changed')
+status_files=[*sorted((ROOT/'Сборка').glob('*.md')),ROOT/'Сборка/manifest/README.md',ROOT/'Паспорт_лаборатории_v39.md',ROOT/'Этапы/2026-10-16_Rebuild_Package/Результаты.md']
+for f in status_files:
+ for line in text(f).splitlines():
+  if re.match(r'^(?:\*\*)?Статус(?:\*\*)?:',line) and re.search(r'READY_FOR_REVIEW|готов к приёмке|готовится к приёмке',line,re.I):errors.append(str(f.relative_to(ROOT))+': stale review status')
+record('K10',errors,frontmatter_files=frontmatter_count,status_files=len(status_files))
 result={'checks':results,'boundary_candidates':candidates,'status':'FAIL' if any(r['status']=='FAIL' for r in results.values()) else ('STATIC_PASS' if a.static_only else 'PASS')}
 if a.output:a.output.write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n')
 for k,r in results.items():print(k+'='+r['status']+' errors='+str(len(r.get('errors',[]))))

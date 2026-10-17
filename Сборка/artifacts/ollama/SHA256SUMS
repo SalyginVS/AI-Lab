@@ -1,0 +1,7 @@
+# archive-size ollama-linux-amd64.tar.zst 1439658961
+9fcd79ac4575b2bd31b992eee18b1000c8ad126b451627c8f8cd091714cfbb10  ollama-linux-amd64.tar.zst
+560a71e4f99c66b1e0bfad2f6e13f8f844f644a226baf61ea90ebbadba5cd19f  runtime.py
+9a113b1ca17202207e9ff6ee003ecc8f3ed640a800184c1e7cfef4af2f6aa24a  install_ollama_runtime.sh
+16fdbb96e8237fc516853d26607159ad1386f0337648522f8f3545ea2218239a  ollama.service.in
+638f6d45729a5cad17fad9dc38eaa8e641d0142a7d4d529a04559545892bec85  override.conf.in
+5560a0a9ea36246b7eb2f4a4210780bd3ea75344e259b29faa5ed3597dbe3e5c  90-fn3090-keepalive.conf

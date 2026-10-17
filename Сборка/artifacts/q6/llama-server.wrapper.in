@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+REAL='@REAL@'
+Q6_ID='@Q6_ID@'
+
+model=''
+
+args=("$@")
+for ((i=0; i<${#args[@]}; i++)); do
+    if [[ "${args[$i]}" == '--model' ]] && (( i + 1 < ${#args[@]} )); then
+        model="${args[$((i + 1))]}"
+        break
+    fi
+done
+
+# Never leak the Q6 placement policy to another runner/model.
+unset LLAMA_ARG_N_CPU_MOE
+unset LLAMA_ARG_OVERRIDE_TENSOR
+unset LLAMA_ARG_LAZY_MODE
+unset LLAMA_ARG_LOAD_MODE
+
+# Ollama split-GGUF runtime path contains the stable Ollama model ID.
+if [[ "$model" == *".ollama-split-${Q6_ID}-"* ]]; then
+    export LLAMA_ARG_N_CPU_MOE=43
+    export LLAMA_ARG_OVERRIDE_TENSOR='per_layer_token_embd=CPU'
+    export LLAMA_ARG_LAZY_MODE=on
+    export LLAMA_ARG_LOAD_MODE=mmap
+    # AI_LAB_Q6_REASONING_ALIAS_V1
+    set -- "$@" --chat-template-file "/usr/local/share/ollama/templates/q6-@Q6_ID@-reasoning-compat.jinja"
+
+    logger -t ollama-q6-profile \
+      "Q6 profile applied: model_id=${Q6_ID} cpu_moe=43 ple=CPU lazy=on load=mmap"
+fi
+
+exec "$REAL" "$@"

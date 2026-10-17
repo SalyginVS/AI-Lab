@@ -3,6 +3,8 @@ tags: [конфиг, gateway]
 дата: 2026-03-19
 ---
 
+HISTORICAL: устаревший источник; [замена](../Сборка/50_Сервисы_Gateway_MCP.md).
+
 # gateway.py v0.7.0 — эндпоинты и параметры
 
 Файл: `~/llm-gateway/gateway.py`

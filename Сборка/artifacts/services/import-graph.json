@@ -1,0 +1,432 @@
+{
+  "gateway": {
+    "entrypoints": [
+      "run",
+      "gateway.app"
+    ],
+    "local_modules": [
+      "gateway",
+      "gateway.app",
+      "gateway.auth",
+      "gateway.chat",
+      "gateway.embeddings",
+      "gateway.errors",
+      "gateway.listing",
+      "gateway.logging_config",
+      "gateway.metrics",
+      "gateway.models",
+      "gateway.orchestrate",
+      "gateway.upstream",
+      "run"
+    ],
+    "edges": [
+      {
+        "from": "gateway.app",
+        "to": "gateway",
+        "line": 16
+      },
+      {
+        "from": "gateway.app",
+        "to": "gateway.auth",
+        "line": 17
+      },
+      {
+        "from": "gateway.app",
+        "to": "gateway.errors",
+        "line": 18
+      },
+      {
+        "from": "gateway.app",
+        "to": "gateway.chat",
+        "line": 24
+      },
+      {
+        "from": "gateway.app",
+        "to": "gateway.embeddings",
+        "line": 25
+      },
+      {
+        "from": "gateway.app",
+        "to": "gateway.listing",
+        "line": 26
+      },
+      {
+        "from": "gateway.app",
+        "to": "gateway.metrics",
+        "line": 27
+      },
+      {
+        "from": "gateway.app",
+        "to": "gateway.orchestrate",
+        "line": 28
+      },
+      {
+        "from": "gateway.orchestrate",
+        "to": "gateway.errors",
+        "line": 35
+      },
+      {
+        "from": "gateway.orchestrate",
+        "to": "gateway.metrics",
+        "line": 36
+      },
+      {
+        "from": "gateway.orchestrate",
+        "to": "gateway.logging_config",
+        "line": 37
+      },
+      {
+        "from": "gateway.metrics",
+        "to": "gateway",
+        "line": 28
+      },
+      {
+        "from": "gateway.errors",
+        "to": "gateway",
+        "line": 15
+      },
+      {
+        "from": "gateway.listing",
+        "to": "gateway",
+        "line": 16
+      },
+      {
+        "from": "gateway.listing",
+        "to": "gateway.auth",
+        "line": 17
+      },
+      {
+        "from": "gateway.listing",
+        "to": "gateway.errors",
+        "line": 18
+      },
+      {
+        "from": "gateway.listing",
+        "to": "gateway.upstream",
+        "line": 19
+      },
+      {
+        "from": "gateway.listing",
+        "to": "gateway.orchestrate",
+        "line": 20
+      },
+      {
+        "from": "gateway.upstream",
+        "to": "gateway",
+        "line": 13
+      },
+      {
+        "from": "gateway.upstream",
+        "to": "gateway.errors",
+        "line": 18
+      },
+      {
+        "from": "gateway.upstream",
+        "to": "gateway.logging_config",
+        "line": 19
+      },
+      {
+        "from": "gateway.embeddings",
+        "to": "gateway",
+        "line": 25
+      },
+      {
+        "from": "gateway.embeddings",
+        "to": "gateway.errors",
+        "line": 26
+      },
+      {
+        "from": "gateway.embeddings",
+        "to": "gateway.logging_config",
+        "line": 27
+      },
+      {
+        "from": "gateway.embeddings",
+        "to": "gateway.metrics",
+        "line": 28
+      },
+      {
+        "from": "gateway.embeddings",
+        "to": "gateway.models",
+        "line": 29
+      },
+      {
+        "from": "gateway.embeddings",
+        "to": "gateway.upstream",
+        "line": 38
+      },
+      {
+        "from": "gateway.models",
+        "to": "gateway",
+        "line": 15
+      },
+      {
+        "from": "gateway.chat",
+        "to": "gateway",
+        "line": 29
+      },
+      {
+        "from": "gateway.chat",
+        "to": "gateway.errors",
+        "line": 33
+      },
+      {
+        "from": "gateway.chat",
+        "to": "gateway.logging_config",
+        "line": 34
+      },
+      {
+        "from": "gateway.chat",
+        "to": "gateway.metrics",
+        "line": 35
+      },
+      {
+        "from": "gateway.chat",
+        "to": "gateway.models",
+        "line": 36
+      },
+      {
+        "from": "gateway.chat",
+        "to": "gateway.upstream",
+        "line": 37
+      },
+      {
+        "from": "run",
+        "to": "gateway.logging_config",
+        "line": 19
+      }
+    ],
+    "external_imports": [
+      "asyncio",
+      "dataclasses",
+      "datetime",
+      "fastapi",
+      "httpx",
+      "json",
+      "logging",
+      "openai",
+      "os",
+      "pathlib",
+      "pydantic",
+      "re",
+      "starlette",
+      "sys",
+      "threading",
+      "time",
+      "typing",
+      "uuid",
+      "uvicorn",
+      "yaml"
+    ],
+    "file_operations": [
+      {
+        "module": "gateway.orchestrate",
+        "line": 72,
+        "expression": "PIPELINES_PATH.open('r', encoding='utf-8')"
+      },
+      {
+        "module": "gateway.orchestrate",
+        "line": 73,
+        "expression": "yaml.safe_load(f)"
+      },
+      {
+        "module": "gateway.orchestrate",
+        "line": 49,
+        "expression": "Path(__file__)"
+      },
+      {
+        "module": "gateway.auth",
+        "line": 48,
+        "expression": "json.loads(_raw_tokens)"
+      },
+      {
+        "module": "gateway.chat",
+        "line": 663,
+        "expression": "json.loads(line)"
+      },
+      {
+        "module": "gateway.chat",
+        "line": 357,
+        "expression": "json.loads(args)"
+      }
+    ]
+  },
+  "rag-mcp": {
+    "entrypoints": [
+      "server",
+      "indexer"
+    ],
+    "local_modules": [
+      "chunker",
+      "gateway_embeddings",
+      "indexer",
+      "server"
+    ],
+    "edges": [
+      {
+        "from": "indexer",
+        "to": "chunker",
+        "line": 12
+      },
+      {
+        "from": "indexer",
+        "to": "gateway_embeddings",
+        "line": 13
+      },
+      {
+        "from": "server",
+        "to": "gateway_embeddings",
+        "line": 11
+      }
+    ],
+    "external_imports": [
+      "__future__",
+      "argparse",
+      "chromadb",
+      "httpx",
+      "json",
+      "mcp",
+      "os",
+      "pathlib",
+      "time",
+      "typing"
+    ],
+    "file_operations": [
+      {
+        "module": "indexer",
+        "line": 22,
+        "expression": "chromadb.PersistentClient(path=str(chroma_dir))"
+      },
+      {
+        "module": "indexer",
+        "line": 65,
+        "expression": "status_path.write_text(json.dumps(status, indent=2, ensure_ascii=False), encoding='utf-8')"
+      },
+      {
+        "module": "indexer",
+        "line": 84,
+        "expression": "Path(args.docs_dir)"
+      },
+      {
+        "module": "indexer",
+        "line": 84,
+        "expression": "Path(args.chroma_dir)"
+      },
+      {
+        "module": "indexer",
+        "line": 64,
+        "expression": "Path(__file__)"
+      },
+      {
+        "module": "gateway_embeddings",
+        "line": 20,
+        "expression": "json.loads(raw)"
+      },
+      {
+        "module": "chunker",
+        "line": 92,
+        "expression": "path.read_text(encoding='utf-8', errors='ignore')"
+      },
+      {
+        "module": "server",
+        "line": 15,
+        "expression": "Path('/home/vladimir/rag-mcp-server/index_status.json')"
+      },
+      {
+        "module": "server",
+        "line": 25,
+        "expression": "chromadb.PersistentClient(path=CHROMA_DIR)"
+      },
+      {
+        "module": "server",
+        "line": 34,
+        "expression": "Path(name_or_path.strip())"
+      },
+      {
+        "module": "server",
+        "line": 206,
+        "expression": "STATUS_FILE.read_text(encoding='utf-8')"
+      },
+      {
+        "module": "server",
+        "line": 16,
+        "expression": "Path('/home/vladimir/rag-mcp-server/docs')"
+      },
+      {
+        "module": "server",
+        "line": 144,
+        "expression": "doc_path.read_text(encoding='utf-8')"
+      },
+      {
+        "module": "server",
+        "line": 169,
+        "expression": "doc_path.read_text(encoding='utf-8')"
+      }
+    ]
+  },
+  "docker-mcp": {
+    "entrypoints": [
+      "server"
+    ],
+    "local_modules": [
+      "policy",
+      "server"
+    ],
+    "edges": [
+      {
+        "from": "server",
+        "to": "policy",
+        "line": 11
+      }
+    ],
+    "external_imports": [
+      "__future__",
+      "asyncio",
+      "dataclasses",
+      "docker",
+      "mcp",
+      "pathlib",
+      "typing",
+      "uvicorn",
+      "yaml"
+    ],
+    "file_operations": [
+      {
+        "module": "policy",
+        "line": 22,
+        "expression": "Path(path)"
+      },
+      {
+        "module": "policy",
+        "line": 26,
+        "expression": "yaml.safe_load(self.path.read_text(encoding='utf-8'))"
+      },
+      {
+        "module": "policy",
+        "line": 26,
+        "expression": "self.path.read_text(encoding='utf-8')"
+      }
+    ]
+  },
+  "searxng-mcp": {
+    "entrypoints": [
+      "server"
+    ],
+    "local_modules": [
+      "server"
+    ],
+    "edges": [],
+    "external_imports": [
+      "httpx",
+      "mcp",
+      "os"
+    ],
+    "file_operations": [
+      {
+        "module": "server",
+        "line": 8,
+        "expression": "os.getenv('SEARXNG_URL', 'http://127.0.0.1:8080')"
+      }
+    ]
+  }
+}

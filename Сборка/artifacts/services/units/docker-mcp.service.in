@@ -1,0 +1,15 @@
+[Unit]
+Description=Docker MCP Server
+After=network.target docker.service
+Requires=docker.service
+
+[Service]
+User=@LAB_OPERATOR@
+Group=@LAB_OPERATOR@
+WorkingDirectory=@LAB_SERVICE_ROOT@/docker-mcp-server
+ExecStart=@LAB_SERVICE_ROOT@/docker-mcp-server/.venv/bin/python @LAB_SERVICE_ROOT@/docker-mcp-server/server.py
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

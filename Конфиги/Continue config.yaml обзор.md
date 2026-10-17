@@ -3,6 +3,8 @@ tags: [конфиг, continue]
 дата: 2026-03-19
 ---
 
+HISTORICAL: устаревший источник; [замена](../Сборка/60_Клиент_Dell.md).
+
 # Continue.dev config.yaml — обзор
 
 Файл: `%USERPROFILE%\.continue\config.yaml`

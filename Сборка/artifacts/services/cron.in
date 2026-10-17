@@ -1,0 +1,1 @@
+0 3 * * * cd @LAB_SERVICE_ROOT@/llm-gateway && bash scripts/health-check.sh >> @LAB_SERVICE_ROOT@/llm-gateway/logs/nightly-health.log 2>&1 && date >> @LAB_SERVICE_ROOT@/llm-gateway/logs/nightly-health.log && echo "---" >> @LAB_SERVICE_ROOT@/llm-gateway/logs/nightly-health.log

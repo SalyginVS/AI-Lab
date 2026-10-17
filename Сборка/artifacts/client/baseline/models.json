@@ -1,0 +1,70 @@
+{
+    "providers": {
+        "ailab-ollama": {
+            "baseUrl": "http://LAB-SERVER-HOST:11434/v1",
+            "api": "openai-completions",
+            "compat": {
+                "supportsDeveloperRole": false,
+                "supportsReasoningEffort": true,
+                "supportsUsageInStreaming": false,
+                "supportsFinishReason": true,
+                "supportsStrictMode": false,
+                "maxTokensField": "max_tokens",
+                "thinkingFormat": "reasoning_effort"
+            },
+            "models": [
+                {
+                    "id": "qwen3.8-flash-next:125b-a6b-q6_K-ab-262k",
+                    "name": "Qwen3.8 Flash-Next Q6_K 262K",
+                    "reasoning": true,
+                    "thinkingLevelMap": {
+                        "off": null,
+                        "minimal": "low",
+                        "low": "low",
+                        "medium": "medium",
+                        "high": "xhigh",
+                        "xhigh": "xhigh",
+                        "max": "xhigh"
+                    },
+                    "input": [
+                        "text",
+                        "image"
+                    ],
+                    "contextWindow": 262144,
+                    "maxTokens": 32768,
+                    "samplingParams": {
+                        "temperature": 1.0,
+                        "top_p": 0.95,
+                        "presence_penalty": 0.0,
+                        "top_k": 20
+                    },
+                    "cost": {
+                        "input": 0,
+                        "output": 0,
+                        "cacheRead": 0,
+                        "cacheWrite": 0
+                    }
+                }
+            ],
+            "modelOverrides": {
+                "qwen3.8-flash-next:125b-a6b-q6_K-ab-262k": {
+                    "reasoning": true,
+                    "thinkingLevelMap": {
+                        "off": null,
+                        "minimal": "low",
+                        "low": "low",
+                        "medium": "medium",
+                        "high": "xhigh",
+                        "xhigh": "xhigh",
+                        "max": "xhigh"
+                    },
+                    "samplingParams": {
+                        "reasoning_effort": "xhigh"
+                    },
+                    "contextWindow": 262144,
+                    "maxTokens": 32768
+                }
+            }
+        }
+    }
+}

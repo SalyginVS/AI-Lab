@@ -1,0 +1,43 @@
+
+[Unit]
+
+Description=LLM Gateway (FastAPI → Ollama)
+
+After=network-online.target ollama.service
+
+Wants=network-online.target
+
+Requires=ollama.service
+
+[Service]
+
+Type=simple
+
+User=@LAB_OPERATOR@
+
+Group=@LAB_OPERATOR@
+
+WorkingDirectory=@LAB_SERVICE_ROOT@/llm-gateway
+
+ExecStart=@LAB_SERVICE_ROOT@/llm-gateway/venv/bin/python run.py
+
+Restart=on-failure
+
+RestartSec=5
+
+StandardOutput=journal
+
+StandardError=journal
+
+SyslogIdentifier=llm-gateway
+
+# Таймауты: шлюз может стартовать долго, если Ollama загружает модель
+
+TimeoutStartSec=30
+
+TimeoutStopSec=10
+
+[Install]
+
+WantedBy=multi-user.target
+

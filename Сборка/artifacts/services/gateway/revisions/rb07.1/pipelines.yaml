@@ -1,0 +1,11 @@
+pipelines:
+
+  smoke:
+    description: "Basic gateway/orchestration connectivity test"
+    steps:
+      - name: executor
+        model: "qwen3.8-flash-next:125b-a6b-q6_K-ab-262k"
+        system_prompt: "You are a helpful assistant. Answer briefly."
+        input_template: "{{ task }}"
+        temperature: 0.1
+        max_tokens: 256

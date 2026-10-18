@@ -28,5 +28,7 @@
   "79e111fb7392d30cc50533d38f2cd45ed85b1d0133848fae717c31e20ddf5ea7": "Reviewed RB-11.1: Debian package name/version copied from C4 F07; not a password value.",
   "a699b35658926bd1cc070300799d9daf7dfadd3ee0131045ff640a34e4ace262": "Reviewed RB-11.1: dotted package version copied from C4 F07; not an IP address or protection rule.",
   "8ca7ef6705d1e1d2d572ab7989521b50740d69d0c1ba2ec9eb3e88cfe081569a": "Reviewed RB-11.1: dotted package version copied from C4 F07; not an IP address or protection rule.",
-  "47cbc3411a86647bf020439f6acc56a9646b228661469534155d7e0118e8f9d6": "Reviewed RB-11.1: dotted package version copied from C4 F07; not an IP address or protection rule."
+  "47cbc3411a86647bf020439f6acc56a9646b228661469534155d7e0118e8f9d6": "Reviewed RB-11.1: dotted package version copied from C4 F07; not an IP address or protection rule.",
+  "72b1f94ad23b16b590809678d87402d74061fcf28b17d4cdd0a58a8286f9aee3": "Проверено: точная строка из ранее принятого baseline.live-2026-10-17.json, скопирована без изменений в живой baseline 2026-10-18. Это унаследованное тестовое значение, не новый секрет и не новые учётные данные; сканер сработал на содержимое существующего эталона.",
+  "b2b5cc5cf21f5438aad2413992b583bc5c0dbfde22f4df59a14f345fea7e2c46": "Проверено: точная строка из ранее принятого baseline.live-2026-10-17.json, скопирована без изменений в живой baseline 2026-10-18. Это унаследованное тестовое значение, не новый секрет и не новые учётные данные; сканер сработал на содержимое существующего эталона."
 }

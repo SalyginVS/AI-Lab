@@ -2,7 +2,7 @@
 set -euo pipefail
 
 suite=/opt/ailab-acceptance/current
-baseline_name=baseline.live-2026-10-17.json
+baseline_name=baseline.live-2026-10-18.json
 service_root="$HOME/llm-gateway"
 boot_id=$(cat /proc/sys/kernel/random/boot_id)
 stamp=$(date -u +%Y%m%dT%H%M%S.%NZ)
@@ -65,7 +65,7 @@ except (OSError,ValueError,TypeError,AssertionError):
 try:
  results=json.loads((out/'t_fast_server_evaluated.json').read_text())['results']
  statuses={row['id']:row['status'] for row in results}
- assert len(results)==len(statuses) and set(statuses)=={'F01','F02','F03','F04','F05','F06','F07'}
+ assert len(results)==len(statuses) and set(statuses)=={'F01','F02','F03','F04','F05','F06','F07','F09'}
  assert all(s in ['PASS','FAIL','TEST_DEFECT','REVALIDATE','DRIFT','INFO'] for s in statuses.values())
  effective=dict(statuses)
  for row in results:

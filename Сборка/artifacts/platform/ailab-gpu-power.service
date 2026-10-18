@@ -1,0 +1,16 @@
+[Unit]
+Description=AI Lab GPU power limit
+After=nvidia-persistenced.service
+Before=ollama.service
+Wants=nvidia-persistenced.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+Environment=AILAB_GPU_POWER_W=300
+ExecStart=/usr/bin/nvidia-smi -pm 1
+ExecStart=/usr/bin/nvidia-smi -pl ${AILAB_GPU_POWER_W}
+ExecStart=/bin/sh -c 'test "$(/usr/bin/nvidia-smi --query-gpu=power.limit --format=csv,noheader,nounits | cut -d. -f1)" = "${AILAB_GPU_POWER_W}"'
+
+[Install]
+WantedBy=multi-user.target

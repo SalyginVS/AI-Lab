@@ -24,6 +24,7 @@ class BaselineSelection(unittest.TestCase):
                  'Сборка/tests/acceptance/evaluate.py',
                  'Сборка/tests/acceptance/baseline.json',
                  'Сборка/tests/acceptance/baseline.live-2026-10-17.json',
+                 'Сборка/tests/acceptance/baseline.live-2026-10-18.json',
                  'Сборка/artifacts/q6/llama-server.wrapper.in']
         for name in files:
             path = self.export / name
@@ -43,9 +44,9 @@ class BaselineSelection(unittest.TestCase):
         result = self.install(root)
         self.assertEqual(result.returncode, 0, result.stderr)
         actual = (root / 'usr/local/libexec/ailab/postboot-check.sh').read_bytes()
-        accepted = subprocess.check_output(['git', '-C', str(REPO), 'show',
-                                           COMMIT + ':Сборка/artifacts/postboot/postboot-check.sh.in'])
-        self.assertEqual(actual, accepted)
+        expected = (PACKAGE / 'postboot-check.sh.in').read_bytes()
+        self.assertEqual(actual, expected)
+        self.assertIn(b'baseline_name=baseline.live-2026-10-18.json', actual)
         print('F1_DEFAULT_SHA256=' + hashlib.sha256(actual).hexdigest())
 
     def test_build_baseline_changes_only_assignment(self):
@@ -53,8 +54,15 @@ class BaselineSelection(unittest.TestCase):
         result = self.install(root, '--baseline-name', 'baseline.json')
         self.assertEqual(result.returncode, 0, result.stderr)
         expected = (PACKAGE / 'postboot-check.sh.in').read_bytes().replace(
-            b'baseline_name=baseline.live-2026-10-17.json', b'baseline_name=baseline.json')
+            b'baseline_name=baseline.live-2026-10-18.json', b'baseline_name=baseline.json')
         self.assertEqual((root / 'usr/local/libexec/ailab/postboot-check.sh').read_bytes(), expected)
+
+    def test_historical_baseline_is_selectable(self):
+        root = self.parent / 'historical'
+        result = self.install(root, '--baseline-name', 'baseline.live-2026-10-17.json')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        actual = (root / 'usr/local/libexec/ailab/postboot-check.sh').read_bytes()
+        self.assertIn(b'baseline_name=baseline.live-2026-10-17.json', actual)
 
     def test_invalid_names_fail_before_writing(self):
         for number, name in enumerate(['baseline.missing.json', '../baseline.json',

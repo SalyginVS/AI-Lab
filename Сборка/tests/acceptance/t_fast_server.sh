@@ -50,5 +50,17 @@ def f07():
   if status=='installed':packages[name]=v
  return {'packages':packages,'kernel':cmd(['uname','-r'])['stdout'].strip(),'nvidia':cmd(['nvidia-smi','--query-gpu=driver_version','--format=csv,noheader'])['stdout'].strip(),'python':cmd(['python3','--version'])['stdout'].strip(),'rc':p['rc']}
 test('F07',f07)
+def f09():
+ power=cmd(['nvidia-smi','--query-gpu=power.limit','--format=csv,noheader,nounits'])
+ status=cmd(['systemctl','show','ailab-gpu-power.service','-p','ActiveState','-p','SubState','-p','Result','-p','ExecMainStatus','--no-pager'])
+ enabled=cmd(['systemctl','is-enabled','ailab-gpu-power.service'])
+ fields=dict(line.split('=',1) for line in status['stdout'].splitlines() if '=' in line)
+ try:watts=float(power['stdout'].strip())
+ except (TypeError,ValueError):watts=None
+ return {'power_limit_w':watts,'power_rc':power['rc'],'unit_rc':status['rc'],
+         'active':fields.get('ActiveState'),'substate':fields.get('SubState'),
+         'result':fields.get('Result'),'exec_main_status':fields.get('ExecMainStatus'),
+         'enabled':enabled['stdout'].strip(),'enabled_rc':enabled['rc']}
+test('F09',f09)
 result['finished_at']=datetime.datetime.now(datetime.timezone.utc).isoformat();print(json.dumps(result,ensure_ascii=False))
 PY

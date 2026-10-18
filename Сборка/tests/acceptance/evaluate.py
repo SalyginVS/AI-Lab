@@ -14,6 +14,12 @@ def evaluate(baseline,raw,client=None,embedding_reference=None):
  def each(i,v):
   if 'collection_error' in v:return [ck('collector',False,'TEST_DEFECT',v)]
   if 'probe_error' in v:return [ck('request',False,'INFO' if i=='M12' else 'FAIL',v)]
+  if i=='F09':
+   if i not in B:return [{'check':'historical_baseline_without_F09','status':'INFO','detail':'Use baseline.live-2026-10-18.json to enforce GPU power acceptance'}]
+   checks=[ck('power_limit_w',v.get('power_rc')==0 and isinstance(v.get('power_limit_w'),(int,float)) and abs(v['power_limit_w']-E(i,'power_limit_w'))<0.01,detail={'expected':E(i,'power_limit_w'),'actual':v.get('power_limit_w')})]
+   checks.extend(ck(k,v.get(k)==E(i,k) and v.get('unit_rc')==0,detail={'expected':E(i,k),'actual':v.get(k)}) for k in ['active','substate','result','exec_main_status'])
+   checks.append(ck('enabled',v.get('enabled_rc')==0 and v.get('enabled')==E(i,'enabled')))
+   return checks
   if i=='F01':return [ck(k,v.get(k)==E(i,k),'REVALIDATE',{'expected':E(i,k),'actual':v.get(k)}) for k in ['version','ollama_sha256','runner_sha256']]
   if i=='F02':return [ck(k,v['environment'].get(k)==x,detail={'expected':x,'actual':v['environment'].get(k)}) for k,x in E(i,'environment').items()]
   if i=='F03':

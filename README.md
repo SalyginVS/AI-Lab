@@ -15,6 +15,10 @@ tags: [meta]
 - [Рабочий процесс](Meta/Рабочий%20процесс.md) и [Roadmap](Meta/Roadmap.md).
 - [ADR-030](Решения/ADR-030_Client_Surface_Determines_Model_Operational_Fit.md): operational fit зависит от client surface.
 - [ADR-031](Решения/ADR-031_Qwen38_Q6_Pi_Complex_Bounded_Executor_Deployment_Contract.md): Q6 + Pi, accepted deployment contract.
+- [Паспорт лаборатории v42](Паспорт_лаборатории_v42.md): Q27 executor при сохранении исторических данных v41.
+- [ADR-032](Решения/operational/ADR-032_Qwen38_27B_GSQ_RCO_Executor.md): локальный исполнитель готового DESIGN.
+- [Q27: как ставить задачи](Модели/qwen3.8-27b-gsq-rco_как_ставить_задачи.md) и [простыми словами](Модели/qwen3.8-27b-gsq-rco_простыми_словами.md).
+- [Q27: результаты E0–E1C](Этапы/2026-10-21_Q27/Q27_результаты.md).
 - [Pi long-context harness](Конфиги/pi_qwen38_q6_long_context_harness.md).
 - [Qwen38 Quantization Study](Этапы/2026-09-26_Qwen38_Quantization_Study/Результаты.md): историческое сравнение Q5/Q6/Q8.
 - [Q6 complex executor acceptance](Этапы/2026-10-06_Qwen38_Q6_Pi_Complex_Bounded_Executor/Результаты.md).

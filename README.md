@@ -16,6 +16,7 @@ tags: [meta]
 - [ADR-030](Решения/ADR-030_Client_Surface_Determines_Model_Operational_Fit.md): operational fit зависит от client surface.
 - [ADR-031](Решения/ADR-031_Qwen38_Q6_Pi_Complex_Bounded_Executor_Deployment_Contract.md): Q6 + Pi, accepted deployment contract.
 - [Паспорт лаборатории v42](Паспорт_лаборатории_v42.md): Q27 executor при сохранении исторических данных v41.
+- [Паспорт лаборатории v43](Паспорт_лаборатории_v43.md): закрыт OBS-Q27-01 (модель Pi по умолчанию на Dell это Q6) при сохранении исторических данных v42.
 - [ADR-032](Решения/operational/ADR-032_Qwen38_27B_GSQ_RCO_Executor.md): локальный исполнитель готового DESIGN.
 - [Q27: как ставить задачи](Модели/qwen3.8-27b-gsq-rco_как_ставить_задачи.md) и [простыми словами](Модели/qwen3.8-27b-gsq-rco_простыми_словами.md).
 - [Методика работы с Qwen v1.1](Модели/qwen_методика_работы.md): как выбирать модель, ставить наряд, запускать и принимать результат Q6 и Q27.

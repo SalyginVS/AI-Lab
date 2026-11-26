@@ -1,0 +1,309 @@
+#!/usr/bin/python3
+"""Manual, local backend selection for the accepted AI-Lab runtime."""
+import argparse
+import contextlib
+import fcntl
+import json
+import os
+from pathlib import Path
+import re
+import subprocess
+import sys
+import time
+import urllib.error
+import urllib.request
+
+OLLAMA = "ollama.service"
+STRATA = "mbip-strata.service"
+GATEWAY = "llm-gateway.service"
+RAG = "rag-mcp.service"
+OLD = (OLLAMA, GATEWAY, RAG)
+PORTS = {OLLAMA: 11434, GATEWAY: 8000, RAG: 8100, STRATA: 18081}
+MODEL = "qwen3.6-35b-a3b-ud-q4_k_xl"
+LOCK = "/run/lock/mbip-strata-smoke.lock"
+QUIET = {"inactive", "failed"}
+LOOPBACK = {"127.0.0.1", "::1"}
+HTTP = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+
+
+class Refused(RuntimeError):
+    pass
+
+
+def require(condition, message):
+    if not condition:
+        raise Refused(message)
+
+
+def run(*args, timeout=45):
+    return subprocess.run(args, check=True, text=True, capture_output=True, timeout=timeout).stdout.strip()
+
+
+def unit(name):
+    lines = run("systemctl", "show", name, "-p", "ActiveState,MainPID,ControlGroup,LoadState,UnitFileState")
+    return dict(line.split("=", 1) for line in lines.splitlines() if "=" in line)
+
+
+def active(name):
+    return unit(name).get("ActiveState") == "active"
+
+
+def stopped(name):
+    row = unit(name)
+    return row.get("LoadState") == "loaded" and row.get("ActiveState") in QUIET and row.get("MainPID") == "0"
+
+
+def listeners(*ports):
+    expression = "( " + " or ".join(f"sport = :{port}" for port in ports) + " )"
+    return run("ss", "-Hlt", expression)
+
+
+def gate(name):
+    require(name in PORTS, f"Unknown unit: {name}")
+    peers = OLD if name == STRATA else (STRATA,)
+    require(all(stopped(peer) for peer in peers), f"{name}: competing service is active or in transition")
+    require(not listeners(*(PORTS[peer] for peer in peers)), f"{name}: competing listener still exists")
+    print(f"MBIP_GUARD_ALLOW {name}")
+
+
+def api(port, route, body=None, timeout=3):
+    data = None if body is None else json.dumps(body).encode()
+    request = urllib.request.Request(f"http://127.0.0.1:{port}{route}", data=data,
+                                     headers={"Content-Type": "application/json"})
+    with HTTP.open(request, timeout=timeout) as response:
+        return json.load(response)
+
+
+def ready(check, label, seconds=22):
+    until = time.monotonic() + seconds
+    while True:
+        try:
+            if check():
+                return
+        except (OSError, ValueError):
+            pass
+        if time.monotonic() >= until:
+            raise Refused(f"Readiness timeout: {label}")
+        time.sleep(1)
+
+
+def old_ready():
+    return (api(11434, "/api/version").get("version") == "0.35.1"
+            and api(8000, "/health").get("ollama") == "ok"
+            and bool(listeners(8100)))
+
+
+def strata_ready():
+    return (api(18081, "/v1/status").get("loaded") is True
+            and MODEL in {row["id"] for row in api(18081, "/v1/models")["data"]})
+
+
+def healthy(mode):
+    try:
+        if mode == "ollama":
+            return all(active(u) for u in OLD) and stopped(STRATA) and not listeners(18081) and old_ready()
+        return active(STRATA) and all(stopped(u) for u in OLD) and not listeners(11434, 8000, 8100) and strata_ready()
+    except (OSError, ValueError):
+        return False
+
+
+def sockets(ports):
+    expression = "( " + " or ".join(f"sport = :{port}" for port in ports)
+    if 11434 in ports:
+        expression += " or dport = :11434"
+    expression += " )"
+    # Preserve leading indentation of ss TCP-info lines.
+    info = subprocess.run(["ss", "-Htnip", "state", "established", expression],
+                          check=True, text=True, capture_output=True, timeout=5).stdout
+    rows = []
+    for line in info.splitlines():
+        if line[:1].isspace():
+            rows[-1][4].update((key, int(value)) for key, value in re.findall(r"(lastsnd|lastrcv):([0-9]+)", line))
+            continue
+        fields = line.split(maxsplit=4)
+        endpoints = [endpoint.rsplit(":", 1) for endpoint in fields[2:4]]
+        local, peer = ((host.strip("[]").removeprefix("::ffff:"), int(port)) for host, port in endpoints)
+        rows.append((tuple(map(int, fields[:2])), local, peer, fields[4] if len(fields) > 4 else "", {}))
+    return rows
+
+
+def confirm_connections(*ports):
+    rows = sockets(ports)
+    pid = int(unit(GATEWAY).get("MainPID", 0)) if 11434 in ports else 0
+    for queues, local, peer, _, timing in rows:
+        port = local[1]
+        if port not in ports:
+            continue
+        gateway_idle = (port == 11434 and pid > 0 and local[0] in LOOPBACK and peer[0] in LOOPBACK
+                        and queues == (0, 0) and min(timing.get("lastsnd", 0), timing.get("lastrcv", 0)) >= 60_000
+                        and any(src == peer and dst == local and q == (0, 0) and re.search(rf"\bpid={pid},", owner)
+                                for q, src, dst, owner, _ in rows))
+        require(gateway_idle, f"Open or unidentified connection on :{port}. Drain it and retry.")
+        print(f"MBIP_GATEWAY_KEEPALIVE_IDLE age_ms={min(timing.values())}")
+
+
+def no_activation():
+    names = run("systemctl", "list-units", "--type=socket,timer", "--state=active", "--no-legend", "--plain")
+    pattern = r"ollama|mbip-strata|llm-gateway|rag-mcp"
+    require(not any(re.search(pattern, row.split()[0], re.I) for row in names.splitlines() if row.strip()),
+            "A related socket or timer is active")
+    jobs = run("systemctl", "list-jobs", "--no-legend")
+    require(not re.search(pattern, jobs, re.I), "A competing systemd job is pending")
+    for helper in ("ailab-postboot-check.service", "qwen-q6-fetch.service"):
+        require(stopped(helper), f"Wait for {helper} to finish")
+
+
+def engine_pids():
+    found = []
+    for proc in Path("/proc").glob("[0-9]*"):
+        try:
+            path = os.readlink(proc / "exe").removesuffix(" (deleted)")
+        except FileNotFoundError:
+            continue
+        except PermissionError:
+            continue
+        if (path == "/usr/local/bin/ollama" or path.startswith("/usr/local/lib/ollama/llama-server")
+                or (path.startswith("/var/lib/mbip-strata/components/engine/") and path.endswith("/strata"))):
+            found.append(int(proc.name))
+    return found
+
+
+def resources():
+    used, free, watts = run("nvidia-smi", "--query-gpu=memory.used,memory.free,power.limit",
+                            "--format=csv,noheader,nounits").split(",")
+    pids = run("nvidia-smi", "--query-compute-apps=pid", "--format=csv,noheader,nounits").split()
+    mem = re.search(r"(?m)^MemAvailable:\s+(\d+) kB", Path("/proc/meminfo").read_text())
+    return {"used_mib": int(used), "free_mib": int(free), "power_w": float(watts),
+            "compute_pids": pids, "mem_available_kib": int(mem[1])}
+
+
+def released(names, for_strata=False):
+    def check():
+        if not all(stopped(n) for n in names) or listeners(*(PORTS[n] for n in names)) or engine_pids():
+            return False
+        row = resources()
+        return (not row["compute_pids"] and row["used_mib"] <= 512
+                and row["mem_available_kib"] >= 32 * 1024 * 1024
+                and (not for_strata or row["free_mib"] >= 23500))
+    ready(check, "old listeners, engine processes, VRAM and RAM released", 16)
+    print("MBIP_RELEASED", json.dumps(resources(), sort_keys=True))
+
+
+def stop_strata():
+    if active(STRATA):
+        confirm_connections(18081)
+        try:
+            response = api(18081, "/v1/unload", {}, timeout=20)
+        except urllib.error.HTTPError as error:
+            if error.code == 409:
+                raise Refused("Strata is busy (HTTP 409). It was left running.") from error
+            raise
+        require(response.get("loaded") is False, "Strata unload not confirmed")
+        require(api(18081, "/v1/status").get("loaded") is False, "Strata is still loaded")
+        run("systemctl", "stop", STRATA)
+    released((STRATA,))
+
+
+def start_old():
+    require(stopped(STRATA) and not listeners(18081), "Strata is not confirmed stopped")
+    if not active(OLLAMA):
+        released((STRATA,))
+        run("systemctl", "start", OLLAMA)
+    ready(lambda: api(11434, "/api/version").get("version") == "0.35.1", "Ollama HTTP")
+    run("systemctl", "start", GATEWAY, RAG)
+    ready(lambda: all(active(u) for u in OLD) and old_ready(), "Ollama/Gateway/RAG")
+
+
+def switch(mode, drained):
+    if healthy(mode):
+        print(f"MBIP_NOOP {mode}")
+        return
+    require(drained, "Confirm clients and jobs are drained and no new requests can arrive: --drained")
+    no_activation()
+    if mode == "ollama":
+        if active(STRATA):
+            require(all(stopped(u) for u in OLD), "Inconsistent service state; inspect status before stopping")
+            stop_strata()
+        else:
+            require(stopped(STRATA) and not listeners(18081), "Strata state or listener is uncertain")
+        start_old()
+    else:
+        entered = False
+        current_strata = active(STRATA)
+        if current_strata:
+            require(all(stopped(u) for u in OLD) and not listeners(11434, 8000, 8100), "Ollama mode is still present")
+            confirm_connections(18081)
+        else:
+            require(stopped(STRATA) and not listeners(18081), "Strata is already in transition")
+            confirm_connections(11434, 8000, 8100)
+        try:
+            if not current_strata:
+                entered = True
+                run("systemctl", "stop", RAG, GATEWAY)
+                run("systemctl", "stop", OLLAMA)
+                released(OLD, for_strata=True)
+                run("systemctl", "start", STRATA)
+            ready(lambda: active(STRATA) and "loaded" in api(18081, "/v1/status"), "Strata HTTP")
+            require(all(stopped(u) for u in OLD) and not listeners(11434, 8000, 8100), "Ollama mode is still present")
+            api(18081, "/v1/load", {}, timeout=390)
+            ready(strata_ready, "Strata model")
+        except (Refused, OSError, ValueError, subprocess.SubprocessError) as error:
+            if entered:
+                try:
+                    if active(STRATA):
+                        stop_strata()
+                    start_old()
+                    print("MBIP_RECOVERY ollama", file=sys.stderr)
+                except (Refused, OSError, ValueError, subprocess.SubprocessError) as recovery:
+                    raise Refused(f"Strata transition failed: {error}. Recovery withheld: {recovery}. Run status.") from error
+            raise
+    require(healthy(mode), f"{mode}: checks did not establish a healthy mode")
+    print(f"MBIP_MODE {mode}")
+
+
+@contextlib.contextmanager
+def locked(path):
+    with open(path, "a") as f:
+        try:
+            fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError as error:
+            raise Refused("Another operator transition holds the local lock") from error
+        yield
+
+
+def status():
+    print("SERVICES", json.dumps({k: unit(k) for k in PORTS}, sort_keys=True))
+    print("LISTENERS", listeners(*PORTS.values()) or "none")
+    print("GPU", json.dumps(resources(), sort_keys=True))
+    for port, route, key in ((11434, "/api/ps", "models"), (18081, "/v1/status", "loaded")):
+        try:
+            info = api(port, route)[key]
+            value = [{k: row[k] for k in ("name", "digest", "size_vram") if k in row} for row in info] if key == "models" else info
+            print(key.upper(), json.dumps(value, sort_keys=True))
+        except (OSError, ValueError, KeyError) as error:
+            print(key.upper(), type(error).__name__)
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("mode", choices=("status", "ollama", "strata", "guard"))
+    parser.add_argument("service", nargs="?")
+    parser.add_argument("--drained", action="store_true", help="owner confirms the clients and background jobs are drained")
+    args = parser.parse_args()
+    try:
+        if args.mode == "guard":
+            gate(args.service)
+        elif args.mode == "status":
+            status()
+        else:
+            require(os.geteuid() == 0, "Run the transition with sudo on llm")
+            with locked(LOCK):
+                switch(args.mode, args.drained)
+    except (Refused, OSError, ValueError, KeyError, subprocess.SubprocessError) as error:
+        print(f"MBIP_REFUSED {args.mode}: {error}", file=sys.stderr)
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

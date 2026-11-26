@@ -1,5 +1,7 @@
 # Приёмочный набор RB-10
 
+Дополнение MBIP: прежний T-FAST/T-MED и baselines неизменны. T-FAST выполнять в основном Ollama mode. Дополнительно [55](55_Strata_и_переключение_backend.md): проверка пакета и 10 локальных тестов, явный цикл обоих режимов, guards, освобождение VRAM/RAM, API/SSE, Pi reasoning/tool continuation, Ollama Q6/Q27/embedding после возврата. Живые результаты и границы: [MBIP](../Этапы/2026-11-26_MBIP/Результаты.md). Не объявлять reboot/clean rebuild или 32768 context PASS без испытания.
+
 Статус: ACCEPTED RB-10, 2026-10-17.
 Порядок: T-FAST, оценка, затем разрешённый T-MED. T-LONG требует отдельного решения владельца.
 

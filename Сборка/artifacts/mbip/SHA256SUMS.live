@@ -1,0 +1,6 @@
+81a8b1b70fe2545e6e04f7373428c9111e6cb41d00b59a75935784b31bbd0014  mbip-backend
+d0df3f12c0f8918d971a0eebaa196a9080eb11138b21acb92d6eb4d773f051c2  install-guards.sh
+91a8b50ba05f1cb9fa72af831ada541917d66aa27c66fc93363b762716da1c82  systemd/llm-gateway.service.d/95-mbip-mode-guard.conf
+1b3ff2977927d96927cfaeac7892272db0af2795891795be32c68bae0e07ddb2  systemd/mbip-strata.service.d/95-mbip-mode-guard.conf
+97b61ca6f66ff409834d7bf336e50d0b5b6d03fced9484f5af310e0be2d5ade1  systemd/ollama.service.d/95-mbip-mode-guard.conf
+0c61e9e1c056d498237cc20efa4e3f3e7b2484635d072436573a00cdb8ae3829  systemd/rag-mcp.service.d/95-mbip-mode-guard.conf

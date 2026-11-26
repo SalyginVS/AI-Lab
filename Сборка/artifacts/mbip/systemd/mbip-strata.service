@@ -1,0 +1,35 @@
+[Unit]
+Description=AI Lab Strata loopback inference
+ConditionPathExists=/var/lib/mbip-strata/profile/strata-mbip-qwen36.json
+After=network.target ailab-gpu-power.service
+
+[Service]
+Type=simple
+User=mbip-strata
+Group=mbip-strata
+WorkingDirectory=/var/lib/mbip-strata
+StateDirectory=mbip-strata
+StateDirectoryMode=0750
+RuntimeDirectory=mbip-strata
+RuntimeDirectoryMode=0750
+Environment=STRATA_INSTALL_DIR=/var/lib/mbip-strata/profile
+Environment=STRATA_DATA_DIR=/var/lib/mbip-strata/data
+Environment=STRATA_COMPONENTS_DIR=/var/lib/mbip-strata/components
+Environment=STRATA_REQUIRE_SIGNED_COMPONENTS=1
+Environment=STRATA_FEED_MODELS=0
+Environment=XDG_CACHE_HOME=/var/lib/mbip-strata/cache
+Environment=XDG_CONFIG_HOME=/var/lib/mbip-strata/config
+Environment=XDG_DATA_HOME=/var/lib/mbip-strata/xdg
+Environment=XDG_RUNTIME_DIR=/run/mbip-strata
+ExecStart=/opt/mbip-strata/0.2.22/control/bin/strata serve --profile /var/lib/mbip-strata/profile/strata-mbip-qwen36.json --host 127.0.0.1 --port 18081 --parallel 1 --offline
+Restart=no
+TimeoutStopSec=320
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadOnlyPaths=/srv/ai-test/mbip-strata-models
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6 AF_NETLINK
+IPAddressDeny=any
+IPAddressAllow=localhost
+UMask=0077

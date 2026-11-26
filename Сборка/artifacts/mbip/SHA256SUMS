@@ -1,0 +1,17 @@
+26858d1d607c573683fe81ade480d7fb2b904ef49e859dd6a5db42a5c430f218  ./README.md
+07f4630e429adb3970cc803c6e12e4dc44f47877d0d02b9cd9c99a2ec4732530  ./SHA256SUMS.live
+295b15a24cb021fc9a531db1efda6ec6d7f31df382cb7ccc89bf7e82e945930e  ./SHA256SUMS.upstream
+9b2183d80d81816c45f0fe6ce98424bcd9e6df6d104c0ded41700540eba72c3b  ./configure-pi.py
+d0df3f12c0f8918d971a0eebaa196a9080eb11138b21acb92d6eb4d773f051c2  ./install-guards.sh
+81a8b1b70fe2545e6e04f7373428c9111e6cb41d00b59a75935784b31bbd0014  ./mbip-backend
+a0e80705ae857f69c901d2552c7badc9abd7f7c57e08f2d774e069399da3efc0  ./pi-provider.json
+8dd6d52826d55a6db9472c61155852048966349eacf5202b6dfde4603e955757  ./pilot-start.sh
+299e44e4c32321e158e72d713ec987bda2381fcaadb2614faf279e2b50d2cde4  ./rebuild-strata.sh
+91a8b50ba05f1cb9fa72af831ada541917d66aa27c66fc93363b762716da1c82  ./systemd/llm-gateway.service.d/95-mbip-mode-guard.conf
+56dc7294097a1acf5c0bca53b7c9507f297bf6635d86b607a8f91379a4537500  ./systemd/mbip-strata.service
+1b3ff2977927d96927cfaeac7892272db0af2795891795be32c68bae0e07ddb2  ./systemd/mbip-strata.service.d/95-mbip-mode-guard.conf
+97b61ca6f66ff409834d7bf336e50d0b5b6d03fced9484f5af310e0be2d5ade1  ./systemd/ollama.service.d/95-mbip-mode-guard.conf
+0c61e9e1c056d498237cc20efa4e3f3e7b2484635d072436573a00cdb8ae3829  ./systemd/rag-mcp.service.d/95-mbip-mode-guard.conf
+23fec8c8a2480e447dde7c7657c0d6ee5d9d68b4df60db72c34706416f39de6c  ./test-local.py
+d2ae3ed6e7410988b95266ef72da852c945ece334e69acb646bd138881cc17fe  ./test-ollama-after.py
+1eb85e6ed0c0969f492244cc0a59d4651c662b36c22ab05bd658096d0d2d3f96  ./test-pi-strata.py

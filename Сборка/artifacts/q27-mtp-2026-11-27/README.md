@@ -25,6 +25,12 @@ Raw local server evidence ~/ollama-mtp-20261127/ (original.Modelfile, original.t
 
 ## Limitations and rollback
 
-Short native and OpenAI-compatible tool workflow PASS; live Pi user workflow after activation not yet separately repeated. Long input prefill effect of batch 256, sustained decode speed, full 262144 live context, thermal G0, F07, postboot, reverse backend transition after Ollama upgrade not accepted. The observed ~87% decode gain is for one 66-token completion; not a promised universal speedup. MTP is enabled persistently in manifest.
+Short native and OpenAI-compatible tool workflow PASS; subsequent live Pi user workflow also PASS in bounded scope (see addendum below). Long input prefill effect of batch 256, sustained decode speed, full 262144 live context, thermal G0, F07, postboot, reverse backend transition after Ollama upgrade not accepted. The observed ~87% decode gain is for one 66-token completion; not a promised universal speedup. MTP is enabled persistently in manifest.
 
 Rollback only when no requests are running: stop working tag, verify /api/ps empty and GPU released; copy the backup tag to working tag (ollama cp), restore prior Lenovo ailab-mode pin/helper together, verify old digest, /api/tags equality and ailab-mode current. Do not delete backup. [Passport v51](../../../Паспорт_лаборатории_v51.md).
+
+## Addendum — live VS Code / Pi, 18:39–18:42 EET
+
+Owner ran practical statistics module assignment in existing isolated fixture. Created statistics.cjs and statistics.test.cjs, four functions, 23 tests. Independent file review and node --test statistics.test.cjs calculator.test.cjs: 25/25 PASS; existing calculator hashes match, remaining fixture files retain prior mtimes. Additional checks of all four functions on empty/invalid/sparse inputs and frozen ordinary arrays PASS. Numerical limitation: repeated Number.MAX_VALUE gives Infinity for mean, median and variance, though mathematically mean/median should equal MAX_VALUE and variance zero. Not a production numerical library acceptance; no source correction requested or made.
+
+Server journal 16:40:02–16:41:27 UTC: six HTTP 200 completions for this task; no truncation; eval counts 146,72,3799,1065,51,1011; total 6144 tokens / 84.88847 s = 72.38 t/s weighted decode. Per-request runner speeds 70.16,74.84,72.37,80.30,76.02,65.23 t/s. Draft acceptance 3779/4724 (~80.0%), excluding earlier probes. Final context 14065 tokens in slot, configured 262144. GPU 23248 MiB used / 878 MiB free in post-task snapshot. This confirms live Pi workflow with MTP; no matched no-MTP run of this agent task, long-context or thermal qualification.

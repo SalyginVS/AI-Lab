@@ -1,6 +1,6 @@
 # Ежедневная работа: VS Code / Pi, три модели
 
-**Дата:** 27.11.2026. **Статус:** installed, bounded IDE functional acceptance PASS. Действует вместо исторического [E04 v3 daily](artifacts/mbip05-e04-v3/DAILY.md). Основание: [ADR-035](../Решения/operational/ADR-035_Three_Model_Daily_IDE_Operation.md), [паспорт v50](../Паспорт_лаборатории_v50.md).
+**Дата:** 27.11.2026. **Статус:** installed, bounded IDE functional acceptance PASS. Действует вместо исторического [E04 v3 daily](artifacts/mbip05-e04-v3/DAILY.md). Основание: [ADR-035](../Решения/operational/ADR-035_Three_Model_Daily_IDE_Operation.md), [паспорт v51](../Паспорт_лаборатории_v51.md).
 
 ## Native `/model` — обновление 27.11.2026
 
@@ -17,7 +17,7 @@
 |---|---|---|---|---|
 | Inkling | native SQ-20, Strata | 262144 / 262136 | max | FP16 + offload on; experts VRAM 14.66 GB, effective draft off |
 | Flash | UD-Q6_K_XL, Strata | 262144 / 262136 | high | INT8, KV-resident 32768; spec 4, MTP |
-| Q27 | IQ3_S, Ollama | 262144 / 262144 | medium | Q8_0, Flash Attention, parallel=1 |
+| Q27 | IQ3_S, Ollama | 262144 / 262144 | medium | Q8_0, Flash Attention, parallel=1; MTP 2, batch 256 |
 
 Контекст 262144 — **настроенный лимит**, не гарантированное end-to-end long-context acceptance. Pi compaction: keepRecentTokens 20000, reserve Inkling 8192 / Flash 12288 / Q27 32768. Значения maxTokens являются metadata Pi, не измеренным размером ответа.
 
@@ -29,7 +29,7 @@ Backend Strata слушает localhost `127.0.0.1:18081` (SSH forward), Ollama 
 
 **Boot caveat:** последний снимок — Ollama 0.40.18/Q27. После перезагрузки сервер по-прежнему стартует в **Ollama mode**, независимо от последнего выбранного профиля. Boot-policy и postboot validation для Inkling НЕ внедрены. Сначала проверить состояние, при необходимости выбрать модель заново.
 
-Ollama обновлена до 0.40.18: [протокол](artifacts/ollama-upgrade-0.40.18-2026-11-27/README.md). Короткий Q27 read/tool PASS; обратный переход после обновления ещё не проверен.
+Ollama обновлена до 0.40.18: [протокол](artifacts/ollama-upgrade-0.40.18-2026-11-27/README.md). Короткий Q27 read/tool PASS; обратный переход после обновления ещё не проверен. MTP активирован через Modelfile, draft_num_predict=2 и num_batch=256, full GPU; [протокол и актуальный снимок ailab-mode](artifacts/q27-mtp-2026-11-27/README.md). Не восстанавливать старый digest pin без восстановления старого model manifest.
 
 ## Проверка и диагностика
 

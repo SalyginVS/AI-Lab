@@ -1,0 +1,4 @@
+FROM qwen3.8-27b-gsq-rco:iq3s-mtp-262k-no-draft-backup-20261127
+PARAMETER num_ctx 262144
+PARAMETER draft_num_predict 2
+PARAMETER num_batch 256

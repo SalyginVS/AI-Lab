@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Same resolver and default thinking as CLI; preserves extension bridge arguments.
+set -euo pipefail
+if [[ $# = 1 && $1 = --version ]]; then exec "$HOME/.local/bin/pi" "$@"; fi
+exec "$HOME/.local/bin/ailab-pi" current "$@"

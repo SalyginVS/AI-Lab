@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+# Explicit owner-selected backend/profile, with one private SSH forward.
+set -euo pipefail
+umask 077
+usage(){ echo 'Usage: ailab-mode connect|status|flash --drained|inkling --drained|ollama --drained'; }
+mode=${1:-}; case "$mode" in
+ connect|status) [[ $# == 1 ]] || { usage; exit 2; };;
+ flash|inkling|ollama) [[ $# == 2 && $2 == --drained ]] || { usage; exit 2; };;
+ *) usage; exit 2;;
+esac
+base="${XDG_RUNTIME_DIR:?Login session required}/ailab-mbip05"
+mkdir -p -m 700 "$base"
+test -d "$base" && test ! -L "$base" && test -O "$base" && test "$(stat -c %a "$base")" = 700
+sock="$base/llm.sock"
+ssh_opts=(-S "$sock" -o StrictHostKeyChecking=yes -o UpdateHostKeys=no)
+forward=127.0.0.1:18081:127.0.0.1:18081
+if ! ssh "${ssh_opts[@]}" -O check llm >/dev/null 2>&1; then
+  if [[ -e "$sock" ]]; then
+    test -S "$sock" && test -O "$sock"
+    rm -- "$sock"
+  fi
+  ssh "${ssh_opts[@]}" -M -fN -o ExitOnForwardFailure=yes -o ServerAliveInterval=30 -o ServerAliveCountMax=3 -L "$forward" llm
+else
+  if ! ssh "${ssh_opts[@]}" -o BatchMode=yes llm true; then
+    echo "SSH master is not usable. Reconnect via a new login." >&2
+    exit 1
+  fi
+fi
+case "$mode" in
+ flash|inkling) ssh "${ssh_opts[@]}" -t llm sudo /usr/local/sbin/mbip-backend strata --profile "$mode" --drained;;
+ ollama) ssh "${ssh_opts[@]}" -t llm sudo /usr/local/sbin/mbip-backend ollama --drained;;
+esac
+ssh "${ssh_opts[@]}" llm /usr/local/sbin/mbip-backend status
+if [[ "$mode" != ollama ]]; then
+  if payload=$(curl --noproxy '*' -fsS --max-time 6 http://127.0.0.1:18081/v1/models 2>/dev/null); then
+    model=$(python3 -c 'import json,sys; d=json.load(sys.stdin)["data"]; assert len(d)==1; print(d[0]["id"])' <<<"$payload")
+    case "$model" in
+      qwen3.8-flash-next-ud-q6_k_xl|inkling-2-mini-sq-20|inkling-2-mini-sq-15) ;;
+      *) echo "Unapproved Strata model: $model" >&2; exit 1;;
+    esac
+    if [[ "$mode" == flash && "$model" != qwen3.8-flash-next-ud-q6_k_xl ]] ||
+       [[ "$mode" == inkling && "$model" != inkling-2-mini-sq-* ]]; then
+       echo "Server profile mismatch" >&2; exit 1
+    fi
+    echo "Pi CLI: pi --model ailab-strata/$model"
+    echo "VS Code Pi: /model ailab-strata/$model"
+  elif [[ "$mode" == flash || "$mode" == inkling ]]; then
+    echo "Strata tunnel or endpoint not ready." >&2; exit 1
+  fi
+else
+  echo "Pi CLI: pi --model ailab-ollama/qwen3.8-flash-next:125b-a6b-q6_K-ab-262k"
+  echo "Reserve Q27: pi-q27"
+fi

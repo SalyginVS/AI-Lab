@@ -1,0 +1,44 @@
+{
+  "status": "E04_OPERATIONAL_METADATA_ONLY",
+  "source": "E01-P accepted offline client candidate; E03-C deployment gate remains open",
+  "preserve": [
+    "defaultProvider",
+    "defaultModel",
+    "defaultThinkingLevel",
+    "ailab-ollama provider",
+    "other settings",
+    "auth and sessions"
+  ],
+  "strata": [
+    {
+      "id": "qwen3.8-flash-next-ud-q6_k_xl",
+      "contextWindow": 262144,
+      "maxTokens": 8192,
+      "reserveTokens": 12288,
+      "keepRecentTokens": 20000,
+      "thinking": "low"
+    },
+    {
+      "id": "inkling-2-mini-sq-20",
+      "contextWindow": 262144,
+      "maxTokens": 4096,
+      "reserveTokens": 8192,
+      "keepRecentTokens": 20000,
+      "thinking": "low"
+    }
+  ],
+  "additionalThinkingOverride": {
+    "ailab-ollama/qwen3.8-27b-gsq-rco:iq3s-mtp-262k": "medium"
+  },
+  "vscode": {
+    "pi-vscode.path": "$HOME/.local/bin/pi",
+    "version": "1.0.3",
+    "extension": "0.0.9"
+  },
+  "ssh": {
+    "mode": "adopt verified existing master via user-private master-path reference; otherwise interactive managed connect",
+    "noSecurityPolicyChange": true
+  },
+  "liveInference": "NOT_RUN",
+  "backendTransition": "BLOCKED_G0"
+}

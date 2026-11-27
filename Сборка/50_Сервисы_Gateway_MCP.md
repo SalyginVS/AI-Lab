@@ -1,5 +1,7 @@
 # Восстановление Gateway, MCP, RAG и SearXNG
 
+Дополнение MBIP-05 E03-C (DRAFT): в будущем Strata default boot, Gateway/RAG — резерв Ollama, без изменения старых units/guards и данных. Legacy postboot остаётся отдельно; новый read-only readiness проверяет Strata, функциональный smoke отдельно и только при допуске. [Deployment](artifacts/mbip05/deployment/README.md), [reserve regression](artifacts/mbip05/E03-P.md). Сейчас Gateway/RAG inactive/enabled; Ollama Q27 — целевая модель, Q6 — резерв. Новый переход не допущен G0.
+
 Дополнение MBIP: Gateway/RAG требуют старый контур и временно останавливаются в Strata mode. Управление режимом и guards — [55](55_Strata_и_переключение_backend.md). После возврата Ollama дождаться HTTP до старта Gateway/RAG; postboot относится к основному режиму. Docker MCP/SearXNG MCP при переключении не затрагиваются.
 
 Назначение: восстановить сервисы принятого baseline из проверенных исходников и закреплённых зависимостей.

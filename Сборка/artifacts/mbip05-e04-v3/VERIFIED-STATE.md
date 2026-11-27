@@ -22,10 +22,10 @@
 
 | Этап | Подтверждено | Не подтверждено |
 |---|---|---|
-| E01 Flash | API long 257138 input / 160 output, markers; dependent agent и cache reuse | Повторный тепловой допуск, live CLI/IDE long |
+| E01 Flash | API long 257138 input / 160 output, markers; dependent agent и cache reuse | Повторный тепловой допуск открыт; live CLI/IDE long NOT_RUN / DEFERRED |
 | E01 Inkling | Effective 262144, prompt 257105, prefill 450.3 t/s, 24 output; отмена по SW thermal flag | Ответ, markers, tools, reuse; E01 BLOCKED |
-| E01-P | Offline planner, engine CLI capability, client candidate | FP8 actual placement/generation |
-| E02-P | Четыре mock cases и четыре replay PASS | Live acceptance четырёх client cases, IDE process resume |
+| E01-P | Offline planner, engine CLI capability, client candidate | FP8 actual placement/generation NOT_RUN / DEFERRED |
+| E02-P | Четыре mock cases и четыре replay PASS | Четыре prolonged live client cases NOT_RUN / DEFERRED; IDE process resume NOT_RUN |
 | E03-P/C | Offline switcher/boot fixtures, 15 транзакционных тестов на Lenovo и target systemd 255; root tmpfiles в изолированном systemd 257 | Privileged target root, реальное внедрение, reboot, functional postboot |
 | E04 | SSH/current API readiness, exact model metadata, isolated IDE launch до thinking correction, 18 routing, 17 RPC + 2 TUI mock HTTP requests, Shift+Tab | Последний Extension Host replay, реальные переходы и новые ответы |
 | Reserve | Прежние Q6/Q27/embedding 4096 smoke; health 20/20; F04 KNOWN | F07 REVALIDATE: 83 package changes, 23 sensitive linux-; целевой reserve cycle и disposition |
@@ -47,4 +47,4 @@
 
 [FP8 On](../mbip05/deployment/stage/profiles/strata-mbip-inkling.json) — offline-кандидат, не установлен; SHA d5c02363eeb200e414940de3be05e2964136d356c8516174a6ca7021b64ac6df. E03-C default Strata/Inkling и installer/rollback — проверенная offline подготовка, не применённая boot policy. Перед будущим применением согласовать E03-C client intent с E04, не возвращать 4096/8192 и low.
 
-G0 (квалифицированный допуск охлаждения GPU/GDDR6X и накопителей) остаётся блокером. Не менять 300 W, guards, quant и context самостоятельно. Открыты E01 FP8, E02 live, безопасный переход и short functional generation, reserve/F07, target privileged root ownership, controlled reboot/functional postboot, independent owner acceptance. Не повторять уже принятые Flash API long/agent. Документационный PR фиксирует факты, не закрывает эти критерии и не разрешает запуск испытаний. Исторические baseline/evaluator и E03-C/E04 v2 источники сохраняются.
+G0 (квалифицированный допуск охлаждения GPU/GDDR6X и накопителей) остаётся блокером. Не менять 300 W, guards, quant и context самостоятельно. FP8 long validation и E02 long live NOT_RUN / DEFERRED, исключены из текущего scope; оригинальный E01 BLOCKED. Открыты G0, безопасный переход и необходимые короткие functional checks после отдельного допуска, reserve/F07 и independent owner acceptance. Исходный E03-C deployment, target privileged root ownership и controlled reboot/functional postboot NOT_RUN / DEFERRED; его gates неизменны. Не повторять уже принятые Flash API long/agent. Документационный PR фиксирует факты, не закрывает эти критерии и не разрешает запуск испытаний. Исторические baseline/evaluator и E03-C/E04 v2 источники сохраняются.

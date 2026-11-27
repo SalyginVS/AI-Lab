@@ -6,7 +6,7 @@ tags: [meta]
 
 Каноническая документация локальной AI Coding Platform. Репозиторий содержит инженерные решения, проверяемые результаты испытаний, конфигурационные baselines и эксплуатационные процедуры.
 
-**Начать с [единой инструкции Lenovo](Сборка/artifacts/mbip05-e04-v3/DAILY.md).** Фактический снимок 27.11.2026 — [паспорт v47](Паспорт_лаборатории_v47.md); [архитектура v1.24 DRAFT](Целевая_архитектура_AI_Coding_Platform_v1_24.md) и [ADR-034](Решения/operational/ADR-034_MBIP05_Strata_Dual_Model_Default.md) отделяют установленное от целевого. Последний ранее принятый паспорт v45 сохранён. E04 client configuration внедрена, SSH и текущий API подтверждены, mock thinking/selection PASS. Сейчас Inkling FP16/262144, boot по-прежнему Ollama. G0 открыт, E01 BLOCKED, live E02 и boot acceptance NOT_RUN. E03-C — offline deployment candidate, не установка. Документационная публикация не закрывает MBIP-05.
+**Начать с [единой инструкции Lenovo](Сборка/artifacts/mbip05-e04-v3/DAILY.md).** Фактический снимок 27.11.2026 — [паспорт v47](Паспорт_лаборатории_v47.md); [архитектура v1.24 DRAFT](Целевая_архитектура_AI_Coding_Platform_v1_24.md) и [ADR-034](Решения/operational/ADR-034_MBIP05_Strata_Dual_Model_Default.md) отделяют установленное от целевого. Последний ранее принятый паспорт v45 сохранён. E04 client configuration внедрена, SSH и текущий API подтверждены, mock thinking/selection PASS. Сейчас Inkling FP16/262144, boot по-прежнему Ollama. G0 открыт, исторический E01 BLOCKED, live E02 long и FP8 long validation NOT_RUN / DEFERRED, boot acceptance NOT_RUN / DEFERRED. Продолжительные испытания исключены из текущего scope. E03-C — offline deployment candidate, не установка. Документационная публикация не закрывает MBIP-05.
 
 ## Источники истины
 

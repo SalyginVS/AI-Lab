@@ -26,7 +26,9 @@ Roadmap — навигация и приоритеты, не самостоят�
 - После отдельной live-сверки подготовить следующий паспорт. Не объявлять новый runtime статус по одной переписке.
 - Синхронизировать architecture и runbooks без обнуления accepted long-context/Q6 results.
 
-## MBIP-05 — текущий критический путь
+## MBIP-05 — текущий scope и отложенная приёмка
+
+Решение владельца 27.11.2026: продолжительные испытания, сравнительные исследования контекстов, квантизаций и производительности исключены из текущего scope. Незавершённые long-context/agent/compaction испытания — NOT_RUN / DEFERRED; исторический прерванный Inkling E01 остаётся BLOCKED, не PASS. Только отдельно допущенные необходимые короткие функциональные проверки могут входить в дальнейшую эксплуатационную приёмку. G0, 300 W, guards, drain/release, rollback и требования безопасного postboot сохраняются; это не разрешение на нагрузку или внедрение.
 
 | Этап | Статус |
 |---|---|
@@ -35,9 +37,9 @@ Roadmap — навигация и приоритеты, не самостоят�
 | E03-P / E03-C | Offline integration и транзакционный пакет проверены, privileged target root и live deployment NOT_RUN |
 | E04 v3 | Клиентская дельта установлена; SSH, текущий API, 18 routing / 17 RPC / 2 TUI mock PASS |
 | G0 | BLOCKED: квалифицированный допуск охлаждения |
-| E01 / E02 live | Inkling E01 BLOCKED; FP8 и четыре длинных клиентских сценария NOT_RUN |
-| Reserve / F07 | F07 REVALIDATE; целевой цикл и disposition открыты |
-| Boot / postboot | NOT_RUN; прежний boot Ollama |
+| E01 / E02 live | Inkling E01 BLOCKED (исторический результат); FP8 long validation и четыре длинных клиентских сценария NOT_RUN / DEFERRED, вне текущего scope |
+| Reserve / F07 | F07 REVALIDATE; disposition и необходимые короткие проверки после G0 открыты |
+| Boot / postboot | NOT_RUN / DEFERRED; прежний boot Ollama, исторический installer не допущен |
 | Canonical documentation | Review PR; merge только после разрешения владельца |
 
 [Единая инструкция](../Сборка/artifacts/mbip05-e04-v3/DAILY.md), [карта evidence](../Сборка/artifacts/mbip05-e04-v3/VERIFIED-STATE.md), [ADR-034](../Решения/operational/ADR-034_MBIP05_Strata_Dual_Model_Default.md). 300 W фиксированы; исследование мощности прекращено. Не повторять принятые Flash long API/agent результаты. Документационная приёмка не является разрешением на inference.

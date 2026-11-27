@@ -2,6 +2,8 @@
 Дата: 27.11.2026. Scope: client preparation only.
 No real inference, server/profile change, or live client installation in E02-P.
 
+Owner decision 27.11.2026: all four prolonged live cases below are NOT_RUN / DEFERRED, excluded from the current scope. The protocol is preserved as historical acceptance criteria, not a current execution instruction. No thresholds or guards are waived; no live PASS is inferred from mock. A future run requires separate safe admission and authorization, and reconciliation with installed E04 settings.
+
 ## Evidence and reproducibility
 
 Prerequisite: accepted E01-P manifest a6d5c8b706ba6df8a877e32eb55cc8337121a81dec8d724b4450d7f734b4937c.
@@ -22,7 +24,7 @@ The live fixture sizes are starting calibration candidates, not exact token coun
 Only a separate explicit live execution contract may authorize a run. E01 must satisfy its real-engine acceptance and unresolved thermal safety admission must be closed by appropriate diagnostics. Keep all existing protections and power settings. No parallel backend, no automatic model switching, no retries that bypass guards. Use the already approved monitored contour and abort safely on any guard event, error, or invalid resource state. All steps below are acceptance definitions, not authorization to start.
 Before each case, confirm correct loaded model and actual native/effective 262144, exact accepted server profile, idle request counters, guard active through all requests and compaction, and original client files preserved. Use the E01-P Pi candidate on a copy; restrict the provider to the selected live endpoint only in that copy. Verify Pi settings and exact model ID. No mock process or endpoint may be used in the live run.
 
-## Four-case acceptance matrix, sequential within the allowed test window
+## Historical four-case acceptance matrix (NOT_RUN / DEFERRED)
 
 C1 CLI Flash, C2 CLI Inkling, C3 actual VS Code extension Flash, C4 actual VS Code extension Inkling.
 For CLI use Pi's installed RPC mode and a persistent private session dir, as in run-cli.py (replace mock prompt sequence by the live prompt files in the separately authorized run). For IDE use the isolated Extension Development Host pattern in ide-test.js with the actual installed extension and bridge. Do not substitute CLI for IDE. Keep the same contextWindow, maxTokens, modelOverrides, thinkingLevelMap, and low thinking override from E01-P.
@@ -39,4 +41,4 @@ Verify each case against expected.json and actual traces. For LONG and AGENT use
 
 Mock: 4/4 primary + 4/4 replay, 30 requests each. No live model acceptance. CLI same-ID process resume verified; IDE actual extension bridge + continuation + full persisted history verified, not IDE process restart.
 Observed negative cases: short retained tail -> no usable compaction cut point; overlarge new turn -> actual max_tokens=1. Those findings must not be hidden by fixed mock usage or by treating manual compaction as equivalent. The final pressure scenario yielded Flash 5449 CLI/5450 IDE, Inkling 4096, within configured upper caps. Do not claim the full 8192 is invariant.
-E01 and live E02 remain open. No change to Pi live settings, server profiles or inference request counters. No transition to actual E02.
+Historical E01 remains BLOCKED; all prolonged live E02 cases NOT_RUN / DEFERRED. No change to Pi live settings, server profiles or inference request counters. No transition to actual E02.

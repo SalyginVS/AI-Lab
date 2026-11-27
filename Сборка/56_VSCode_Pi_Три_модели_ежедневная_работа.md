@@ -1,6 +1,6 @@
 # Ежедневная работа: VS Code / Pi, три модели
 
-**Дата:** 27.11.2026. **Статус:** installed, bounded IDE functional acceptance PASS. Действует вместо исторического [E04 v3 daily](artifacts/mbip05-e04-v3/DAILY.md). Основание: [ADR-035](../Решения/operational/ADR-035_Three_Model_Daily_IDE_Operation.md), [паспорт v49](../Паспорт_лаборатории_v49.md).
+**Дата:** 27.11.2026. **Статус:** installed, bounded IDE functional acceptance PASS. Действует вместо исторического [E04 v3 daily](artifacts/mbip05-e04-v3/DAILY.md). Основание: [ADR-035](../Решения/operational/ADR-035_Three_Model_Daily_IDE_Operation.md), [паспорт v50](../Паспорт_лаборатории_v50.md).
 
 ## Native `/model` — обновление 27.11.2026
 
@@ -27,7 +27,9 @@
 
 Backend Strata слушает localhost `127.0.0.1:18081` (SSH forward), Ollama `192.168.0.128:11434`. Gateway/RAG доступны только с Ollama. Power GPU 300 W сохранён.
 
-**Boot caveat:** сейчас **Strata/Inkling**, но после перезагрузки сервер по-прежнему стартует в **Ollama mode**. Boot-policy и postboot validation для Inkling НЕ внедрены. Сначала проверить состояние, при необходимости выбрать модель заново.
+**Boot caveat:** последний снимок — Ollama 0.40.18/Q27. После перезагрузки сервер по-прежнему стартует в **Ollama mode**, независимо от последнего выбранного профиля. Boot-policy и postboot validation для Inkling НЕ внедрены. Сначала проверить состояние, при необходимости выбрать модель заново.
+
+Ollama обновлена до 0.40.18: [протокол](artifacts/ollama-upgrade-0.40.18-2026-11-27/README.md). Короткий Q27 read/tool PASS; обратный переход после обновления ещё не проверен.
 
 ## Проверка и диагностика
 

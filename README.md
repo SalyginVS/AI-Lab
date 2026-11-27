@@ -6,6 +6,8 @@ tags: [meta]
 
 ## Текущая рабочая эксплуатация (27.11.2026)
 
+**Native `/model`:** установлен клиентский адаптер для переключения движка из Pi без закрытия текущей сессии, [snapshot и evidence](Сборка/artifacts/daily-ide-native-model-2026-11-27/README.md). 12 mock tests и реальный отказ/rollback при другой сессии PASS; успешный live native transition ещё требует GUI-проверки владельцем. Ctrl+Alt+M остаётся fallback.
+
 **Начинать с [runbook 56: VS Code + Pi, три модели](Сборка/56_VSCode_Pi_Три_модели_ежедневная_работа.md).** [Паспорт v48](Паспорт_лаборатории_v48.md) и [ADR-035](Решения/operational/ADR-035_Three_Model_Daily_IDE_Operation.md) описывают проверенное после решения владельца завершить текущие испытания MBIP-05 и работать с лабораторией. В Pi ровно три модели: Inkling SQ-20 и Flash-Next UD-Q6_K_XL на Strata, Qwen 27B IQ3_S на Ollama. Q6/Flash-Next на Ollama исключена из рабочего выбора, серверные веса сохранены.
 
 Выбор модели **Ctrl+Alt+M**, затем Pi **Ctrl+Alt+3**. Три коротких live Pi ответа и штатное переключение движков PASS; графические хоткеи, полный edit/test и postboot не проверены. Сейчас Strata/Inkling active; boot policy по-прежнему Ollama. Следующий абзац описывает **исторический E04 v3**, не действующее состояние.

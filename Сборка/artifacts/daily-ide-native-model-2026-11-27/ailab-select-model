@@ -1,0 +1,98 @@
+#!/usr/bin/env bash
+# Daily-use model selector for VS Code / Pi. No credential storage or unattended escalation.
+set -Eeuo pipefail
+umask 077
+caller_pid=0
+if [[ ${1:-} == --from-pi ]]; then
+  [[ $# == 2 ]] || exit 2
+  caller_pid=$PPID
+  [[ $(ps -o comm= -p "$caller_pid") == pi ]] || {
+    echo 'Internal selector must be called directly by the Pi process.' >&2
+    exit 4
+  }
+  shift
+fi
+choice=${1:-}
+other_pi() {
+  local p
+  while IFS= read -r p; do
+    [[ -z $p || $p == "$caller_pid" ]] || return 0
+  done < <(pgrep -u "$USER" -x pi || true)
+  return 1
+}
+case "$choice" in inkling|flash|q27) ;; *) echo 'Usage: ailab-select-model inkling|flash|q27' >&2; exit 2;; esac
+state_dir="$HOME/.config/ailab-mbip05"
+mkdir -p -m 700 "$state_dir"
+exec 9>"$state_dir/model-selection.lock"
+flock -x 9
+current=$("$HOME/.local/bin/ailab-mode" current 2>"$state_dir/last-preflight.log") || {
+  echo 'Current backend is not ready. See: ailab-mode status' >&2
+  cat "$state_dir/last-preflight.log" >&2
+  exit 1
+}
+case "$current" in ailab-strata/*) running=strata;; ailab-ollama/*) running=ollama;; *) echo 'Unexpected current backend' >&2; exit 1;; esac
+case "$choice" in inkling|flash) wanted=strata;; q27) wanted=ollama;; esac
+# Pi may already be open in VS Code. Never change its model from underneath an active session.
+preferred=''
+if [[ -f "$state_dir/preferred-model" ]]; then
+  IFS= read -r preferred < "$state_dir/preferred-model" || true
+fi
+same_backend_ready=false
+if [[ "$choice" == inkling && "$current" == 'ailab-strata/inkling-2-mini-sq-20' ]] ||
+   [[ "$choice" == flash && "$current" == 'ailab-strata/qwen3.8-flash-next-ud-q6_k_xl' ]] ||
+   [[ "$choice" == q27 && "$running" == ollama ]]; then
+  same_backend_ready=true
+fi
+if [[ "$choice" != "$preferred" || "$same_backend_ready" != true ]]; then
+  if other_pi; then
+    if [[ $caller_pid == 0 ]]; then
+      echo 'An active Pi session was found. Close Pi in VS Code, then select the model again.' >&2
+    else
+      echo 'Another Pi session is active. Close other Pi tabs/windows, not the current session, then retry /model.' >&2
+    fi
+    exit 4
+  fi
+fi
+if [[ "$choice" == inkling && "$current" == 'ailab-strata/inkling-2-mini-sq-20' ]] ||
+   [[ "$choice" == flash && "$current" == 'ailab-strata/qwen3.8-flash-next-ud-q6_k_xl' ]] ||
+   [[ "$choice" == q27 && "$running" == ollama ]]; then
+  echo "Engine already ready: $running"
+else
+  # Never interrupt a Pi session (even one that is idle between requests).
+  for f in /proc/[0-9]*/cmdline; do
+    [[ $f != "/proc/$caller_pid/cmdline" && -r "$f" ]] || continue
+    args=$(tr '\0' ' ' < "$f" 2>/dev/null) || continue
+    case "$args" in
+      *'/pi-coding-agent/'*|*'/pi-vscode/bridge/'*)
+        echo 'Pi is still running. Close its session before changing the inference engine.' >&2
+        exit 4;;
+    esac
+  done
+  if [[ "$wanted" == ollama ]]; then
+    cmd='sudo -n /usr/local/sbin/mbip-backend ollama --drained'
+  else
+    cmd="sudo -n /usr/local/sbin/mbip-backend strata --profile $choice --drained"
+  fi
+  echo "Changing backend $running -> $wanted (requested model: $choice)."
+  echo 'Using restricted passwordless sudo for the verified backend controller.'
+  if [[ $caller_pid == 0 ]]; then
+    [[ -t 0 && -t 1 ]] || { echo 'Run this selector in the VS Code interactive terminal (not a detached process).' >&2; exit 5; }
+    tty=(-tt)
+  else
+    tty=(-T)
+  fi
+  # Recheck local sessions immediately before the privileged transition.
+  if other_pi; then echo 'Another Pi session is active; transition refused.' >&2; exit 4; fi
+  ssh "${tty[@]}" -o BatchMode=yes -o StrictHostKeyChecking=yes -o ServerAliveInterval=15 -o ServerAliveCountMax=3 llm "$cmd" || {
+    echo 'Backend transition did not complete. Existing model preference unchanged.' >&2
+    exit 6
+  }
+fi
+"$HOME/.local/bin/ailab-mode" "$choice" >/dev/null
+model=$("$HOME/.local/bin/ailab-mode" resolve "$choice" 2>/dev/null)
+file=$(mktemp "$state_dir/.preferred-model.XXXXXXXX")
+printf '%s\n' "$choice" > "$file"
+chmod 600 "$file"
+mv -f -- "$file" "$state_dir/preferred-model"
+printf '\nMODEL_READY %s\nMODEL_ID %s\n' "$choice" "$model"
+echo 'Open Pi in VS Code: Ctrl+Alt+3. To change models: Ctrl+Alt+M.'

@@ -38,6 +38,10 @@ Runtime на завершение: **Strata/Inkling active**, Ollama/Gateway/RAG
 - В реальном VS Code **не проверены** нажатия хоткеев и полный цикл изменения кода/тестов; postboot, 262144 long-context Inkling/Q27, thermal acceptance также НЕ приняты.
 - Ранее подтверждённый Flash long API/agent/cache reuse не пересматривается; Inkling E01 thermal BLOCKED, FP8 long NOT_RUN и F07 REVALIDATE остаются историческими и актуальными рисками. Короткая повседневная работа разрешена отдельно, без снятия защит.
 
+## Дополнение: native `/model` в Pi (27.11.2026)
+
+Установлен [адаптер model_select](../../Сборка/artifacts/daily-ide-native-model-2026-11-27/README.md), чтобы выбор в Pi согласовывался с текущим inference backend. API Pi 1.0.3 меняет модель до события; адаптер сверяет состояние, при неуспехе восстанавливает фактически доступную модель, блокирует обычный ввод и compaction при рассогласовании. Изменение backend разрешено только в idle TUI без очереди и других Pi-процессов, через существующий controller/sudoers, с прежними server guards. Дренирование других клиентов остаётся обязанностью оператора. Mock 12/12; реальный TUI отказ и возврат в Inkling PASS; позитивный live native переход пока NOT_RUN. Исторический VS Code task остаётся fallback. Защита не является глобальным арбитром запросов, не отменяет thermal G0 и не изменяет boot.
+
 ## Документы
 
 [Runbook 56](../../Сборка/56_VSCode_Pi_Три_модели_ежедневная_работа.md), [паспорт v48](../../Паспорт_лаборатории_v48.md), [ADR-033](ADR-033_MBIP_Manual_Backend_Selection.md), [ADR-034 DRAFT](ADR-034_MBIP05_Strata_Dual_Model_Default.md). Нельзя приравнивать short smoke модели к приёмке инженерной роли по ADR-030/031/032.

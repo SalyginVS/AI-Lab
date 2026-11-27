@@ -1,5 +1,7 @@
 # Ежедневная работа: VS Code / Pi, три модели
 
+**При добавлении/замене моделей:** действовать по [ADR-036](../Решения/operational/ADR-036_Empirical_Model_Operation_Policy.md): сбор информации, минимальная проверка работоспособности через рабочий контур, затем эксплуатация. Отдельные испытания и бенчмарки не проводить.
+
 **Дата:** 27.11.2026. **Статус:** installed, bounded IDE functional acceptance PASS. Действует вместо исторического [E04 v3 daily](artifacts/mbip05-e04-v3/DAILY.md). Основание: [ADR-035](../Решения/operational/ADR-035_Three_Model_Daily_IDE_Operation.md), [паспорт v51](../Паспорт_лаборатории_v51.md).
 
 ## Native `/model` — обновление 27.11.2026

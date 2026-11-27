@@ -1,0 +1,62 @@
+#!/usr/bin/python3
+"""Read-only Strata boot readiness. No /load, completion, start/stop or power change."""
+import hashlib,json,os,subprocess,sys,time,urllib.request
+from pathlib import Path
+OLD=("ollama.service","llm-gateway.service","rag-mcp.service")
+STRATA="mbip-strata.service"
+PROFILE="/etc/mbip05/profiles/strata-mbip-inkling.json"
+MODEL="inkling-2-mini-sq-20"
+EXPECTED_SHA="d5c02363eeb200e414940de3be05e2964136d356c8516174a6ca7021b64ac6df"
+class Refused(RuntimeError): pass
+def require(x,m):
+    if not x:raise Refused(m)
+class Host:
+    def run(self,*a):
+        return subprocess.run(a,check=True,capture_output=True,text=True,timeout=10).stdout.strip()
+    def state(self,u):
+        return self.run("systemctl","show",u,"-p","ActiveState","--value")
+    def enabled(self,u):
+        return subprocess.run(["systemctl","is-enabled",u],capture_output=True,text=True,timeout=10).stdout.strip()
+    def link(self,p):return os.readlink(p)
+    def read(self,p):return Path(p).read_bytes()
+    def get(self,route):
+        with urllib.request.build_opener(urllib.request.ProxyHandler({})).open("http://127.0.0.1:18081"+route,timeout=5) as r:return json.load(r)
+    def listeners(self,*ports):
+        return self.run("ss","-Hlt","( "+" or ".join(f"sport = :{p}" for p in ports)+" )")
+def inspect(h):
+    require(h.enabled(STRATA)=="enabled" and all(h.enabled(u)=="disabled" for u in OLD),"Wrong boot enablement")
+    require(h.state(STRATA)=="active" and all(h.state(u)=="inactive" for u in OLD),"Mixed or inactive service state")
+    require(h.enabled("ailab-gpu-power.service")=="enabled" and h.state("ailab-gpu-power.service")=="active","GPU limit service not active/enabled")
+    require(h.enabled("ailab-postboot-check.service")=="enabled","Postboot not enabled")
+    require(not h.listeners(11434,8000,8100),"Competing listeners")
+    require(h.link("/run/mbip05/active.json")==PROFILE,"Wrong boot profile pointer")
+    raw=h.read(PROFILE);require(hashlib.sha256(raw).hexdigest()==EXPECTED_SHA,"Unaccepted profile fingerprint")
+    c=json.loads(raw);a=c["args"]
+    for k,v in {"--max-context":"262144","--kv":"fp8","--kv-offload":"on","--vram-experts-gb":"14.66"}.items():
+        require(a.count(k)==1 and a[a.index(k)+1]==v,"Wrong "+k)
+    require(c["model_name"]==MODEL and c["drafting"]=="off" and c["parallel"]==1 and c["lazy_load"] is True and c["host"]=="127.0.0.1" and c["port"]==18081,"Profile invariant")
+    line=h.run("nvidia-smi","--query-gpu=power.limit,temperature.gpu,clocks_event_reasons.hw_thermal_slowdown,clocks_event_reasons.sw_thermal_slowdown","--format=csv,noheader,nounits")
+    watts,temp,hw,sw=map(str.strip,line.split(","))
+    require(float(watts)==300 and int(temp)<82 and hw==sw=="Not Active","Power/thermal invariant")
+    deadline=time.monotonic()+60
+    while True:
+        try:
+            st=h.get("/v1/status");ids={x["id"] for x in h.get("/v1/models")["data"]}
+            if "loaded" in st:break
+        except (OSError,ValueError,KeyError):pass
+        require(time.monotonic()<deadline,"Readiness timeout");time.sleep(1)
+    require(ids=={MODEL} and st.get("model")==MODEL,"API model mismatch")
+    require(st.get("activity",{}).get("in_flight")==0,"Unexpected active inference")
+    require(st.get("concurrency",{}).get("serving")==1,"Concurrency mismatch")
+    listeners=h.listeners(18081).splitlines()
+    require(bool(listeners) and all("127.0.0.1:18081" in l.split()[3:4] for l in listeners),"Strata not exclusively on loopback")
+    if st["loaded"] is True:
+        require(st.get("context",{}).get("max_positions")==262144 and st["context"].get("native")==262144,"Effective context mismatch")
+    else:require(st["loaded"] is False,"Invalid load state")
+    return {"result":"READY_PENDING_FUNCTIONAL","model":MODEL,"profile_sha256":EXPECTED_SHA,"loaded":st["loaded"],"context":st.get("context"),"power_w":float(watts),"gpu_temp_c":int(temp),"functional":"NOT_RUN","thermal_admission":"NOT_ESTABLISHED_BY_READINESS"}
+def main():
+    try:r=inspect(Host());rc=0
+    except Exception as e:r={"result":"FAIL","error":str(e),"functional":"NOT_RUN"};rc=1
+    print("MBIP05_POSTBOOT_READINESS",json.dumps(r),flush=True)
+    return rc
+if __name__=="__main__":sys.exit(main())

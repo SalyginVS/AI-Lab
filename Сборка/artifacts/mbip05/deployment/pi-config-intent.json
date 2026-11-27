@@ -1,0 +1,45 @@
+{
+  "provider": "ailab-strata",
+  "defaultModel": "inkling-2-mini-sq-20",
+  "models": [
+    {
+      "id": "qwen3.8-flash-next-ud-q6_k_xl",
+      "contextWindow": 262144,
+      "maxTokens": 8192,
+      "thinkingLevelMap": {
+        "off": "none",
+        "minimal": null,
+        "low": "low",
+        "medium": "medium",
+        "high": "high",
+        "xhigh": null,
+        "max": null
+      },
+      "compaction": {
+        "reserveTokens": 12288,
+        "keepRecentTokens": 20000
+      },
+      "thinking": "low"
+    },
+    {
+      "id": "inkling-2-mini-sq-20",
+      "contextWindow": 262144,
+      "maxTokens": 4096,
+      "thinkingLevelMap": {
+        "off": "none",
+        "minimal": null,
+        "low": "low",
+        "medium": "medium",
+        "high": "high",
+        "xhigh": null,
+        "max": null
+      },
+      "compaction": {
+        "reserveTokens": 8192,
+        "keepRecentTokens": 20000
+      },
+      "thinking": "low"
+    }
+  ],
+  "preserve": "All other provider, model and settings fields; no auth or credential values."
+}

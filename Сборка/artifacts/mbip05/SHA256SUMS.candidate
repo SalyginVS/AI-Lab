@@ -1,0 +1,3 @@
+181569c830f2a73d07d476dba27b63a89122fdac228c1f965cd043c96744826e  mbip-backend
+41247f116027fef7bb8fa5de8939591978acccd0983268ca66718c6f76c8ce8a  test-profile.py
+05cb437c9aae73fc2f416edf741de31415cff718095ed3e57a2e9b55ddb7f18f  systemd/mbip-strata.service.d/96-mbip05-profiles.conf

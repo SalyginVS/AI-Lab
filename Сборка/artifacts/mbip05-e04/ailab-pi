@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# Explicit model selection. No implicit backend change during E04/G0.
+set -euo pipefail
+choice=${1:-}
+case "$choice" in
+ inkling) provider=ailab-strata; model=inkling-2-mini-sq-20; thinking=low;;
+ flash) provider=ailab-strata; model=qwen3.8-flash-next-ud-q6_k_xl; thinking=low;;
+ q27) provider=ailab-ollama; model=qwen3.8-27b-gsq-rco:iq3s-mtp-262k; thinking=medium;;
+ q6|ollama) provider=ailab-ollama; model=qwen3.8-flash-next:125b-a6b-q6_K-ab-262k; thinking=max;;
+ *) echo 'Usage: ailab-pi inkling|flash|q27|q6 [--check] [Pi arguments]' >&2; exit 2;;
+esac
+shift
+if [[ ${1:-} = --drained ]]; then shift; fi
+if [[ ${1:-} = --check && $# = 1 ]]; then
+  "$HOME/.local/bin/ailab-mode" "$choice"
+  printf 'PI_SELECTION %s/%s thinking=%s\n' "$provider" "$model" "$thinking"
+  exit 0
+fi
+for arg in "$@"; do
+  case "$arg" in --model|--model=*|--provider|--provider=*|--thinking|--thinking=*|--models|--models=*) echo 'Conflicting selector argument' >&2; exit 2;; esac
+done
+"$HOME/.local/bin/ailab-mode" "$choice"
+echo 'G0 open: no long or unapproved inference. Use --check for read-only readiness.' >&2
+exec "$HOME/.local/bin/pi" --offline --provider "$provider" --model "$model" --thinking "$thinking" "$@"

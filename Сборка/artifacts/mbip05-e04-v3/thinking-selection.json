@@ -1,0 +1,77 @@
+{
+  "status": "E04_V3_THINKING_SELECTION_INSTALLED",
+  "models": [
+    {
+      "provider": "ailab-strata",
+      "id": "qwen3.8-flash-next-ud-q6_k_xl",
+      "thinkingLevelMap": {
+        "off": "none",
+        "minimal": null,
+        "low": "low",
+        "medium": "medium",
+        "high": "xhigh",
+        "xhigh": null,
+        "max": null
+      },
+      "defaultThinking": "high",
+      "contextWindow": 262144,
+      "maxTokens": 262136
+    },
+    {
+      "provider": "ailab-strata",
+      "id": "inkling-2-mini-sq-20",
+      "thinkingLevelMap": {
+        "off": "none",
+        "minimal": "minimal",
+        "low": "low",
+        "medium": "medium",
+        "high": "high",
+        "xhigh": "xhigh",
+        "max": "max"
+      },
+      "defaultThinking": "max",
+      "contextWindow": 262144,
+      "maxTokens": 262136
+    },
+    {
+      "provider": "ailab-ollama",
+      "id": "qwen3.8-flash-next:125b-a6b-q6_K-ab-262k",
+      "thinkingLevelMap": {
+        "off": null,
+        "minimal": "low",
+        "low": "low",
+        "medium": "medium",
+        "high": "xhigh",
+        "xhigh": "xhigh",
+        "max": "xhigh"
+      },
+      "defaultThinking": "max",
+      "contextWindow": 262144,
+      "maxTokens": 32768
+    },
+    {
+      "provider": "ailab-ollama",
+      "id": "qwen3.8-27b-gsq-rco:iq3s-mtp-262k",
+      "thinkingLevelMap": {
+        "off": null,
+        "minimal": "low",
+        "low": "low",
+        "medium": "medium",
+        "high": "xhigh",
+        "xhigh": "xhigh",
+        "max": "xhigh"
+      },
+      "defaultThinking": "medium",
+      "contextWindow": 262144,
+      "maxTokens": 262144
+    }
+  ],
+  "launcher": "shared ailab-mode resolve/current, no forced --thinking",
+  "mock": {
+    "rpc_requests": 17,
+    "tui_requests": 2,
+    "routing_tests": 18,
+    "live_generation": "NOT_RUN"
+  },
+  "guards": "unchanged; G0 transition refusal remains"
+}

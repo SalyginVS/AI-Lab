@@ -1,0 +1,12 @@
+https://huggingface.co/strata-engine/Inkling-2-Mini-Strata/resolve/04996a1e2c45009b6a04f2af126cb6bdb2ba3587/chat_template.jinja
+  out=chat_template.jinja
+  checksum=sha-256=53a9035f3255945704b5857657cfb00c1165090c0641c4f782a0cbf268cc16dc
+https://huggingface.co/strata-engine/Inkling-2-Mini-Strata/resolve/04996a1e2c45009b6a04f2af126cb6bdb2ba3587/tokenizer.json
+  out=tokenizer.json
+  checksum=sha-256=7f332727f9a3f093dd452a39cc978e6757627e5dad1b0673aa4e75174f236dd6
+https://github.com/Niko1221/Strata/releases/download/v0.2.22/strata-inkling-0.1.69-linux-x86_64-cuda-cuda13.tar.gz
+  out=strata-inkling-0.1.69-linux-x86_64-cuda-cuda13.tar.gz
+  checksum=sha-256=866798f92e2b0e543ab47dc6212d8ddded7e321100db4fdcb732ff92813b5f3e
+https://huggingface.co/strata-engine/Inkling-2-Mini-Strata/resolve/04996a1e2c45009b6a04f2af126cb6bdb2ba3587/Inkling-2-Mini-SQ-20.strata
+  out=Inkling-2-Mini-SQ-20.strata
+  checksum=sha-256=0bbfd52344f0dd4779a7807b5f73554a812f24c035e6877b63cd0d499f7e1b97

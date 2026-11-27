@@ -1,0 +1,32 @@
+{
+  "exe": "component:strata-inkling",
+  "args": [
+    "--native",
+    "/srv/ai-test/mbip-strata-models/inkling-sq20/Inkling-2-Mini-SQ-20.strata",
+    "--max-context",
+    "32768",
+    "--vram-experts-gb",
+    "14.66"
+  ],
+  "cwd": "/opt/mbip-strata/0.2.22/control",
+  "tokenizer": "/var/lib/mbip-strata/data/packs/inkling-2-mini-sq-20/tokenizer",
+  "model_name": "inkling-2-mini-sq-20",
+  "arch": "inkling2_loop",
+  "log": "/var/lib/mbip-strata/profile/mbip05-inkling.log",
+  "lib_dirs": [],
+  "port": 18081,
+  "drafting": "auto",
+  "parallel": 1,
+  "gpu": 0,
+  "gpus_asked": true,
+  "host": "127.0.0.1",
+  "args_written": [
+    "--native",
+    "/srv/ai-test/mbip-strata-models/inkling-sq20/Inkling-2-Mini-SQ-20.strata",
+    "--max-context",
+    "32768",
+    "--vram-experts-gb",
+    "14.66"
+  ],
+  "lazy_load": true
+}

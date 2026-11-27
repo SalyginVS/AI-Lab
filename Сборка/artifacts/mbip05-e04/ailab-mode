@@ -1,0 +1,102 @@
+#!/usr/bin/env bash
+# E04: one verified SSH master; no new model load while G0 is open.
+set -euo pipefail
+umask 077
+mode=${1:-}
+case "$mode" in
+ connect|status) [[ $# = 1 ]];;
+ flash|inkling|ollama|q27|q6) [[ $# = 1 || ( $# = 2 && $2 = --drained ) ]];;
+ *) echo 'Usage: ailab-mode connect|status|inkling|flash|q27|q6' >&2; exit 2;;
+esac
+base="${XDG_RUNTIME_DIR:?Login session required}/ailab-mbip05"
+mkdir -p -m 700 "$base"
+[[ -d $base && ! -L $base && -O $base && $(stat -c %a "$base") = 700 ]]
+exec 9>"$base/connect.lock"
+flock -x 9
+own="$base/llm.sock"
+ref="$HOME/.config/ailab-mbip05/master-path"
+opts=(-o StrictHostKeyChecking=yes -o UpdateHostKeys=no)
+forward=127.0.0.1:18081:127.0.0.1:18081
+master_pid(){
+  [[ -S $1 && -O $1 && ! -L $1 ]] || return 1
+  local out
+  out=$(ssh -S "$1" "${opts[@]}" -O check llm 2>&1) || return 1
+  [[ $out =~ Master[[:space:]]running[[:space:]]\(pid=([0-9]+)\) ]] || return 1
+  printf '%s\n' "${BASH_REMATCH[1]}"
+}
+sock=; pid=
+if [[ -e $ref ]]; then
+  [[ -f $ref && ! -L $ref && -O $ref && $(stat -c %a "$ref") = 600 ]] || { echo 'Untrusted master reference' >&2; exit 1; }
+  IFS= read -r adopted < "$ref"
+  if [[ $adopted = /* ]] && pid=$(master_pid "$adopted"); then sock=$adopted; fi
+fi
+if [[ -z $sock ]] && pid=$(master_pid "$own"); then sock=$own; fi
+listen=$(ss -Hltnp '( sport = :18081 )')
+if [[ -z $sock ]]; then
+  [[ -z $listen ]] || { echo 'Port 18081 owned by an unverified process; no tunnel created.' >&2; exit 1; }
+  [[ ! -e $own && ! -L $own ]] || { echo 'Stale managed socket: review before removal.' >&2; exit 1; }
+  [[ $mode = connect ]] || { echo 'No verified SSH master. Use ailab-mode connect in a terminal.' >&2; exit 1; }
+  ssh -S "$own" "${opts[@]}" -M -fN -o ExitOnForwardFailure=yes -o ServerAliveInterval=30 -o ServerAliveCountMax=3 -L "$forward" llm
+  sock=$own; pid=$(master_pid "$sock")
+  listen=$(ss -Hltnp '( sport = :18081 )')
+fi
+if [[ -z $listen ]]; then
+  [[ $mode = connect ]] || { echo 'Forward absent; use ailab-mode connect.' >&2; exit 1; }
+  ssh -S "$sock" "${opts[@]}" -O forward -L "$forward" llm
+  listen=$(ss -Hltnp '( sport = :18081 )')
+fi
+[[ -n $listen && $listen != *$'\n'* && $listen == *"127.0.0.1:18081 "* && $listen == *"pid=$pid,"* ]] || { echo 'Forward owner mismatch; no change made.' >&2; exit 1; }
+flock -u 9
+echo "SSH_FORWARD_READY pid=$pid"
+ssh_cmd=(ssh -S "$sock" "${opts[@]}" -o BatchMode=yes -o ConnectTimeout=5 llm)
+state=$("${ssh_cmd[@]}" /usr/local/sbin/mbip-backend status)
+printf '%s\n' "$state"
+active=$(python3 -c 'import json,sys
+s=sys.stdin.read().splitlines()
+u=json.loads(next(x[9:] for x in s if x.startswith("SERVICES ")))
+a={k:v["ActiveState"] for k,v in u.items()}
+if a["mbip-strata.service"]=="active" and all(a[k]=="inactive" for k in ("ollama.service","llm-gateway.service","rag-mcp.service")):
+ p=next(x.split()[1] for x in s if x.startswith("SELECTED_PROFILE "))
+ if p in ("flash","inkling") and "LOADED true" in s:print(p)
+ else:print("unready")
+elif a["mbip-strata.service"]=="inactive" and all(a[k]=="active" for k in ("ollama.service","llm-gateway.service","rag-mcp.service")):print("ollama")
+else:print("unready")' <<< "$state")
+case "$active" in
+ inkling|flash)
+   remote=$("${ssh_cmd[@]}" 'curl -fsS --max-time 5 http://127.0.0.1:18081/v1/status')
+   local_status=$(curl --noproxy '*' -fsS --max-time 5 http://127.0.0.1:18081/v1/status)
+   model=$(python3 -c 'import json,sys
+a,b=map(json.loads,sys.argv[1:]);keys=("model","started","loaded","context")
+assert all(a[k]==b[k] for k in keys) and a["loaded"] is True
+assert a["context"]["max_positions"]==262144
+assert a["model"] in ("inkling-2-mini-sq-20","qwen3.8-flash-next-ud-q6_k_xl")
+print(a["model"])' "$remote" "$local_status")
+   [[ ( $active = inkling && $model = inkling-2-mini-sq-20 ) || ( $active = flash && $model = qwen3.8-flash-next-ud-q6_k_xl ) ]]
+   echo "API_READY ailab-strata/$model"
+   ;;
+ ollama)
+   remote=$("${ssh_cmd[@]}" 'curl -fsS --max-time 5 http://127.0.0.1:11434/api/tags')
+   baseurl=$(python3 -c 'import json,pathlib,urllib.parse
+p=json.loads((pathlib.Path.home()/".pi/agent/models.json").read_text())["providers"]["ailab-ollama"]["baseUrl"]
+u=urllib.parse.urlsplit(p);assert u.scheme=="http" and u.port==11434 and u.path=="/v1" and not u.username and not u.password and not u.query and not u.fragment
+print(p[:-3])')
+   tags=$(curl --noproxy '*' -fsS --max-time 5 "$baseurl/api/tags")
+   python3 -c 'import json,sys
+def inventory(s):return {x["name"]:x["digest"] for x in json.loads(s)["models"]}
+a,b=map(inventory,sys.argv[1:]);assert a==b
+assert a["qwen3.8-27b-gsq-rco:iq3s-mtp-262k"].startswith("9842917e7505")
+assert a["qwen3.8-flash-next:125b-a6b-q6_K-ab-262k"].startswith("09b8aff72a79")
+print("OLLAMA_INVENTORY_READY (generation not tested)")' "$remote" "$tags"
+   ;;
+ *) echo 'Backend not ready; inspect status.' >&2; exit 1;;
+esac
+case "$mode" in
+ connect|status) exit 0;;
+ q27|q6) wanted=ollama;;
+ *) wanted=$mode;;
+esac
+if [[ $wanted != "$active" ]]; then
+  echo "BLOCKED: requested $wanted; current $active. G0 open; no backend/model load attempted." >&2
+  exit 3
+fi
+echo "SELECTION_READY $mode (readiness only; no inference)"

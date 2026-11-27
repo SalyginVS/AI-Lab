@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# All model/backend resolution goes through ailab-mode. Thinking comes from Pi settings.
+set -euo pipefail
+choice=${1:-}
+case "$choice" in inkling|flash|q27|q6|ollama|current) ;; *) echo 'Usage: ailab-pi inkling|flash|q27|q6|current [--check] [Pi arguments]' >&2; exit 2;; esac
+shift
+if [[ ${1:-} = --drained ]]; then shift; fi
+check=no
+if [[ ${1:-} = --check && $# = 1 ]]; then check=yes; shift; fi
+for arg in "$@"; do
+ case "$arg" in --model|--model=*|--provider|--provider=*|--models|--models=*) echo 'Conflicting selector argument' >&2; exit 2;; esac
+done
+if [[ $choice = current ]]; then model=$("$HOME/.local/bin/ailab-mode" current); else model=$("$HOME/.local/bin/ailab-mode" resolve "$choice"); fi
+if [[ $check = yes ]]; then printf 'PI_SELECTION %s\n' "$model"; exit 0; fi
+echo 'G0 open: no long or unapproved inference. Use --check for read-only readiness.' >&2
+exec "$HOME/.local/bin/pi" --offline --model "$model" "$@"

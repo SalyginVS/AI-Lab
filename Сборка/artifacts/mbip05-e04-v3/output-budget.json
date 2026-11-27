@@ -1,0 +1,32 @@
+{
+  "status": "E04_V3_INSTALLED_CLIENT_DELTA",
+  "contextWindow": 262144,
+  "provider": "ailab-strata",
+  "models": [
+    {
+      "id": "inkling-2-mini-sq-20",
+      "maxTokens": 262136,
+      "reserveTokens": 8192,
+      "keepRecentTokens": 20000,
+      "thinking": "max",
+      "source": "live /v1/models limit.output and meta.llamaswap.max_output_tokens"
+    },
+    {
+      "id": "qwen3.8-flash-next-ud-q6_k_xl",
+      "maxTokens": 262136,
+      "reserveTokens": 12288,
+      "keepRecentTokens": 20000,
+      "thinking": "high",
+      "source": "installed Strata output_cap, CTX_SLACK=8, prior actual context 262144, no shared cap file in profile directory"
+    }
+  ],
+  "piContextSafetyTokens": 4096,
+  "preserve": [
+    "context and maxTokens after budget correction",
+    "compaction settings",
+    "Ollama providers",
+    "server profiles and guards"
+  ],
+  "qualification": "Maximum advertised/configured output, not measured maximum generation. Later thinking defaults and maps in thinking-selection.json supersede E01-P/E03-C pilot defaults. Reconcile both deltas after historical deployment.",
+  "liveGeneration": "NOT_RUN"
+}

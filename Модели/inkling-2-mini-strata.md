@@ -1,0 +1,10 @@
+# Inkling 2 Mini — Strata native SQ-20
+
+Технический smoke 2026-11-27: API nonstream/SSE, reasoning, Pi CLI short/read/continuation и фактическое расширение Pi 0.0.9 в VS Code (read + vscode_get_editor_state + continuation) PASS. Штатная выгрузка, переход на Flash-Next и возврат PASS. Инженерное качество не оценивалось.
+
+- Model ID inkling-2-mini-sq-20, provider ailab-strata.
+- Pinned revision 04996a1e2c45009b6a04f2af126cb6bdb2ba3587, SQ-20 19346685952 B, SHA-256 0bbfd52344f0dd4779a7807b5f73554a812f24c035e6877b63cd0d499f7e1b97; tokenizer/template проверены. [Точные источники](../Сборка/artifacts/mbip05/sources/ink.json).
+- Отдельный подписанный shape engine inkling2, 0.1.69 CUDA13. SATA /srv/ai-test/mbip-strata-models/inkling-sq20. SQ-15 не скачивалась, необходимость снижения quant не выявлена.
+- Исторический pilot: text-only, parallel 1, context 32768, Pi output 8192, reserve/keep 8192/8192, low; drafting auto (effective off). E01: FP16 actual context 262144, 3072 VRAM experts, 8 GiB global host KV; 257105 prompt, decode 1 tok/s, отмена по SW thermal flag. E01 BLOCKED, extraction/agent/reuse не приняты. E01-P: первый offline-кандидат FP8 On / 262144 / expert cap 14.66 GiB / draft off; Исторический Pi maxTokens 4096; в E04 v3 установлен объявленный API максимум 262136, reserve 8192, keep 20000, старт max (0.99), native map none/minimal/low/medium/high/xhigh/max, mock wire PASS. E02-P mock PASS, live NOT_RUN; vision не испытан.
+- GPU free около 2658 MiB после полной загрузки; историческое наблюдение, не допуск охлаждения или boot acceptance.
+- Фактически загружен FP16 On, профиль drafting auto, effective --draft off. [Точный установленный профиль](../Сборка/artifacts/mbip05-e04-v3/inkling-installed-profile.json) не равен FP8-кандидату. Выбор только при отдельном допуске и дренировании; [инструкция](../Сборка/artifacts/mbip05-e04-v3/DAILY.md). [Runbook 55](../Сборка/55_Strata_и_переключение_backend.md).

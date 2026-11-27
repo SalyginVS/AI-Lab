@@ -1,5 +1,7 @@
 # Приёмочный набор RB-10
 
+Дополнение MBIP-05 E03-C (DRAFT): [E03-P](artifacts/mbip05/E03-P.md) и [client acceptance](artifacts/mbip05/client-acceptance/ACCEPTANCE.md) задают оставшиеся live tests. Принятые Flash API long/agent не повторять. Inkling E01 BLOCKED, live E02 NOT_RUN; G0 обязателен. Reserve F07 REVALIDATE по исходному evaluator, F04 KNOWN только OBS-10-01. Read-only boot readiness не равна postboot functional PASS. Baseline/evaluator не изменять. [E04 evidence](artifacts/mbip05-e04-v3/VERIFIED-STATE.md): 18 routing, 17 RPC и 2 TUI mock PASS; новая live генерация и полная смена backend NOT_RUN. Documentation PR отдельно от live acceptance.
+
 Дополнение MBIP: прежний T-FAST/T-MED и baselines неизменны. T-FAST выполнять в основном Ollama mode. Дополнительно [55](55_Strata_и_переключение_backend.md): проверка пакета и 10 локальных тестов, явный цикл обоих режимов, guards, освобождение VRAM/RAM, API/SSE, Pi reasoning/tool continuation, Ollama Q6/Q27/embedding после возврата. Живые результаты и границы: [MBIP](../Этапы/2026-11-26_MBIP/Результаты.md). Не объявлять reboot/clean rebuild или 32768 context PASS без испытания.
 
 Статус: ACCEPTED RB-10, 2026-10-17.

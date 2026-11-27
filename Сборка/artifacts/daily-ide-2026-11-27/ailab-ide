@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# VS Code Pi launcher: follow the user's last accepted model selection.
+set -euo pipefail
+if [[ $# = 1 && $1 = --version ]]; then exec "$HOME/.local/bin/pi" "$@"; fi
+state="$HOME/.config/ailab-mbip05/preferred-model"
+choice=current
+if [[ -f "$state" && ! -L "$state" && -O "$state" && $(stat -c %a "$state") = 600 ]]; then
+  IFS= read -r saved < "$state"
+  case "$saved" in inkling|flash|q27) choice=$saved;; esac
+fi
+exec "$HOME/.local/bin/ailab-pi" "$choice" "$@"

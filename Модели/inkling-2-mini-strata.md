@@ -1,5 +1,7 @@
 # Inkling 2 Mini — Strata native SQ-20
 
+**Новая эксплуатационная дельта 27.11.2026:** короткий Pi inference, tool read и возврат к этому runtime PASS. Актуальная работа описана в [runbook 56](../Сборка/56_VSCode_Pi_Три_модели_ежедневная_работа.md). Исторический G0/E01 long gate не завершён, thermal-риск сохраняется.
+
 Технический smoke 2026-11-27: API nonstream/SSE, reasoning, Pi CLI short/read/continuation и фактическое расширение Pi 0.0.9 в VS Code (read + vscode_get_editor_state + continuation) PASS. Штатная выгрузка, переход на Flash-Next и возврат PASS. Инженерное качество не оценивалось.
 
 - Model ID inkling-2-mini-sq-20, provider ailab-strata.

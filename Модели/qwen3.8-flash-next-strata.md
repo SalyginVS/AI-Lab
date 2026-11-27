@@ -1,5 +1,7 @@
 # Qwen3.8 Flash-Next 125B — Strata UD-Q6_K_XL
 
+**Новая эксплуатационная дельта 27.11.2026:** переключение на этот профиль и короткий Pi inference PASS. Актуальная работа описана в [runbook 56](../Сборка/56_VSCode_Pi_Три_модели_ежедневная_работа.md). Исторические результаты длинного API/agent сохраняются; thermal-риск не снят.
+
 Технический smoke 2026-11-27: загрузка, API nonstream/SSE, reasoning, Pi CLI short/read/continuation и фактическое расширение Pi 0.0.9 в VS Code (read + vscode_get_editor_state + continuation) PASS. Штатная выгрузка и обратный переход на Inkling PASS. Это новый backend и quant; инженерный допуск прежней Q6 Ollama (ADR-031) не переносится.
 
 - Model ID: qwen3.8-flash-next-ud-q6_k_xl; provider ailab-strata.

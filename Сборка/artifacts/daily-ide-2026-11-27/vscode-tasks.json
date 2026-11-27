@@ -1,0 +1,44 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "AI Lab: Select model",
+      "type": "shell",
+      "command": "/home/vladimir/.local/bin/ailab-select-model",
+      "args": [
+        "${input:aiLabModel}"
+      ],
+      "isBackground": false,
+      "presentation": {
+        "reveal": "always",
+        "echo": false,
+        "focus": true,
+        "panel": "dedicated",
+        "clear": true,
+        "showReuseMessage": false
+      },
+      "problemMatcher": []
+    }
+  ],
+  "inputs": [
+    {
+      "id": "aiLabModel",
+      "type": "pickString",
+      "description": "Choose AI Lab model for Pi / VS Code",
+      "options": [
+        {
+          "label": "Inkling 2 Mini SQ-20  |  Strata",
+          "value": "inkling"
+        },
+        {
+          "label": "Qwen 27B MTP  |  Ollama",
+          "value": "q27"
+        },
+        {
+          "label": "Flash-Next UD-Q6  |  Strata",
+          "value": "flash"
+        }
+      ]
+    }
+  ]
+}
